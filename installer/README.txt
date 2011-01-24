@@ -1,0 +1,1 @@
+The installer requires a copy of 7z.exe in order to be built.

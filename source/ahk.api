@@ -1,0 +1,996 @@
+#AllowSameLineComments \n(Only for .aut scripts) Allows comments on the same line.
+#ClipboardTimeout milliseconds\nChanges how long the script keeps trying to access the clipboard when the first attempt fails.
+#CommentFlag NewString
+#ErrorStdOut
+#EscapeChar NewChar
+#HotkeyInterval Value
+#HotkeyModifierTimeout milliseconds
+#Hotstring NewOptions
+#If [expression] \n[AutoHotkey_L] Makes subsequent hotkeys and hotstrings only function when the specified expression is true.
+#IfTimeout timeout \n[AutoHotkey_L] Sets the maximum time that may be spent evaluating a single #If expression.
+#IfWinActive [, WinTitle, WinText] \nMakes subsequent hotkeys and hotstrings only function when the specified window is active.
+#IfWinExist [, WinTitle, WinText] \nMakes subsequent hotkeys and hotstrings only function when the specified window exists.
+#IfWinNotActive [, WinTitle, WinText] \nMakes subsequent hotkeys and hotstrings only function when the specified window is not active.
+#IfWinNotExist [, WinTitle, WinText] \nMakes subsequent hotkeys and hotstrings only function when the specified window doesn't exist.
+#Include FileName \nCauses the script to behave as though the specified file's contents are present at this exact position.
+#IncludeAgain FileName \nCauses the script to behave as though the specified file's contents are present at this exact position.
+#InstallKeybdHook
+#InstallMouseHook
+#KeyHistory MaxEvents
+#LTrim On|Off
+#MaxHotkeysPerInterval Value
+#MaxMem ValueInMegabytes
+#MaxThreads Value
+#MaxThreadsBuffer On|Off
+#MaxThreadsPerHotkey Value
+#MenuMaskKey keyname \n[AutoHotkey_L] Changes which key is used to mask Win or Alt keyup events.
+#NoEnv
+#NoTrayIcon
+#Persistent
+#SingleInstance [force|ignore|off]
+#UseHook [On|Off]
+#WinActivateForce
+AutoTrim , On|Off
+BlockInput , On|Off|Send|Mouse|SendAndMouse|Default|MouseMove|MouseMoveOff
+break
+Click
+ClipWait [, SecondsToWait, 1]
+continue
+Control , Cmd [, Value, Control, WinTitle, WinText, ExcludeTitle, ExcludeText]
+ControlClick [, Control-or-Pos, WinTitle, WinText, WhichButton, ClickCount, Options, ExcludeTitle, ExcludeText]
+ControlFocus [, Control, WinTitle, WinText, ExcludeTitle, ExcludeText]
+ControlGet , OutputVar, Cmd [, Value, Control, WinTitle, WinText, ExcludeTitle, ExcludeText]
+ControlGetFocus , OutputVar [WinTitle, WinText, ExcludeTitle, ExcludeText]
+ControlGetPos [, X, Y, Width, Height, Control, WinTitle, WinText, ExcludeTitle, ExcludeText]
+ControlGetText , OutputVar [, Control, WinTitle, WinText, ExcludeTitle, ExcludeText]
+ControlMove , Control, X, Y, Width, Height [, WinTitle, WinText, ExcludeTitle, ExcludeText]
+ControlSend [, Control, Keys, WinTitle, WinText, ExcludeTitle, ExcludeText]
+ControlSendRaw [, Control, Keys, WinTitle, WinText, ExcludeTitle, ExcludeText]
+ControlSetText , Control, NewText [, WinTitle, WinText, ExcludeTitle, ExcludeText]
+CoordMode , ToolTip|Pixel|Mouse [, Screen|Relative]
+Critical [, Off]
+DetectHiddenText , On|Off
+DetectHiddenWindows , On|Off
+Drive , Sub-command [, Drive , Value]
+DriveGet , OutputVar, Cmd [, Value]
+DriveSpaceFree , OutputVar, C:\\
+Edit
+else
+EnvAdd , Var, Value [, TimeUnits]
+EnvDiv , Var, Value
+EnvGet , OutputVar, EnvVarName
+EnvMult , Var, Value
+EnvSet , EnvVar, Value
+EnvSub , Var, Value [, TimeUnits]
+EnvUpdate
+Exit [, ExitCode]
+ExitApp [, ExitCode]
+FileAppend [, Text, Filename, Encoding] \n(The encoding parameter is AutoHotkeyU-exclusive)
+FileCopy , Source, Dest [, Flag (1 = overwrite)]
+FileCopyDir , Source, Dest [, Flag]
+FileCreateDir , Path
+FileCreateShortcut , Target, C:\\My Shortcut.lnk [, WorkingDir, Args, Description, IconFile, ShortcutKey, IconNumber, RunState]
+FileDelete , FilePattern
+FileGetAttrib , OutputVar(RASHNDOCT) [, Filename]
+FileGetShortcut , LinkFile [, OutTarget, OutDir, OutArgs, OutDescription, OutIcon, OutIconNum, OutRunState]
+FileGetSize , OutputVar [, Filename, Units]
+FileGetTime , OutputVar [, Filename, WhichTime (M, C, or A -- default is M)]
+FileGetVersion , OutputVar [, Filename]
+FileInstall , Source, Dest [, Flag (1 = overwrite)]
+FileMove , Source, Dest [, Flag (1 = overwrite)]
+FileMoveDir , Source, Dest [, Flag (2 = overwrite)]
+FileRead , OutputVar, Filename
+FileReadLine , OutputVar, Filename, LineNum
+FileRecycle , FilePattern
+FileRecycleEmpty [, C:\\]
+FileRemoveDir , Path [, Recurse? (1 = yes)]
+FileSelectFile , OutputVar [, Options, RootDir[\\DefaultFilename], Prompt, Filter]
+FileSelectFolder , OutputVar [, *StartingFolder, Options, Prompt]
+FileSetAttrib , Attributes(+-^RASHNOT) [, FilePattern, OperateOnFolders?, Recurse?]
+FileSetTime [, YYYYMMDDHH24MISS, FilePattern, WhichTime (M|C|A), OperateOnFolders?, Recurse?]
+for key [,val] in obj \n[AutoHotkey_L]
+FormatTime , OutputVar [, YYYYMMDDHH24MISS, Format]
+GetKeyState , OutputVar, WhichKey [, Mode (P|T)]
+gosub , Label\nJumps to the specified label and continues execution until Return is encountered.
+goto , Label\nJumps to the specified label and continues execution.
+GroupActivate , GroupName [, R]
+GroupAdd , GroupName, WinTitle [, WinText, Label, ExcludeTitle, ExcludeText]
+GroupClose , GroupName [, A|R]
+GroupDeactivate , GroupName [, R]
+Gui , sub-command [, Param2, Param3, Param4]
+GuiControl , Sub-command, ControlID [, Param3]
+GuiControlGet , OutputVar [, Sub-command, ControlID, Param4]
+Hotkey , KeyName [, Label, Options]
+if Var = Value\n{\n	commands\n}else{\n	commands\n}\nSpecifies the command(s) to perform if Var = Value (can be for other operators).
+if (Expression){\n	commands\n}else{\n	commands\n}\nSpecifies the command(s) to perform if an expression evaluates to TRUE.
+if Var [not] between Low and High
+if Var [not] contains value1,value2,...
+if Var [not] in value1,value2,...
+if Var is [not] integer|float|number|digit|xdigit|alpha|upper|lower|alnum|space|time
+IfEqual , var, value
+IfExist , File|Dir|Pattern
+IfGreater , var, value
+IfGreaterOrEqual , var, value
+IfInString , Var, SearchString
+IfLess , var, value
+IfLessOrEqual , var, value
+IfMsgBox , Yes|No|OK|Cancel|Abort|Ignore|Retry|Timeout
+IfNotEqual , var, value
+IfNotExist , File|Dir|Pattern
+IfNotInString , Var, SearchString
+IfWinActive [, WinTitle, WinText, ExcludeTitle, ExcludeText]
+IfWinExist [, WinTitle, WinText, ExcludeTitle, ExcludeText]
+IfWinNotActive [, WinTitle, WinText, ExcludeTitle, ExcludeText]
+IfWinNotExist [, WinTitle, WinText, ExcludeTitle, ExcludeText]
+ImageSearch , OutputVarX, OutputVarY, X1, Y1, X2, Y2, ImageFile
+IniDelete , Filename, Section [, Key]
+IniRead , OutputVar, Filename [, Section, Key, Default]\n(The Section and Key parameters are only optional on AutoHotkey_L)
+IniWrite , Value, Filename, Section [, Key]\n(The Key parameter is only optional on AutoHotkey_L)
+Input [, OutputVar, Options, EndKeys, MatchList]
+InputBox , OutputVar [, Title, Prompt, HIDE, Width, Height, X, Y, Font, Timeout, Default]
+KeyHistory
+KeyWait , KeyName [, Options]
+ListHotkeys
+ListLines
+ListVars
+Loop [, Count]\nLoop, FilePattern [, IncludeFolders?, Recurse?]\nLoop, Parse, InputVar [, Delimiters|CSV, OmitChars]\nLoop, Read, InputFile [, OutputFile]\nLoop, HKLM|HKU|HKCU|HKCR|HKCC [, Key, IncludeSubkeys?, Recurse?]\n{\n	commands\n}\nPerforms a repetition/file/file reading/parsing/registry loop.
+Menu , MenuName, Cmd [, P3, P4, P5]
+MouseClick , WhichButton [, X, Y, ClickCount, Speed, D|U, R]
+MouseClickDrag , WhichButton, X1, Y1, X2, Y2 [, Speed, R]
+MouseGetPos [, OutputVarX, OutputVarY, OutputVarWin, OutputVarControl, 1|2|3]
+MouseMove , X, Y [, Speed, R]
+MsgBox [, Options, Title, Text, Timeout]\nDisplays the specified text in a small window containing one or more buttons  (such as Yes and No).
+OnExit [, Label]
+OutputDebug , Text
+Pause [, On|Off|Toggle, OperateOnUnderlyingThread?]
+PixelGetColor , OutputVar, X, Y [, Alt|Slow|RGB]
+PixelSearch , OutputVarX, OutputVarY, X1, Y1, X2, Y2, ColorID [, Variation, Fast|RGB]
+PostMessage , Msg [, wParam, lParam, Control, WinTitle, WinText, ExcludeTitle, ExcludeText]
+Process , Cmd, PID-or-Name [, Param3]
+Progress , Param1 [, SubText, MainText, WinTitle, FontName]
+Random , OutputVar [, Min, Max]
+RegDelete , HKLM|HKU|HKCU|HKCR|HKCC, SubKey [, ValueName]
+RegRead , OutputVar, HKLM|HKU|HKCU|HKCR|HKCC, SubKey [, ValueName]
+RegWrite , REG_SZ|REG_EXPAND_SZ|REG_MULTI_SZ|REG_DWORD|REG_BINARY, HKLM|HKU|HKCU|HKCR|HKCC, SubKey [, ValueName, Value]
+Reload
+return [, Expression]
+Run , Target [, WorkingDir, Max|Min|Hide|UseErrorLevel, OutputVarPID]
+RunAs [, User, Password, Domain] 
+RunWait , Target [, WorkingDir, Max|Min|Hide|UseErrorLevel, OutputVarPID]
+Send , Keys
+SendEvent , Keys
+SendInput , Keys
+SendMessage , Msg [, wParam, lParam, Control, WinTitle, WinText, ExcludeTitle, ExcludeText]
+SendMode , Event|Play|Input|InputThenPlay
+SendPlay , Keys
+SendRaw , Keys
+SetBatchLines , -1 | 20ms | LineCount
+SetCapsLockState , On|Off|AlwaysOn|AlwaysOff
+SetControlDelay , Delay
+SetDefaultMouseSpeed , Speed
+SetEnv , Var, Value
+SetFormat , float|integer, TotalWidth.DecimalPlaces|hex|d
+SetKeyDelay [, Delay, PressDuration]
+SetMouseDelay , Delay
+SetNumLockState , On|Off|AlwaysOn|AlwaysOff
+SetScrollLockState , On|Off|AlwaysOn|AlwaysOff
+SetStoreCapslockMode , On|Off
+SetTimer , Label [, Period|On|Off]
+SetTitleMatchMode , Fast|Slow|RegEx|1|2|3
+SetWinDelay , Delay
+SetWorkingDir , DirName
+Shutdown , Code
+Sleep , Delay
+Sort , VarName [, Options]
+SoundBeep [, Frequency, Duration]
+SoundGet , OutputVar [, ComponentType, ControlType, DeviceNumber]
+SoundGetWaveVolume , OutputVar [, DeviceNumber]
+SoundPlay , Filename [, wait]
+SoundSet , NewSetting [, ComponentType, ControlType, DeviceNumber]
+SoundSetWaveVolume , Percent [, DeviceNumber]
+SplashImage [, ImageFile, Options, SubText, MainText, WinTitle, FontName]
+SplashTextOff
+SplashTextOn [, Width, Height, Title, Text]
+SplitPath , InputVar [, OutFileName, OutDir, OutExtension, OutNameNoExt, OutDrive]
+StatusBarGetText , OutputVar [, Part#, WinTitle, WinText, ExcludeTitle, ExcludeText]
+StatusBarWait [, BarText, Seconds, Part#, WinTitle, WinText, Interval, ExcludeTitle, ExcludeText]
+StringCaseSense , On|Off|Locale
+StringGetPos , OutputVar, InputVar, SearchText [, L#|R#, Offset]
+StringLeft , OutputVar, InputVar, Count
+StringLen , OutputVar, InputVar
+StringLower , OutputVar, InputVar [, T]
+StringMid , OutputVar, InputVar, StartChar [, Count, L]
+StringReplace , OutputVar, InputVar, SearchText [, ReplaceText, All]
+StringRight , OutputVar, InputVar, Count
+StringSplit , OutputArray, InputVar [, Delimiters, OmitChars]
+StringTrimLeft , OutputVar, InputVar, Count
+StringTrimRight , OutputVar, InputVar, Count
+StringUpper , OutputVar, InputVar [, T]
+Suspend [, On|Off|Toggle|Permit]
+SysGet , OutputVar, Sub-command [, Param3]
+Thread , Setting, P2 [, P3]
+ToolTip [, Text, X, Y, WhichToolTip]
+Transform , OutputVar, Cmd, Value1 [, Value2]
+TrayTip [, Title, Text, Seconds, Options]
+until Expression \n[AutoHotkey_L]
+URLDownloadToFile , URL, Filename
+while Expression
+WinActivate [, WinTitle, WinText, ExcludeTitle, ExcludeText]
+WinActivateBottom [, WinTitle, WinText, ExcludeTitle, ExcludeText]
+WinClose [, WinTitle, WinText, SecondsToWait, ExcludeTitle, ExcludeText]
+WinGet , OutputVar [, Cmd, WinTitle, WinText, ExcludeTitle, ExcludeText]
+WinGetActiveStats , Title, Width, Height, X, Y
+WinGetActiveTitle , OutputVar
+WinGetClass , OutputVar [, WinTitle, WinText, ExcludeTitle, ExcludeText]
+WinGetPos [, X, Y, Width, Height, WinTitle, WinText, ExcludeTitle, ExcludeText]
+WinGetText , OutputVar [, WinTitle, WinText, ExcludeTitle, ExcludeText]
+WinGetTitle , OutputVar [, WinTitle, WinText, ExcludeTitle, ExcludeText]
+WinHide [, WinTitle, WinText, ExcludeTitle, ExcludeText]
+WinKill [, WinTitle, WinText, SecondsToWait, ExcludeTitle, ExcludeText]
+WinMaximize [, WinTitle, WinText, ExcludeTitle, ExcludeText]
+WinMenuSelectItem , WinTitle, WinText, Menu [, SubMenu1, SubMenu2, SubMenu3, SubMenu4, SubMenu5, SubMenu6, ExcludeTitle, ExcludeText]
+WinMinimize [, WinTitle, WinText, ExcludeTitle, ExcludeText]
+WinMinimizeAll
+WinMinimizeAllUndo
+WinMove , WinTitle, WinText, X, Y [, Width, Height, ExcludeTitle, ExcludeText]
+WinRestore [, WinTitle, WinText, ExcludeTitle, ExcludeText]
+WinSet , AlwaysOnTop|Trans, On|Off|Toggle|Value(0-255) [, WinTitle, WinText, ExcludeTitle, ExcludeText]
+WinSetTitle , WinTitle, WinText, NewTitle [, ExcludeTitle, ExcludeText]
+WinShow [, WinTitle, WinText, ExcludeTitle, ExcludeText]
+WinWait , WinTitle, WinText, Seconds [, ExcludeTitle, ExcludeText]
+WinWaitActive [, WinTitle, WinText, Seconds, ExcludeTitle, ExcludeText]
+WinWaitClose , WinTitle, WinText, Seconds [, ExcludeTitle, ExcludeText]
+WinWaitNotActive [, WinTitle, WinText, Seconds, ExcludeTitle, ExcludeText]
+
+Abs (Number)
+ACos (Number)
+Asc (String)
+ASin (Number)
+ATan (Number)
+Ceil (Number)
+Chr (Number)
+Cos (Number)
+DllCall ("[DllFile\\]Function" [, Type1, Arg1, Type2, Arg2, ..., "Cdecl ReturnType"])
+Exp (Number)
+FileExist ("FilePattern")
+Floor (Number)
+GetKeyState (KeyName [, "P" or "T"])
+IL_Add (ImageListID, Filename [, IconNumber, ResizeNonIcon?])
+IL_Create ([InitialCount, GrowCount, LargeIcons?])
+IL_Destroy (ImageListID)
+InStr (Haystack, Needle [, CaseSensitive?, StartingPos, Occurrence])\n(The Occurrence parameter only exists in AutoHotkey_L)
+IsFunc (FunctionName)
+IsLabel (LabelName)
+Ln (Number)
+Log (Number)
+LV_Add ([Options, Col1, Col2, ...])
+LV_Delete ([RowNumber])
+LV_DeleteCol (ColumnNumber)
+LV_GetCount (["S"])
+LV_GetNext ([StartingRowNumber, "C|F"])
+LV_GetText (OutputVar, RowNumber [, ColumnNumber])
+LV_Insert (RowNumber [, Options, Col1, Col2, ...])
+LV_InsertCol (ColumnNumber [, Options, ColumnTitle])
+LV_Modify (RowNumber, Options [, NewCol1, NewCol2, ...])
+LV_ModifyCol ([ColumnNumber, Options, ColumnTitle])
+LV_SetImageList (ImageListID [, 0|1|2])
+Mod (Dividend, Divisor)
+NumGet (VarOrAddress [, Offset = 0] [, Type = "UPtr"])\n(When Type is specified the Offset parameter is only optional in AutoHotkey_L)
+NumPut (Number, VarOrAddress [, Offset = 0] [, Type = "UPtr"])\n(When Type is specified the Offset parameter is only optional in AutoHotkey_L)
+OnMessage (MsgNumber [, "FunctionName"])
+RegExMatch (Haystack, NeedleRegEx [, UnquotedOutputVar = "", StartingPos = 1])
+RegExReplace (Haystack, NeedleRegEx [, Replacement = "", OutputVarCount = "", Limit = -1, StartingPos = 1])
+RegisterCallback ("FunctionName" [, Options = "", ParamCount = FormalCount, EventInfo = Address])
+Round (Number [, Places])
+SB_SetIcon (Filename [, IconNumber, PartNumber])
+SB_SetParts ([Width1, Width2, ... Width255])
+SB_SetText (NewText [, PartNumber, Style])
+Sin (Number)
+Sqrt (Number)
+StrLen (String)
+SubStr (String, StartingPos [, Length])
+Tan (Number)
+TV_Add (Name, [ParentItemID, Options])
+TV_Delete ([ItemID])
+TV_GetChild (ParentItemID)
+TV_GetCount ()
+TV_GetNext ([ItemID, "Checked | Full"])
+TV_Get (ItemID, "Expand | Check | Bold")
+TV_GetParent (ItemID)
+TV_GetPrev (ItemID)
+TV_GetSelection ()
+TV_GetText (OutputVar, ItemID)
+TV_Modify (ItemID [, Options, NewName])
+VarSetCapacity (Var [, RequestedCapacity, FillByte])
+WinActive ("WinTitle" [, "WinText", "ExcludeTitle", "ExcludeText"])
+WinExist ("WinTitle" [, "WinText", "ExcludeTitle", "ExcludeText"])
+
+Trim (string [, omitchars = " `t"]) \n[AutoHotkey_L] Trims characters from the beginning and end of a string.
+LTrim (string [, omitchars = " `t"]) \n[AutoHotkey_L] Trims characters from the beginning of a string.
+RTrim (string [, omitchars = " `t"]) \n[AutoHotkey_L] Trims characters from the end of a string.
+
+FileEncoding [, CPnnn|UTF-8/16[-RAW] ] \n[AutoHotkey_L] Sets the default encoding for FileRead, FileReadLine, Loop Read, FileAppend, and FileOpen.
+
+FileOpen (file, mode[, encoding]) \n[AutoHotkey_L] Opens a file and returns a new file object.
+StrGet (address [, max][, encoding]) \n[AutoHotkey_L] Retrieves the null-terminated string at the specified address.
+StrPut (string [, encoding]) \n[AutoHotkey_L] Retrieves the amount of characters (not bytes) that a string copy requires.
+StrPut (string, address [, max][, encoding]) \n[AutoHotkey_L] Copies a string to the specified location.
+
+Object ([key, value, [key2, value2...]]) \n[AutoHotkey_L] Creates a scriptable object which is also an associative array.
+Object (obj) \n[AutoHotkey_L] Retrieves an interface pointer from an object reference or vice versa.
+IsObject (param) \n[AutoHotkey_L] Tests if the parameter is an object.
+ObjInsert (obj, index, values...) \n[AutoHotkey_L]
+ObjInsert (value) \n[AutoHotkey_L]
+ObjInsert (key, value) \n[AutoHotkey_L]
+_Insert (index, values...) \n[AutoHotkey_L] ??
+_Insert (value) \n[AutoHotkey_L]
+_Insert (key, value) \n[AutoHotkey_L]
+ObjRemove (obj, key) \n[AutoHotkey_L]
+ObjRemove (obj, first, last) \n[AutoHotkey_L]
+_Remove (key) \n[AutoHotkey_L]
+_Remove (first, last) \n[AutoHotkey_L]
+ObjMinIndex (obj) \n[AutoHotkey_L]
+_MinIndex () \n[AutoHotkey_L]
+ObjMaxIndex (obj) \n[AutoHotkey_L]
+_MaxIndex () \n[AutoHotkey_L]
+ObjSetCapacity (obj, maxitems) \n[AutoHotkey_L]
+ObjSetCapacity (obj, key, bytesize) \n[AutoHotkey_L]
+_SetCapacity (maxitems) \n[AutoHotkey_L]
+_SetCapacity (key, bytesize) \n[AutoHotkey_L]
+ObjGetCapacity (obj[, key]) \n[AutoHotkey_L]
+_GetCapacity ([key]) \n[AutoHotkey_L]
+ObjGetAddress (obj, key) \n[AutoHotkey_L]
+_GetAddress (key) \n[AutoHotkey_L]
+ObjNewEnum (obj) \n[AutoHotkey_L]
+_NewEnum () \n[AutoHotkey_L]
+ObjAddRef (obj) \n[AutoHotkey_L]
+_AddRef () \n[AutoHotkey_L]
+ObjRelease (obj) \n[AutoHotkey_L]
+_Release () \n[AutoHotkey_L]
+ObjClone (obj) \n[AutoHotkey_L]
+_Clone () \n[AutoHotkey_L]
+
+ComObjCreate (ProgIdOrCLSID) \n[AutoHotkey_L] Creates a COM object.
+ComObjGet (name) \n[AutoHotkey_L] Returns a reference to an object provided by a COM component.
+ComObjConnect (obj [, prefix])  \n[AutoHotkey_L] Listens to events from a ComObject (omit prefix to stop listening).
+ComObjError ([Enable])\nEnables or disables notification of COM errors. If Enable is omitted, the current setting is returned.
+ComObjActive (ProgIdOrCLSID) \n[AutoHotkey_L] Retrieves a running object that has been registered with OLE.
+ComObjEnwrap (pdisp) \n[AutoHotkey_L] Wraps a raw IDispatch pointer in a usable object.
+ComObjUnwrap (obj) \n[AutoHotkey_L] Unwraps a raw IDispatch pointer in a usable object.
+ComObjParameter (vt, val [, flags]) \n[AutoHotkey_L] Packs type and value information in a single parameter.
+ComObjType (obj [, "Name"/"IID"]) \n[AutoHotkey_L] Retrieves type information for a COM object.
+ComObjValue (obj) \n[AutoHotkey_L] Retrieves the raw 64-bit signed integer stored in a ComObject wrapper.
+ComObjMissing () \n[AutoHotkey_L] Creates an object for use in place of an optional parameter's default value when calling a COM object.
+ComObjArray (VarType, Count1 [, Count2, ... Count8]) \n[AutoHotkey_L] Creates a SAFEARRAY for use with COM.
+
+
+Shift
+LShift
+RShift
+Alt
+LAlt
+RAlt
+Control
+LControl
+RControl
+Ctrl
+LCtrl
+RCtrl
+LWin
+RWin
+AppsKey
+
+AltDown
+AltUp
+ShiftDown
+ShiftUp
+CtrlDown
+CtrlUp
+LWinDown
+LWinUp
+RWinDown
+RWinUp
+
+LButton
+RButton
+MButton
+WheelUp
+WheelDown
+WheelLeft
+WheelRight
+XButton1
+XButton2
+
+Joy1
+Joy2
+Joy3
+Joy4
+Joy5
+Joy6
+Joy7
+Joy8
+Joy9
+Joy10
+Joy11
+Joy12
+Joy13
+Joy14
+Joy15
+Joy16
+Joy17
+Joy18
+Joy19
+Joy20
+Joy21
+Joy22
+Joy23
+Joy24
+Joy25
+Joy26
+Joy27
+Joy28
+Joy29
+Joy30
+Joy31
+Joy32
+JoyX
+JoyY
+JoyZ
+JoyR
+JoyU
+JoyV
+JoyPOV
+JoyName
+JoyButtons
+JoyAxes
+JoyInfo
+
+Space
+Tab
+Enter
+Escape
+Esc
+BackSpace
+BS
+Delete
+Del
+Insert
+Ins
+PGUP
+PGDN
+Home
+End
+Up
+Down
+Left
+Right
+
+PrintScreen
+CtrlBreak
+Pause
+ScrollLock
+CapsLock
+NumLock
+
+Numpad0
+Numpad1
+Numpad2
+Numpad3
+Numpad4
+Numpad5
+Numpad6
+Numpad7
+Numpad8
+Numpad9
+NumpadMult
+NumpadAdd
+NumpadSub
+NumpadDiv
+NumpadDot
+NumpadDel
+NumpadIns
+NumpadClear
+NumpadUp
+NumpadDown
+NumpadLeft
+NumpadRight
+NumpadHome
+NumpadEnd
+NumpadPgup
+NumpadPgdn
+NumpadEnter
+
+F1
+F2
+F3
+F4
+F5
+F6
+F7
+F8
+F9
+F10
+F11
+F12
+F13
+F14
+F15
+F16
+F17
+F18
+F19
+F20
+F21
+F22
+F23
+F24
+
+Browser_Back
+Browser_Forward
+Browser_Refresh
+Browser_Stop
+Browser_Search
+Browser_Favorites
+Browser_Home
+Volume_Mute
+Volume_Down
+Volume_Up
+Media_Next
+Media_Prev
+Media_Stop
+Media_Play_Pause
+Launch_Mail
+Launch_Media
+Launch_App1
+Launch_App2
+
+Pixel
+Mouse
+Screen
+Relative
+RGB
+
+LTrim
+RTrim
+Join
+
+Low
+BelowNormal
+Normal
+AboveNormal
+High
+Realtime
+
+ahk_id
+ahk_pid
+ahk_class
+ahk_group
+
+between
+contains
+in
+ss
+Integer
+Float
+IntegerFast
+FloatFast
+number
+digit
+xdigit
+alpha
+upper
+lower
+alnum
+time
+date
+
+not
+or
+and
+
+AlwaysOnTop
+Topmost
+Top
+Bottom
+Transparent
+TransColor
+Redraw
+Region
+ID
+IDLast
+ProcessName
+MinMax
+ControlList
+Count
+List
+Capacity
+StatusCD
+Eject
+Lock
+Unlock
+Label
+FileSystem
+Label
+SetLabel
+Serial
+Type
+Status
+
+static
+global
+local
+ByRef
+
+Seconds
+Minutes
+Hours
+Days
+
+Read
+Parse
+
+Logoff
+Close
+Error
+Single
+
+Tray
+Add
+Rename
+Check
+UnCheck
+ToggleCheck
+Enable
+Disable
+ToggleEnable
+Default
+NoDefault
+Standard
+NoStandard
+Color
+Delete
+DeleteAll
+Icon
+NoIcon
+Tip
+Click
+Show
+MainWindow
+NoMainWindow
+UseErrorLevel
+
+Text
+Picture
+Pic
+GroupBox
+Button
+Checkbox
+Radio
+DropDownList
+DDL
+ComboBox
+ListBox
+ListView
+DateTime
+MonthCal
+Slider
+StatusBar
+Tab
+Tab2
+TreeView
+UpDown
+
+IconSmall
+Tile
+Report
+SortDesc
+NoSort
+NoSortHdr
+Grid
+Hdr
+AutoSize
+Range
+
+xm
+ym
+ys
+xs
+xp
+yp
+
+Font
+Resize
+Owner
+Submit
+NoHide
+Minimize
+Maximize
+Restore
+NoActivate
+NA
+Cancel
+Destroy
+Center
+
+Margin
+MaxSize
+MinSize
+OwnDialogs
+GuiEscape
+GuiClose
+GuiSize
+GuiContextMenu
+GuiDropFiles
+
+TabStop
+Section
+AltSubmit
+Wrap
+HScroll
+VScroll
+Border
+Top
+Bottom
+Buttons
+Expand
+First
+ImageList
+Lines
+WantCtrlA
+WantF2
+Vis
+VisFirst
+Number
+Uppercase
+Lowercase
+Limit
+Password
+Multi
+WantReturn
+Group
+Background
+bold
+italic
+strike
+underline
+norm
+BackgroundTrans
+Theme
+Caption
+Delimiter
+MinimizeBox
+MaximizeBox
+SysMenu
+ToolWindow
+Flash
+Style
+ExStyle
+Check3
+Checked
+CheckedGray
+ReadOnly
+Password
+Hidden
+Left
+Right
+Center
+NoTab
+Section
+Move
+Focus
+Hide
+Choose
+ChooseString
+Text
+Pos
+Enabled
+Disabled
+Visible
+LastFound
+LastFoundExist
+
+AltTab
+ShiftAltTab
+AltTabMenu
+AltTabAndMenu
+AltTabMenuDismiss
+
+NoTimers
+Interrupt
+Priority
+WaitClose
+Wait
+Exist
+Close
+
+Blind
+Raw
+AltDown
+AltUp
+ShiftDown
+ShiftUp
+CtrlDown
+CtrlUp
+LWinDown
+LWinUp
+LWinDown
+RWinUp
+
+Unicode
+ToCodePage
+FromCodePage
+Deref
+Pow
+BitNot
+BitAnd
+BitOr
+BitXOr
+BitShiftLeft
+BitShiftRight
+
+Yes
+No
+Ok
+Cancel
+Abort
+Retry
+Ignore
+TryAgain
+
+On
+Off
+All
+
+HKEY_LOCAL_MACHINE
+HKEY_USERS
+HKEY_CURRENT_USER
+HKEY_CLASSES_ROOT
+HKEY_CURRENT_CONFIG
+HKLM
+HKU
+HKCU
+HKCR
+HKCC
+
+REG_SZ
+REG_EXPAND_SZ
+REG_MULTI_SZ
+REG_DWORD
+REG_BINARY
+
+A_AhkPath
+A_AhkVersion
+A_AppData
+A_AppDataCommon
+A_AutoTrim
+A_BatchLines
+A_CaretX
+A_CaretY
+A_ComputerName
+A_ControlDelay
+A_Cursor
+A_DD
+A_DDD
+A_DDDD
+A_DefaultMouseSpeed
+A_Desktop
+A_DesktopCommon
+A_DetectHiddenText
+A_DetectHiddenWindows
+A_EndChar
+A_EventInfo
+A_ExitReason
+A_FormatFloat
+A_FormatInteger
+A_Gui
+A_GuiEvent
+A_GuiControl
+A_GuiControlEvent
+A_GuiHeight
+A_GuiWidth
+A_GuiX
+A_GuiY
+A_Hour
+A_IconFile
+A_IconHidden
+A_IconNumber
+A_IconTip
+A_Index
+A_IPAddress1
+A_IPAddress2
+A_IPAddress3
+A_IPAddress4
+A_IsAdmin
+A_IsCompiled
+A_IsCritical
+A_IsPaused
+A_IsSuspended
+A_IsUnicode
+A_KeyDelay
+A_Language
+A_LastError
+A_LineFile
+A_LineNumber
+A_LoopField
+A_LoopFileAttrib
+A_LoopFileDir
+A_LoopFileExt
+A_LoopFileFullPath
+A_LoopFileLongPath
+A_LoopFileName
+A_LoopFileShortName
+A_LoopFileShortPath
+A_LoopFileSize
+A_LoopFileSizeKB
+A_LoopFileSizeMB
+A_LoopFileTimeAccessed
+A_LoopFileTimeCreated
+A_LoopFileTimeModified
+A_LoopReadLine
+A_LoopRegKey
+A_LoopRegName
+A_LoopRegSubkey
+A_LoopRegTimeModified
+A_LoopRegType
+A_MDAY
+A_Min
+A_MM
+A_MMM
+A_MMMM
+A_Mon
+A_MouseDelay
+A_MSec
+A_MyDocuments
+A_Now
+A_NowUTC
+A_NumBatchLines
+A_OSType
+A_OSVersion
+A_PriorHotkey
+A_ProgramFiles
+A_Programs
+A_ProgramsCommon
+A_PtrSize
+A_ScreenHeight
+A_ScreenWidth
+A_ScriptDir
+A_ScriptFullPath
+A_ScriptName
+A_Sec
+A_Space
+A_StartMenu
+A_StartMenuCommon
+A_Startup
+A_StartupCommon
+A_StringCaseSense
+A_Tab
+A_Temp
+A_ThisFunc
+A_ThisHotkey
+A_ThisLabel
+A_ThisMenu
+A_ThisMenuItem
+A_ThisMenuItemPos
+A_TickCount
+A_TimeIdle
+A_TimeIdlePhysical
+A_TimeSincePriorHotkey
+A_TimeSinceThisHotkey
+A_TitleMatchMode
+A_TitleMatchModeSpeed
+A_UserName
+A_WDay
+A_WinDelay
+A_WinDir
+A_WorkingDir
+A_YDay
+A_YEAR
+A_YWeek
+A_YYYY
+Clipboard
+ClipboardAll
+ComSpec
+ErrorLevel
+ProgramFiles
+true
+false

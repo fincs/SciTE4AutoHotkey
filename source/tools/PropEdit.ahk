@@ -28,7 +28,7 @@ if !scite
 	ExitApp
 }
 
-UserPropsFile = %LocalSciTEPath%\SciTEUser.properties
+UserPropsFile = %LocalSciTEPath%\_config.properties
 
 IfNotExist, %UserPropsFile%
 {
@@ -39,24 +39,40 @@ IfNotExist, %UserPropsFile%
 FileEncoding, UTF-8
 FileRead, UserProps, %UserPropsFile%
 
-p_style  := FindPropOrDie("import Styles\\(.*)\.style", "style")
-p_locale := FindPropOrDie("locale\.properties=locales\\(.*)\.locale\.properties", "locale")
-p_backup := FindPropOrDie("make\.backup=([01])", "backup")
+cplist_v := "0|65001|932|936|949|950|1361"
+cplist_n := "System default|UTF-8|Shift-JIS|Chinese GBK|Korean Wansung|Chinese Big5|Korean Johab"
+
+p_style  := FindProp("import Styles\\(.*)\.style", "Classic")
+p_locale := FindProp("locale\.properties=locales\\(.*)\.locale\.properties", "English")
+p_encoding := FindProp("code\.page=(" cplist_v ")", 0)
+p_backup := FindProp("make\.backup=([01])", 1)
+p_savepos := FindProp("save\.position=([01])", 1)
 
 org_locale := p_locale
 
 stylelist := CountStylesAndChoose(ch1)
 localelist := CountLocalesAndChoose(ch2)
+p_encoding := FindInList(cplist_v, p_encoding)
 
 Gui, +ToolWindow +AlwaysOnTop
-Gui, Add, Text, x12 y13 w80 h20 R10 +Right, Language:
-Gui, Add, DropDownList, x102 y10 w100 h20 R10 Choose%ch2% vp_locale, %localelist%
-Gui, Add, Text, x12 y43 w80 h20 +Right, Style:
-Gui, Add, DropDownList, x102 y40 w100 h20 R10 Choose%ch1% vp_style, %stylelist%
-Gui, Add, Text, x12 y72 w80 h20 +Right, Auto-backups:
-Gui, Add, CheckBox, x102 y70 w15 h20 Checked%p_backup% vp_backup
-Gui, Add, Button, x72 y100 w70 h20 gUpdate, Update
-Gui, Show, w211 h129, SciTE settings
+
+Gui, Add, Text, Section +Right w70, Language:
+Gui, Add, DDL, ys R10 Choose%ch2% vp_locale, %localelist%
+
+Gui, Add, Text, xs Section +Right w70, Style:
+Gui, Add, DDL, ys Choose%ch1% vp_style, %stylelist%
+
+Gui, Add, Text, xs Section +Right w70, File codepage:
+Gui, Add, DDL, ys +AltSubmit Choose%p_encoding% vp_encoding, %cplist_n%
+
+Gui, Add, Text, xs Section +Right w70, Auto-backups:
+Gui, Add, CheckBox, ys Checked%p_backup% vp_backup
+
+Gui, Add, Text, xs Section +Right, Remember window position:
+Gui, Add, CheckBox, ys Checked%p_savepos% vp_savepos
+
+Gui, Add, Button, xs+70 gUpdate, Update
+Gui, Show,, SciTE settings
 return
 
 GuiClose:
@@ -64,9 +80,19 @@ ExitApp
 
 Update:
 Gui, Submit, NoHide
-ReplaceProp("import Styles\\.*\.style", "import Styles\" p_style ".style")
-ReplaceProp("locale\.properties=locales\\.*\.locale\.properties", "locale.properties=locales\" p_locale ".locale.properties")
-ReplaceProp("make\.backup=[01]", "make.backup=" p_backup)
+
+p_encoding := GetItem(cplist_v, p_encoding)
+
+UserProps =
+(
+# THIS FILE IS SCRIPT-GENERATED - DON'T TOUCH
+locale.properties=locales\%p_locale%.locale.properties
+make.backup=%p_backup%
+code.page=%p_encoding%
+output.code.page=%p_encoding%
+save.position=%p_savepos%
+import Styles\%p_style%.style
+)
 
 FileDelete, %UserPropsFile%
 FileAppend, %UserProps%, *%UserPropsFile%
@@ -74,7 +100,7 @@ FileAppend, %UserProps%, *%UserPropsFile%
 ; Reload properties
 scite.ReloadProps()
 
-if(scite && p_locale != org_locale)
+if scite && p_locale != org_locale
 {
 	MsgBox, 52, SciTE properties editor, Changing language requires restart.`nReopen SciTE?
 	IfMsgBox, Yes
@@ -91,15 +117,10 @@ if(scite && p_locale != org_locale)
 
 return
 
-FindPropOrDie(regex, name)
+FindProp(regex, default="")
 {
 	global UserProps
-	if !RegExMatch(UserProps, "`am)^" regex "$", o)
-	{
-		MsgBox, 16, SciTE properties editor, Can't find %name% property!
-		ExitApp
-	}
-	return o1
+	return RegExMatch(UserProps, "`am)^" regex "$", o) ? o1 : default
 }
 
 ReplaceProp(regex, repl)
@@ -144,6 +165,20 @@ CountLocalesAndChoose(ByRef choosenum)
 	}
 	StringTrimLeft, list, list, 1
 	return list
+}
+
+FindInList(ByRef list, item, delim="|")
+{
+	Loop, Parse, list, %delim%
+		if (A_LoopField = item)
+			return A_Index
+}
+
+GetItem(ByRef list, id, delim="|")
+{
+	Loop, Parse, list, %delim%
+		if (A_Index = id)
+			return A_LoopField
 }
 
 Util_Is64bitWindows()

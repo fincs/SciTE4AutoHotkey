@@ -47,8 +47,10 @@ p_locale := FindProp("locale\.properties=locales\\(.*)\.locale\.properties", "En
 p_encoding := FindProp("code\.page=(" cplist_v ")", 0)
 p_backup := FindProp("make\.backup=([01])", 1)
 p_savepos := FindProp("save\.position=([01])", 1)
+p_zoom := FindProp("magnification=(-?\d+)", -1)
 
 org_locale := p_locale
+org_zoom := p_zoom
 
 stylelist := CountStylesAndChoose(ch1)
 localelist := CountLocalesAndChoose(ch2)
@@ -64,6 +66,10 @@ Gui, Add, DDL, ys Choose%ch1% vp_style, %stylelist%
 
 Gui, Add, Text, xs Section +Right w70, File codepage:
 Gui, Add, DDL, ys +AltSubmit Choose%p_encoding% vp_encoding, %cplist_n%
+
+Gui, Add, Text, xs Section +Right w70, Default zoom:
+Gui, Add, Edit, ys w50
+Gui, Add, UpDown, vp_zoom Range-10-10, %p_zoom%
 
 Gui, Add, Text, xs Section +Right w70, Auto-backups:
 Gui, Add, CheckBox, ys Checked%p_backup% vp_backup
@@ -91,6 +97,7 @@ make.backup=%p_backup%
 code.page=%p_encoding%
 output.code.page=%p_encoding%
 save.position=%p_savepos%
+magnification=%p_zoom%
 import Styles\%p_style%.style
 )
 
@@ -100,9 +107,10 @@ FileAppend, %UserProps%, *%UserPropsFile%
 ; Reload properties
 scite.ReloadProps()
 
-if scite && p_locale != org_locale
+if scite && (p_locale != org_locale || p_zoom != org_zoom)
 {
-	MsgBox, 52, SciTE properties editor, Changing language requires restart.`nReopen SciTE?
+	Gui, +OwnDialogs
+	MsgBox, 52, SciTE properties editor, Changing the language or the zoom value requires restarting SciTE.`nReopen SciTE?
 	IfMsgBox, Yes
 	{
 		Gui, Destroy

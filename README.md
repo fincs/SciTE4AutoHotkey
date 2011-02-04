@@ -36,3 +36,5 @@ Afterwards, download the current [portable build](http://www.autohotkey.net/~fin
 * SciTE_beta4/SciTE.chm -> source/
 * SciTE_beta4/tools/GenDocs/hha.dll and hha.exe -> source/tools/GenDocs/
 * SciTE_beta4/tools/Rebranded/\*.\* -> source/tools/Rebranded/
+
+The latest AutoHotkey_L Unicode binary (v1.0.92.02 in the time of writing) also needs to be placed in the source folder.

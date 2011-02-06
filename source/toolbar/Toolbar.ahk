@@ -10,6 +10,7 @@
 #Include %A_ScriptDir%
 #Include PlatformRead.ahk
 #Include ComInterface.ahk
+#Include ProfileUpdate.ahk
 SetWorkingDir, %A_ScriptDir%
 DetectHiddenWindows, On
 
@@ -87,12 +88,10 @@ FileRead, GlobalSettings, toolbar.properties
 FileRead, LocalSettings, %LocalPropsPath%
 FileRead, SciTEVersion, %LocalSciTEPath%\$VER
 if SciTEVersion = 3 beta3
-{
-	FileDelete, %LocalSciTEPath%\_platform.properties
-	FileDelete, %LocalSciTEPath%\$VER
-	FileAppend, %CurrentSciTEVersion%, %LocalSciTEPath%\$VER
-	SciTEVersion := CurrentSciTEVersion
-}else if !IsPortable && (!FileExist(LocalPropsPath) || SciTEVersion != CurrentSciTEVersion)
+	gosub Update_3_beta3
+else if SciTEVersion = 3 beta4
+	gosub Update_3_beta4
+else if !IsPortable && (!FileExist(LocalPropsPath) || SciTEVersion != CurrentSciTEVersion)
 {
 	;WinClose, ahk_class SciTEWindow
 	

@@ -71,7 +71,7 @@ Gui, Add, Button, x12 y112 w60 h20 gAHKNetExecute, Execute
 Gui, Add, Button, x82 y112 w40 h20 gExit, Exit
 Gui, Add, Button, x132 y112 w50 h20 gSettingsGUIOpenFromLogin, Settings
 Gui, Add, CheckBox, x12 y82 w170 h20 Checked vAHKNetRemember, Remember me
-Gui, Show, w196 h145, autohotkey.net Utility
+Gui, Show, w196 h145, autohotkey.net Tool
 Gosub, ReadAndShowRecordedData
 Return
 

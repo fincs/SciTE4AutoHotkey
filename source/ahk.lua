@@ -141,25 +141,23 @@ function OnMarginClick(position, margin)
 	return pumpmsg(4112, 1, editor:LineFromPosition(position))
 end
 
---[=[
-
 -- =============================================== --
 -- OnDwellStart event - used to implement hovering --
 -- =============================================== --
 
 function OnDwellStart(pos, s)
-	print "OnDwellStart"
 	if not prepared then return end
 	if s ~= '' then
-		print ("Hovered on: ".. GetWord(pos))
+		pumpmsgstr(4112, 4, GetWord(pos))
 	else
-		print "Stopped hovering"
+		pumpmsgstr(4112, 4, "")
 	end
 end
 
-]=]
+-- =========================================================== --
+-- Get direction interface HWND function (used by the toolbar) --
+-- =========================================================== --
 
--- Get director interface HWND
 function get_director_HWND()
 	if prepared then return end
 	

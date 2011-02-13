@@ -367,6 +367,29 @@ _wP3: ; Command
 		gosub %p%
 	return true
 
+_wP4: ; Hovering
+	Dbg_VarName := Trim(SubStr(StrGet(lParam, "UTF-8"), 2), " `t`r`n")
+	if Dbg_VarName =
+		ToolTip
+	else
+	{
+		DBGp(Dbg_Session, "property_get", "-m 200 -n " Dbg_VarName, Dbg_Response)
+		dom := loadXML(Dbg_Response)
+		check := dom.selectSingleNode("/response/property/@name").text
+		if check = (invalid)
+			return true
+		if dom.selectSingleNode("/response/property/@type").text != "Object"
+		{
+			Dbg_VarData := DBGp_Base64UTF8Decode(dom.selectSingleNode("/response/property").text)
+			Dbg_VarSize := dom.selectSingleNode("/response/property/@size").text
+			if Dbg_VarSize > 200
+				Dbg_VarData .= "..."
+			ToolTip, %Dbg_VarName% = %Dbg_VarData%
+		}else
+			ToolTip, %Dbg_VarName% is an object
+	}
+	return true
+
 _wP255: ; Disconnect
 	if !Dbg_ExitByDisconnect
 	{ ; this code is executed if the debugger is still present

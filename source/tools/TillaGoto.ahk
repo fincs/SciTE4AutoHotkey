@@ -37,6 +37,7 @@ sScintillaClass     := "Scintilla" ;Class name of the Scintilla control. Exclude
 	#NoTrayIcon
 	#SingleInstance Ignore
 	SetTitleMatchMode, RegEx
+	DetectHiddenWindows, On
 	Menu, Tray, NoStandard
 	Menu, Tray, Icon, %A_ScriptDir%\..\toolicon.icl, 16
 	Menu, Tray, Tip, TillaGoto for SciTE4AutoHotkey

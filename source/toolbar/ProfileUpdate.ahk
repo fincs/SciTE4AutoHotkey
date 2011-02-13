@@ -55,3 +55,4 @@ if pos := RegExMatch(ov, "sP)# The following settings.+?\R# \[\[.+?locale\.prope
 return
 
 _aaa_skip:
+_=_

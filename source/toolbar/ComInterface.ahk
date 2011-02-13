@@ -31,6 +31,11 @@ InsertText
 ; Platform
 GetActivePlatform & ActivePlatform = CoI_GetActivePlatform
 SetPlatform
+
+; Director
+SendDirectorMsg
+SendDirectorMsgRet
+SendDirectorMsgRetArray
 )
 
 CoI_Message(this, msg, wParam=0, lParam=0)
@@ -176,11 +181,7 @@ CoI_SetPlatform(this, plat)
 
 CoI_GetCurrentFile(this)
 {
-	; TODO: replace this code with something more stable
-	global scitehwnd
-	WinGetTitle, title, ahk_id %scitehwnd%
-	RegExMatch(title, "^(.+?) [-*] SciTE4AutoHotkey", o)
-	return Trim(o1)
+	return GetSciTEOpenedFile()
 }
 
 CoI_GetVersion(this)
@@ -205,6 +206,37 @@ CoI_DebugFile(this, file)
 	}
 	
 	Cmd_Debug()
+}
+
+CoI_SendDirectorMsg(this, msg)
+{
+	return Director_Send(msg)
+}
+
+CoI_SendDirectorMsgRet(this, msg)
+{
+	static ResDispTable := ComDispTable("Verb=_CoI_RetGetVerb, Value=_CoI_RetGetValue")
+	return ComDispatch(Director_Send(msg, true), ResDispTable)
+}
+
+CoI_SendDirectorMsgRetArray(this, msg)
+{
+	static ResDispTable := ComDispTable("Verb=_CoI_RetGetVerb, Value=_CoI_RetGetValue")
+	obj := Director_Send(msg, true, true)
+	array := SafeArrayCreate(VT_VARIANT:=12, (t := obj._MaxIndex()) ? t : 0)
+	for each, msg in obj
+		array[each - 1] := ComDispatch(msg, ResDispTable)
+	return array
+}
+
+_CoI_RetGetVerb(this)
+{
+	return this.type
+}
+
+_CoI_RetGetValue(this)
+{
+	return this.value
 }
 
 ;------------------------------------------------------------------------------
@@ -268,3 +300,4 @@ Str2GUID(ByRef var, str)
 }
 
 _skip_file:
+_=_

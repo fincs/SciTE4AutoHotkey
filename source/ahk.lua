@@ -159,6 +159,23 @@ end
 
 ]=]
 
+-- Get director interface HWND
+function get_director_HWND()
+	if prepared then return end
+	
+	if not debugon then
+		print("ERROR: dbguihlp can't be loaded.")
+		return
+	end
+	
+	if localizewin("scite4ahkToolbarTempWin") == false then
+		print("Window doesn't exist.")
+		return
+	end
+	
+	pumpmsg(4099, 0, props['WindowID'])
+end
+
 -- ============== --
 -- DBGp functions --
 -- ============== --

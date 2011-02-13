@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; AutoHotkey Toolbar for SciTE4AutoHotkey ;
-; Version 3.4                             ;
+; Version 3.5                             ;
 ; by fincs                                ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -10,6 +10,8 @@
 #Include %A_ScriptDir%
 #Include PlatformRead.ahk
 #Include ComInterface.ahk
+#Include SciTEDirector.ahk
+#Include SciTEMacros.ahk
 #Include ProfileUpdate.ahk
 SetWorkingDir, %A_ScriptDir%
 DetectHiddenWindows, On
@@ -24,6 +26,7 @@ ATM_OFFSET     := 0x1000
 ATM_STARTDEBUG := ATM_OFFSET+0
 ATM_STOPDEBUG  := ATM_OFFSET+1
 ATM_RELOAD     := ATM_OFFSET+2
+ATM_DIRECTOR   := ATM_OFFSET+3
 
 ; Uncompiled toolbar support
 if !A_IsCompiled
@@ -266,14 +269,21 @@ Loop, %ntools%
 ; Create the COM interface
 InitComInterface()
 
+; Register the SciTE director
+Director_Init()
+
+; Initialize the macro recorder
+Macro_Init()
+
+; Check for SciTE every 10 ms
+; This must still be done as SciTE sometimes doesn't send the closing message
+SetTimer, check4scite, 10
+
 ; Run the autorun script
 var1 = %1%
 var2 = %2%
 if (var1 != "/NoAutorun" && var2 != "/NoAutorun")
 	Run, "%SciTEDir%\AutoHotkey.exe" "%SciTEDir%\Autorun.ahk"
-
-; Check for SciTE every 10 ms
-SetTimer, check4scite, 10
 
 if FirstTime
 {
@@ -356,18 +366,34 @@ Util_PopulatePlatformsMenu()
 goto changeplatform
 
 reloadtoolbar:
+Director_Send("closing:")
 Msg_Reload()
 return
 
 reloadtoolbarautorun:
+Director_Send("closing:")
 Reload
 return
 
 check4scite:
 ; Close the application if the user has closed SciTE
 IfWinNotExist, ahk_id %scitehwnd%
-	Gosub, exitroutine
+	gosub, exitroutine
 return
+
+/*
+SciTE_OnClosed(filename)
+{
+	; Workaround: SciTE sometimes doesn't send the closing message
+	SetTimer, check4scite, -10
+}
+*/
+
+SciTE_OnClosing()
+{
+	Critical
+	SetTimer, check4scite, -10
+}
 
 ; Hotkey handler
 ToolHotkeyHandler:
@@ -499,14 +525,21 @@ Msg_Reload()
 
 GetSciTEOpenedFile()
 {
-	global scitehwnd
-	WinGetTitle, sctitle, ahk_id %scitehwnd%
-	if !RegExMatch(sctitle, "^(.+?) [-*] SciTE", o)
+	global scitehwnd, DirectorReady
+	
+	if DirectorReady
+		return Director_Send("askfilename:", true).value
+	else
 	{
-		MsgBox Bad SciTE window!
-		ExitApp
-	}else
-		return %o1%
+		WinGetTitle, sctitle, ahk_id %scitehwnd%
+		if !RegExMatch(sctitle, "^(.+?) [-*] SciTE", o)
+		{
+			MsgBox Bad SciTE window!
+			ExitApp
+		}else
+			return %o1%
+	}
+	;return Director_Send("askfilename:", true).value
 }
 
 GetFilename(txt)

@@ -7,11 +7,13 @@ goto _aaa_skip
 Update_3_beta3:
 gosub Update_common
 gosub Update_old_settings
+gosub Create_macro_folder
 return
 
 Update_3_beta4:
 gosub Update_common
 gosub Update_old_settings
+gosub Create_macro_folder
 return
 
 Update_common:
@@ -52,6 +54,11 @@ if pos := RegExMatch(ov, "sP)# The following settings.+?\R# \[\[.+?locale\.prope
 	FileAppend, % new, %LocalSciTEPath%\_config.properties
 	VarSetCapacity(new, 0), VarSetCapacity(ov, 0)
 }else MsgBox RegEx fail`nErrorLevel: %ErrorLevel%`n`nReport this immediately to fincs along with your SciTEUser.properties file
+return
+
+Create_macro_folder:
+FileCreateDir, %LocalSciTEPath%\Macros
+FileCopy, %SciTEDir%\newuser\Macros\*.macros, %LocalSciTEPath%\Macros, 1
 return
 
 _aaa_skip:

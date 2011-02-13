@@ -38,14 +38,14 @@ if HtmDlg("file:///" A_Temp "\dialog.html#" GetSysColor(15), "", dlgoptions) - 1
 	ExitApp
 
 is64 := Util_Is64bitOS()
-tmpdir := A_Temp "\s4av3b4" A_TickCount
+tmpdir := A_Temp "\s4av3b5" A_TickCount
 ahkdir := GetAutoHotkeyDir()
 if !ahkdir
 {
 	MsgBox, 16, %title%, Failed to find AutoHotkey folder!
 	ExitApp
 }
-instdir = %ahkdir%\SciTE_beta4
+instdir = %ahkdir%\SciTE_beta5
 IfExist, %instdir%
 	FileRemoveDir, %instdir%, 1
 ;~ {
@@ -53,12 +53,12 @@ IfExist, %instdir%
 	;~ ExitApp
 ;~ }
 
-IfNotExist, beta4_instdata.bin
+IfNotExist, beta5_instdata.bin
 {
 	Menu, Tray, Icon
 	TrayTip, SciTE4AutoHotkey Installer, Download in progress..., 5, 1
-	r := NiceDownloader("http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3/repository/beta4_instdata.bin?fakeParam=" A_TickCount
-		, A_ScriptDir "\beta4_instdata.bin", "Downloading SciTE4AutoHotkey...")
+	r := NiceDownloader("http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3/repository/beta5_instdata.bin?fakeParam=" A_TickCount
+		, A_ScriptDir "\beta5_instdata.bin", "Downloading SciTE4AutoHotkey...")
 	Menu, Tray, NoIcon
 	if !r
 	{
@@ -67,31 +67,24 @@ IfNotExist, beta4_instdata.bin
 	}
 }
 
-RunWait, %A_Temp%\7z.exe x "%A_ScriptDir%\beta4_instdata.bin" "-o%tmpdir%" -aoa
+RunWait, %A_Temp%\7z.exe x "%A_ScriptDir%\beta5_instdata.bin" "-o%tmpdir%" -aoa
 FileRead, ver, %tmpdir%\$INFO
-if ver != 3 beta4
+if ver != 3 beta5
 {
 	MsgBox, 16, Title, Version mismatch, you are using an outdated installer.
 	ExitApp
 }
 
 UninstallOldBetas(0)
-profile = %A_MyDocuments%\AutoHotkey\SciTE
-IfExist, %profile%
-{
-	FileRead, ver, %profile%\$VER
-	if ver = 3 beta3
-	{
-		/* - Already done by the toolbar
-		; Update the profile
-		FileDelete, %profile%\_platform.properties
-		FileDelete, %profile%\$VER
-		FileAppend, 3 beta4, %profile%\$VER
-		*/
-	}else if ver != 3 beta4
-		; Delete the profile
-		WipeProfile(profile)
-}
+; The following was decided against, as the toolbar already does this
+;~ profile = %A_MyDocuments%\AutoHotkey\SciTE
+;~ IfExist, %profile%
+;~ {
+	;~ FileRead, ver, %profile%\$VER
+	;~ if (ver != "3 beta4") && (ver != "3 beta5")
+		;~ ; Delete the profile
+		;~ WipeProfile(profile)
+;~ }
 
 FileCreateDir, %instdir%
 
@@ -102,10 +95,14 @@ FileCopyDir, %tmpdir%\$MAIN, %instdir%, 1
 ChkCopy()
 Progress, Off
 
+; Remove beta 4
+IfExist, %ahkdir%\SciTE_beta4
+	FileRemoveDir, %ahkdir%\SciTE_beta4, 1
+
 FileInstall, uninst.exe, %instdir%\uninst.exe, 1
 key = Software\Microsoft\Windows\CurrentVersion\Uninstall\SciTE4AutoHotkey
-RegWrite, REG_SZ, HKLM, %key%, DisplayName, SciTE4AutoHotkey v3 beta 4
-RegWrite, REG_SZ, HKLM, %key%, DisplayVersion, v3.0 beta 4
+RegWrite, REG_SZ, HKLM, %key%, DisplayName, SciTE4AutoHotkey v3 beta 5
+RegWrite, REG_SZ, HKLM, %key%, DisplayVersion, v3.0 beta 5
 RegWrite, REG_SZ, HKLM, %key%, Publisher, fincs
 RegWrite, REG_SZ, HKLM, %key%, DisplayIcon, %instdir%\SciTE.exe
 RegWrite, REG_SZ, HKLM, %key%, URLInfoAbout, http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3/web/

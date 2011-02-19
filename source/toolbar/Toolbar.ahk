@@ -3,6 +3,8 @@
 ; Version 3.5                             ;
 ; by fincs                                ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+;TillaGoto.iIncludeMode = 0x10111111
 
 #NoEnv
 #NoTrayIcon

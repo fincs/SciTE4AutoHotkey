@@ -720,7 +720,12 @@ AnalyseScript:
 			ScanScriptFile(A_LoopFileLongPath, iIncludeMode & 0x01000000, True, False) ;With bFuncsOnly flag
 		
 		;Get path of running AutoHotkey
-		StringLeft, sLibPattern, A_AhkPath, InStr(A_AhkPath, "\", False, 0)
+		; <fincs-edit> Use actual AutoHotkey build instead of internal one
+		IfNotInString, sScriptDir, % SubStr(A_ScriptDir, 1, InStr(A_ScriptDir, "\", false, 0)-1)
+			UsedAhkPath := A_ScriptDir "\..\..\AutoHotkey.exe"
+		else
+			UsedAhkPath := A_AhkPath
+		StringLeft, sLibPattern, UsedAhkPath, InStr(UsedAhkPath, "\", False, 0)
 		sLibPattern .= "Lib\*.ahk"
 		
 		Loop, %sLibPattern%, 1, 1
@@ -746,7 +751,12 @@ FindLibFile(sLib) {
 			Return A_LoopFileLongPath
 	
 	;Get path of running AutoHotkey
-	StringLeft, sLibPattern, A_AhkPath, InStr(A_AhkPath, "\", False, 0)
+	; <fincs-edit> Use actual AutoHotkey build instead of internal one
+	IfNotInString, sScriptDir, % SubStr(A_ScriptDir, 1, InStr(A_ScriptDir, "\", false, 0)-1)
+		UsedAhkPath := A_ScriptDir "\..\..\AutoHotkey.exe"
+	else
+		UsedAhkPath := A_AhkPath
+	StringLeft, sLibPattern, UsedAhkPath, InStr(UsedAhkPath, "\", False, 0)
 	sLibPattern .= "Lib\*.ahk"
 	
 	Loop, %sLibPattern%, 1, 1

@@ -29,6 +29,7 @@
 #Persistent
 #SingleInstance [force|ignore|off]
 #UseHook [On|Off]
+#Warn WarningType [, WarningMode] \n[AutoHotkey_L] Enables or disables warnings for selected load-time or run-time conditions that may be indicative of developer errors.
 #WinActivateForce
 AutoTrim , On|Off
 BlockInput , On|Off|Send|Mouse|SendAndMouse|Default|MouseMove|MouseMoveOff
@@ -857,6 +858,10 @@ REG_EXPAND_SZ
 REG_MULTI_SZ
 REG_DWORD
 REG_BINARY
+
+UseUnsetLocal
+UseUnsetGlobal
+LocalSameAsGlobal
 
 A_AhkPath
 A_AhkVersion

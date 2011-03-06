@@ -132,8 +132,8 @@ GetSysColor( DisplayElement=1 ) {
 
 GetWinVer()
 {
-	pack := DllCall("GetVersion", "uint")
-	return ((pack >> 16) "." (pack & 0xFFFF)) + 0.0
+	pack := DllCall("GetVersion", "uint") & 0xFFFF
+	return ((pack & 0xFF) "." (pack >> 8)) + 0.0
 }
 
 GetAutoHotkeyDir()

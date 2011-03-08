@@ -1,4 +1,4 @@
-SciTE/Scintilla 2.23 modified source code
+SciTE/Scintilla 2.24 modified source code
 =========================================
 
 Patch instructions

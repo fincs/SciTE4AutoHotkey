@@ -114,8 +114,8 @@ _GetAsSafeArray(this)
 
 _GetAsList(this)
 {
-	Loop, % this.MaxIndex() + 1
-		list .= this[A_Index - 1] "`n"
+	Loop, % this._MaxIndex() + 1
+		list .= this[A_Index-1] "`n"
 	StringTrimRight, list, list, 1
 	return list
 }
@@ -223,7 +223,7 @@ CoI_SendDirectorMsgRetArray(this, msg)
 {
 	static ResDispTable := ComDispTable("Verb=_CoI_RetGetVerb, Value=_CoI_RetGetValue")
 	obj := Director_Send(msg, true, true)
-	array := SafeArrayCreate(VT_VARIANT:=12, (t := obj._MaxIndex()) ? t : 0)
+	array := ComObjArray(VT_VARIANT:=12, (t := obj._MaxIndex()) ? t : 0), ComObjFlags(array, -1)
 	for each, msg in obj
 		array[each - 1] := ComDispatch(msg, ResDispTable)
 	return array

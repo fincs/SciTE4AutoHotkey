@@ -351,7 +351,7 @@ _Release () \n[AutoHotkey_L]
 ObjClone (obj) \n[AutoHotkey_L]
 _Clone () \n[AutoHotkey_L]
 
-ComObjCreate (ProgIdOrCLSID) \n[AutoHotkey_L] Creates a COM object.
+ComObjCreate (ProgIdOrCLSID [, IID]) \n[AutoHotkey_L] Creates a COM object.
 ComObjGet (name) \n[AutoHotkey_L] Returns a reference to an object provided by a COM component.
 ComObjConnect (obj [, prefix])  \n[AutoHotkey_L] Listens to events from a ComObject (omit prefix to stop listening).
 ComObjError ([Enable])\nEnables or disables notification of COM errors. If Enable is omitted, the current setting is returned.
@@ -363,7 +363,8 @@ ComObjType (obj [, "Name"/"IID"]) \n[AutoHotkey_L] Retrieves type information fo
 ComObjValue (obj) \n[AutoHotkey_L] Retrieves the raw 64-bit signed integer stored in a ComObject wrapper.
 ComObjMissing () \n[AutoHotkey_L] Creates an object for use in place of an optional parameter's default value when calling a COM object.
 ComObjArray (VarType, Count1 [, Count2, ... Count8]) \n[AutoHotkey_L] Creates a SAFEARRAY for use with COM.
-
+ComObjQuery (ComObject [, SID], IID) \n[AutoHotkey_L] Queries a COM object for an interface or service.
+ComObjFlags (ComObject [, NewFlags, Mask]) \n[AutoHotkey_L] Retrieves or changes flags which control a COM wrapper object's behaviour.
 
 Shift
 LShift

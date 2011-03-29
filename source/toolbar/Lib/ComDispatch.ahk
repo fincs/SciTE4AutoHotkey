@@ -16,7 +16,7 @@ ComDispatch(this, disptable)
 	}
 	
 	 obj_mem := _CoTaskMemAlloc(2*A_PtrSize)
-	,obj := Object()
+	,obj := {}
 	,NumPut(vtable,      obj_mem+0*A_PtrSize)
 	,NumPut(Object(obj), obj_mem+1*A_PtrSize)
 	
@@ -106,7 +106,7 @@ _6: ; IDispatch::Invoke
 	 nexpectedparams := IsFunc(func) - 2
 	,paramarray := NumGet(prm4+0)
 	,nparams := NumGet(prm4+2*A_PtrSize, "UInt")
-	,params := Object()
+	,params := []
 	if (nparams < nexpectedparams)
 		return 0x8002000E ; DISP_E_BADPARAMCOUNT
 	else if !nparams

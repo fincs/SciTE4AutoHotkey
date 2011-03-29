@@ -7,7 +7,7 @@
 
 ComDispTable(methods)
 {
-	id2method := Object(), method2id := Object()
+	id2method := {}, method2id := {}
 	Loop, Parse, methods, `, ;, %A_Space%%A_Tab%
 	{
 		dispid := A_Index - 1
@@ -25,5 +25,5 @@ ComDispTable(methods)
 			return
 		id2method[dispid] := ahkmethod
 	}
-	return Object(1, id2method, 2, method2id)
+	return [id2method, method2id]
 }

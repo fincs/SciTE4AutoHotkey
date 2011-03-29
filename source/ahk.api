@@ -319,6 +319,7 @@ StrPut (string, address [, max][, encoding]) \n[AutoHotkey_L] Copies a string to
 
 Object ([key, value, [key2, value2...]]) \n[AutoHotkey_L] Creates a scriptable object which is also an associative array.
 Object (obj) \n[AutoHotkey_L] Retrieves an interface pointer from an object reference or vice versa.
+Array ([values...]) \n[AutoHotkey_L] Creates an array.
 IsObject (param) \n[AutoHotkey_L] Tests if the parameter is an object.
 ObjInsert (obj, index, values...) \n[AutoHotkey_L]
 ObjInsert (value) \n[AutoHotkey_L]
@@ -348,8 +349,15 @@ ObjAddRef (obj) \n[AutoHotkey_L]
 _AddRef () \n[AutoHotkey_L]
 ObjRelease (obj) \n[AutoHotkey_L]
 _Release () \n[AutoHotkey_L]
+ObjHasKey (obj, key) \n[AutoHotkey_L]
+_HasKey (key) \n[AutoHotkey_L]
 ObjClone (obj) \n[AutoHotkey_L]
 _Clone () \n[AutoHotkey_L]
+
+__Get ([params...]) \n[AutoHotkey_L]
+__Set ([params...,] value) \n[AutoHotkey_L]
+__Call ([params...]) \n[AutoHotkey_L]
+__Delete () \n[AutoHotkey_L]
 
 ComObjCreate (ProgIdOrCLSID [, IID]) \n[AutoHotkey_L] Creates a COM object.
 ComObjGet (name) \n[AutoHotkey_L] Returns a reference to an object provided by a COM component.

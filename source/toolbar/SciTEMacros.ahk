@@ -10,7 +10,7 @@ goto _scim_skip
 Macro_Init()
 {
 	global SciTEMacro
-	SciTEMacro := "" ;Object()
+	SciTEMacro := "" ;[]
 	
 	Director_Send("macroenable:1")
 }
@@ -102,7 +102,7 @@ SciTE_OnMacroRun(macro)
 ListMacros()
 {
 	global LocalSciTEPath
-	macros := Object()
+	macros := []
 	Loop, %LocalSciTEPath%\Macros\*.macro
 	{
 		SplitPath, A_LoopFileFullPath,,,, namenoext

@@ -4,7 +4,7 @@
 
 Util_ParsePlatforms(file, ByRef platlist)
 {
-	plats := Object()
+	plats := {}
 	FileRead, file, %file%
 	
 	platlist := Util_EnumPlatforms(file)
@@ -16,7 +16,7 @@ Util_ParsePlatforms(file, ByRef platlist)
 
 Util_EnumPlatforms(ByRef file)
 {
-	plats := Object()
+	plats := {}
 	Loop, Parse, file, `n, `r
 	{
 		line := Trim(A_LoopField)
@@ -33,7 +33,7 @@ Util_EnumPlatforms(ByRef file)
 				res := false
 				,plat := o1
 				,cond := o2
-				,parm := Object()
+				,parm := {}
 				Loop, Parse, cond, `,
 					`(A_Index > 1) ? parm._Insert(Util_Dereference(Trim(A_LoopField))) : (func := Trim(A_LoopField))
 				if func in FileExist,WinActive,WinExist

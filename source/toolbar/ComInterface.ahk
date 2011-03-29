@@ -114,8 +114,8 @@ _GetAsSafeArray(this)
 
 _GetAsList(this)
 {
-	Loop, % this._MaxIndex() + 1
-		list .= this[A_Index-1] "`n"
+	for item in this
+		list .= item "`n"
 	StringTrimRight, list, list, 1
 	return list
 }

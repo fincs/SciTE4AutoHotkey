@@ -10,14 +10,14 @@
 
 ComVar()
 {
-	static base := Object("__Get","ComVarGet","__Set","ComVarSet","__Delete","ComVarDel")
+	static base := {__Get: "ComVarGet", __Set: "ComVarSet", __Delete: "ComVarDel"}
 	; Create an array of 1 VARIANT.  This method allows built-in code to take
 	; care of all conversions between VARIANT and AutoHotkey internal types.
 	arr := ComObjArray(0xC, 1)
 	; Lock the array and retrieve a pointer to the VARIANT.
 	DllCall("oleaut32\SafeArrayAccessData", "ptr", ComObjValue(arr), "ptr*", arr_data)
 	; Store the array and an object which can be used to pass the VARIANT ByRef.
-	return Object("ref", ComObjParameter(0x400C, arr_data), "_", arr, "base", base)
+	return {ref: ComObjParameter(0x400C, arr_data), _: arr, base: base}
 }
 
 ComVarGet(cv, p*) ; Called when script accesses an unknown field.

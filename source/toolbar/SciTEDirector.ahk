@@ -45,7 +45,7 @@ Director_Send(msg, returns=false, onArray=false)
 		DirectorRcv := true
 		DirectorRetByArray := onArray
 		if onArray
-			DirectorMsg := Object()
+			DirectorMsg := []
 	}
 	SendMessage, WM_COPYDATA, 0, &COPYDATASTRUCT,, ahk_id %directorhwnd%
 	if returns
@@ -100,5 +100,5 @@ _Director_Recv(wParam, lParam, msg, hwnd)
 _Director_ParseResponse(resp)
 {
 	colon := InStr(resp, ":")
-	return Object("type", SubStr(resp, 1, colon-1), "value", CUnescape(SubStr(resp, colon+1)))
+	return {type: SubStr(resp, 1, colon-1), value: CUnescape(SubStr(resp, colon+1))}
 }

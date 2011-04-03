@@ -105,11 +105,8 @@ CoI_GetTabs(this)
 
 _GetAsSafeArray(this)
 {
-	; Returning something is giving ownership of it. So we can't just
-	; return the array, we have to make a copy of it. Luckily, this is
-	; really easy thanks to the SafeArray helper functions.
-	DllCall("oleaut32\SafeArrayCopy", "ptr", ComObjValue(this), "ptr*", newarray)
-	return ComObjParameter(ComObjType(this), newarray)
+	copy := this._Clone(), ComObjFlags(copy, -1)
+	return copy
 }
 
 _GetAsList(this)

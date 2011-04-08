@@ -15,7 +15,7 @@
 -- AutoHotkey lexer styles --
 -- ======================= --
 
-local SCLEX_AHK1           = 999
+local SCLEX_AHK1           = 200
 local SCE_AHK_DEFAULT      =  0
 local SCE_AHK_COMMENTLINE  =  1
 local SCE_AHK_COMMENTBLOCK =  2

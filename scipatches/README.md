@@ -1,10 +1,10 @@
-SciTE/Scintilla 2.24 modified source code
+SciTE/Scintilla 2.25 modified source code
 =========================================
 
 Patch instructions
 ------------------
 
-In order to get the modified source code, download & extract the file scite224.tgz or scite224.zip to a new folder, open a command prompt, navigate to it and issue the following command:
+In order to get the modified source code, download & extract the file scite225.tgz or scite225.zip to a new folder, open a command prompt, navigate to it and issue the following command:
 
     patch -p1 < path/to/S4AHK_v3b5.patch
 

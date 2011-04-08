@@ -55,6 +55,14 @@ MenuWnd = SmartGUI Creator for SciTE4AutoHotkey v3
 GeneratedWnd = Untitled GUI
 CustomOptions = -16|BackgroundTrans|Border|Buttons|Center|Checked|Disabled|Hidden|Horz|HScroll|Invert|Left|Limit|Lowercase|Multi|NoTicks|Number|Password|Range|ReadOnly|Right|Smooth|Theme|ToolTip|Uppercase|Vertical|VScroll|WantReturn|Wrap
 
+IsPortable := FileExist(A_ScriptDir "\..\$PORTABLE")
+if !IsPortable
+	LocalSciTEPath = %A_MyDocuments%\AutoHotkey\SciTE
+else
+	LocalSciTEPath = %A_ScriptDir%\..\user
+
+SettingsPath = %LocalSciTEPath%\Settings
+
 ;___________________________________________
 
 
@@ -104,7 +112,7 @@ IfEqual, SelfClass, AutoHotkeyGUI
 
 
 ;ask to read manual
-IfNotExist, %A_ScriptDir%\SmartGUI.ini
+IfNotExist, %SettingsPath%\SmartGUI.ini
 {
 	Msgbox, 4, WELCOME, Welcome to SmartGUI Creator`n`nIf you are using it for the first time, then it's recommended that you read the help manual, especially the 'Guidelines' section.`n`nWould you like to open it now?
 	IfMsgbox, Yes
@@ -197,14 +205,14 @@ PosFields = XYWH
 ;___________________________________________
 ; Reading/Writing settings
 
-IniRead, SaveDir, %A_ScriptDir%\SmartGUI.ini, Folders, SaveDir
-IniRead, LoadDir, %A_ScriptDir%\SmartGUI.ini, Folders, LoadDir
+IniRead, SaveDir, %SettingsPath%\SmartGUI.ini, Folders, SaveDir
+IniRead, LoadDir, %SettingsPath%\SmartGUI.ini, Folders, LoadDir
 
 IfEqual, SaveDir, ERROR, SetEnv, SaveDir,
 IfEqual, LoadDir, ERROR, SetEnv, LoadDir,
 
-IniRead, ShiftMove, %A_ScriptDir%\SmartGUI.ini, Settings, ShiftMove
-IfEqual, ShiftMove, ERROR, IniWrite, No, %A_ScriptDir%\SmartGUI.ini, Settings, ShiftMove
+IniRead, ShiftMove, %SettingsPath%\SmartGUI.ini, Settings, ShiftMove
+IfEqual, ShiftMove, ERROR, IniWrite, No, %SettingsPath%\SmartGUI.ini, Settings, ShiftMove
 
 ;___________________________________________
 
@@ -430,14 +438,14 @@ ShiftMove:
 	{
 		Menu, Options, ToggleCheck, Shift + Move Group
 		ShiftMove = No
-		IniWrite, %ShiftMove%, %A_ScriptDir%\SmartGUI.ini, Settings, ShiftMove
+		IniWrite, %ShiftMove%, %SettingsPath%\SmartGUI.ini, Settings, ShiftMove
 	}
 	
 	Else
 	{
 		Menu, Options, ToggleCheck, Shift + Move Group
 		ShiftMove = Yes
-		IniWrite, %ShiftMove%, %A_ScriptDir%\SmartGUI.ini, Settings, ShiftMove
+		IniWrite, %ShiftMove%, %SettingsPath%\SmartGUI.ini, Settings, ShiftMove
 	}	   
 Return
 
@@ -1243,7 +1251,7 @@ Return
 	{
 		StringGetPos, Spos, SaveAsFile, \, R
 		StringLeft, SaveDir, SaveAsFile, %Spos%
-		IniWrite, %SaveDir%, %A_ScriptDir%\SmartGUI.ini, Folders, SaveDir
+		IniWrite, %SaveDir%, %SettingsPath%\SmartGUI.ini, Folders, SaveDir
 		
 		StringRight, Ext, SaveAsFile, 4
 		IfNotEqual, Ext, .ahk, SetEnv, SaveAsFile, %SaveAsFile%.ahk
@@ -1585,7 +1593,7 @@ EditGUI:
 	
 	StringGetPos, Spos, InputScript, \, R
 	StringLeft, LoadDir, InputScript, %Spos%
-	IniWrite, %LoadDir%, %A_ScriptDir%\SmartGUI.ini, Folders, LoadDir
+	IniWrite, %LoadDir%, %SettingsPath%\SmartGUI.ini, Folders, LoadDir
 	
 	
 	Gui_Status = 0

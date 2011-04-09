@@ -289,6 +289,7 @@ if (var1 != "/NoAutorun" && var2 != "/NoAutorun")
 
 if FirstTime
 {
+	Director_Send("open:" CEscape(A_ScriptDir "\..\TestSuite.ahk"))
 	MsgBox, 64, SciTE4AutoHotkey, Welcome to SciTE4AutoHotkey!
 	Run, "%SciTEDir%\AutoHotkey.exe" "%SciTEDir%\tools\PropEdit.ahk"
 }

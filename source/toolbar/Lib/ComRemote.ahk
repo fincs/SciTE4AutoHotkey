@@ -16,7 +16,12 @@ ComRemote(disp, clsid)
 	  , "uint*", dwRegister) < 0
 		return
 
-	DllCall("ole32\CoLockObjectExternal", "ptr", pdisp, "int", 1, "int", 1)
+	if DllCall("ole32\CoLockObjectExternal", "ptr", pdisp, "int", 1, "int", 1) < 0
+	{
+		DllCall("oleaut32\RevokeActiveObject", "uint", dwRegister, "ptr", 0)
+		return
+	}
+	
 	return {disp: disp, dwRegister: dwRegister, base: _base}
 }
 

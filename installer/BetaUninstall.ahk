@@ -40,6 +40,8 @@ RegDelete, HKLM, Software\Microsoft\Windows\CurrentVersion\Uninstall\SciTE4AutoH
 MsgBox, 52, %title%, Do you want to remove the user profile?
 IfMsgBox, Yes
 	WipeProfile(A_MyDocuments "\AutoHotkey\SciTE")
+FileDelete, %A_DesktopCommon%\SciTE4AutoHotkey.lnk
+FileRemoveDir, %A_ProgramsCommon%\SciTE4AutoHotkey, 1
 MsgBox, 64, %title%, SciTE4AutoHotkey removed successfully!
 ExitApp
 

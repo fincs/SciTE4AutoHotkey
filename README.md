@@ -31,10 +31,10 @@ In order to do so, follow the instructions in the *scipatches* folder. When done
 * SciTE.exe and SciLexer.dll -> source/
 * dbguihlp.dll -> source/debugger/
 
-Afterwards, download the current [portable build](http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3/SciTE4AutoHotkey_v3_beta4_Portable.zip) in order to get some files from it:
+Afterwards, download the current [portable build](http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3/SciTE4AutoHotkey_v3_beta5_Portable.zip) in order to get some files from it:
 
-* SciTE_beta4/SciTE.chm -> source/
-* SciTE_beta4/tools/GenDocs/hha.dll and hha.exe -> source/tools/GenDocs/
-* SciTE_beta4/tools/Rebranded/\*.\* -> source/tools/Rebranded/
+* SciTE_beta5/SciTE.chm -> source/
+* SciTE_beta5/tools/GenDocs/hha.dll and hha.exe -> source/tools/GenDocs/
+* SciTE_beta5/tools/Rebranded/\*.\* -> source/tools/Rebranded/
 
 The latest AutoHotkey_L Unicode binary (v1.0.97.01 at the time of writing) also needs to be placed in the source folder.

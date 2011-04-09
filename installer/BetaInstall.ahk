@@ -18,6 +18,12 @@ Menu, Tray, NoStandard
 
 title = SciTE4AutoHotkey installation
 
+if GetWinVer() < 5.1
+{
+	MsgBox, 16, %title%, Windows XP or newer is required.
+	ExitApp
+}
+
 if GetWinVer() >= 6 && !A_IsAdmin
 {
 	MsgBox, 16, %title%, Admin rights required.
@@ -57,8 +63,7 @@ IfNotExist, beta5_instdata.bin
 {
 	Menu, Tray, Icon
 	TrayTip, SciTE4AutoHotkey Installer, Download in progress..., 5, 1
-	r := NiceDownloader("http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3/repository/beta5_instdata.bin?fakeParam=" A_TickCount
-		, A_ScriptDir "\beta5_instdata.bin", "Downloading SciTE4AutoHotkey...")
+	r := NiceDownloader("http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3/repository/beta5_instdata.bin", A_ScriptDir "\beta5_instdata.bin", "Downloading SciTE4AutoHotkey...")
 	Menu, Tray, NoIcon
 	if !r
 	{
@@ -115,12 +120,29 @@ IfMsgBox, Yes
 	RegWrite, REG_SZ, HKCR, AutoHotkeyScript\Shell\EditSciTEBeta\Command,, "%instdir%\SciTE.exe" "`%1"
 }
 
+MsgBox, 36, %title%, Do you want to create a desktop shortcut?
+IfMsgBox, Yes
+	Shortcut(A_DesktopCommon "\SciTE4AutoHotkey.lnk", instdir "\SciTE.exe", "AutoHotkey Script Editor")
+
+MsgBox, 36, %title%, Do you want to create a Start Menu folder?
+{
+	FileCreateDir, %A_ProgramsCommon%\SciTE4AutoHotkey
+	Shortcut(A_ProgramsCommon "\SciTE4AutoHotkey\SciTE4AutoHotkey.lnk", instdir "\SciTE.exe", "AutoHotkey Script Editor")
+	Shortcut(A_ProgramsCommon "\SciTE4AutoHotkey\Uninstall.lnk", instdir "\uninst.exe", "Uninstall SciTE4AutoHotkey...")
+}
+
 FileRemoveDir, %tmpdir%, 1
 
-MsgBox, 64, Title, Done!
-Run, "%instdir%\SciTE.exe" "%instdir%\TestSuite.ahk"
+MsgBox, 64, %title%, Done! Thank you for choosing SciTE4AutoHotkey.
 
 ExitApp
+
+Shortcut(Shrt, Path, Descr)
+{
+	SplitPath, Path,, Dir
+	FileDelete, %Shrt%
+	FileCreateShortcut, %Path%, %Shrt%, %Dir%,, %Descr%
+}
 
 ; GetSysColor() function by SKAN
 GetSysColor( DisplayElement=1 ) {
@@ -133,7 +155,7 @@ GetSysColor( DisplayElement=1 ) {
 GetWinVer()
 {
 	pack := DllCall("GetVersion", "uint") & 0xFFFF
-	return ((pack & 0xFF) "." (pack >> 8)) + 0.0
+	return (pack & 0xFF) "." (pack >> 8)
 }
 
 GetAutoHotkeyDir()

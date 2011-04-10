@@ -244,11 +244,14 @@ goto _skip_file
 
 InitComInterface()
 {
-	global CLSID_SciTE4AHK, APPID_SciTE4AHK, oSciTE, hSciTE_Remote, CoI_Methods
+	global CLSID_SciTE4AHK, APPID_SciTE4AHK, oSciTE, hSciTE_Remote, CoI_Methods, IsPortable
 	
-	; Register our CLSID and APPID
-	OnExit, IDCleanup
-	RegisterIDs(CLSID_SciTE4AHK, APPID_SciTE4AHK)
+	if IsPortable
+	{
+		; Register our CLSID and APPID
+		OnExit, IDCleanup
+		RegisterIDs(CLSID_SciTE4AHK, APPID_SciTE4AHK)
+	}
 	
 	; Create an IDispatch interface
 	Loop, Parse, CoI_Methods, `,

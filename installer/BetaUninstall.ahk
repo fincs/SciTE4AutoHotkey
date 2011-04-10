@@ -37,6 +37,8 @@ DoIt:
 FileRemoveDir, %2%, 1
 RegDelete, HKCR, AutoHotkeyScript\Shell\EditSciTEBeta
 RegDelete, HKLM, Software\Microsoft\Windows\CurrentVersion\Uninstall\SciTE4AutoHotkey
+RegDelete, HKLM, Software\Classes\SciTE4AHK.Application
+RegDelete, HKLM, Software\Classes\CLSID\{D7334085-22FB-416E-B398-B5038A5A0784}
 MsgBox, 52, %title%, Do you want to remove the user profile?
 IfMsgBox, Yes
 	WipeProfile(A_MyDocuments "\AutoHotkey\SciTE")

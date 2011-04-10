@@ -113,6 +113,11 @@ RegWrite, REG_SZ, HKLM, %key%, DisplayIcon, %instdir%\SciTE.exe
 RegWrite, REG_SZ, HKLM, %key%, URLInfoAbout, http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3/web/
 RegWrite, REG_SZ, HKLM, %key%, UninstallString, %instdir%\uninst.exe
 
+; COM registering
+RegWrite, REG_SZ, HKLM, Software\Classes\SciTE4AHK.Application,, SciTE4AHK.Application
+RegWrite, REG_SZ, HKLM, Software\Classes\SciTE4AHK.Application\CLSID,, {D7334085-22FB-416E-B398-B5038A5A0784}
+RegWrite, REG_SZ, HKLM, Software\Classes\CLSID\{D7334085-22FB-416E-B398-B5038A5A0784},, SciTE4AHK.Application
+
 MsgBox, 36, %title%, Do you want to add an "Edit with SciTE (beta)" entry to the context menu of .ahk files?
 IfMsgBox, Yes
 {

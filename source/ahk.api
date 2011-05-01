@@ -358,6 +358,11 @@ __Get ([params...]) \n[AutoHotkey_L]
 __Set ([params...,] value) \n[AutoHotkey_L]
 __Call ([params...]) \n[AutoHotkey_L]
 __Delete () \n[AutoHotkey_L]
+__New ([params...]) \n[AutoHotkey v1.1+]
+
+class ClassName [extends ClassName] \n[AutoHotkey v1.1+]
+new
+extends
 
 ComObjCreate (ProgIdOrCLSID [, IID]) \n[AutoHotkey_L] Creates a COM object.
 ComObjGet (name) \n[AutoHotkey_L] Returns a reference to an object provided by a COM component.
@@ -629,6 +634,7 @@ Status
 static
 global
 local
+var
 ByRef
 
 Seconds

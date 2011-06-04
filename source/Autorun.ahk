@@ -7,7 +7,13 @@
 #NoTrayIcon
 SetWorkingDir, %A_ScriptDir%
 
-UserAutorun = %A_MyDocuments%\AutoHotkey\SciTE\Autorun.ahk
+IsPortable := FileExist(A_ScriptDir "\$PORTABLE")
+if !IsPortable
+	LocalSciTEPath = %A_MyDocuments%\AutoHotkey\SciTE
+else
+	LocalSciTEPath = %A_ScriptDir%\..\user
+
+UserAutorun = %LocalSciTEPath%\Autorun.ahk
 
 Run, "%A_AhkPath%" tools\TillaGoto.ahk
 IfExist, %UserAutorun%

@@ -379,6 +379,8 @@ ComObjArray (VarType, Count1 [, Count2, ... Count8]) \n[AutoHotkey_L] Creates a 
 ComObjQuery (ComObject [, SID], IID) \n[AutoHotkey_L] Queries a COM object for an interface or service.
 ComObjFlags (ComObject [, NewFlags, Mask]) \n[AutoHotkey_L] Retrieves or changes flags which control a COM wrapper object's behaviour.
 
+Func (funcname) \n[AutoHotkey v1.1+]
+
 Shift
 LShift
 RShift

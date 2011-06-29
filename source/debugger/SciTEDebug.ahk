@@ -23,6 +23,12 @@ if A_IsCompiled
 	ExitApp
 }
 
+if 0 = 0
+{
+	MsgBox, 16, SciTE4AutoHotkey Debugger, You mustn't run this script directly!
+	ExitApp
+}
+
 ; Check if SciTE is running 
 IfWinNotExist, ahk_class SciTEWindow
 {
@@ -30,37 +36,81 @@ IfWinNotExist, ahk_class SciTEWindow
 	ExitApp
 }
 
-IsAttach = %1%
+AhkExecutable = %1%
+IfNotExist, %AhkExecutable%
+{
+	MsgBox, 16, SciTE4AutoHotkey Debugger, AutoHotkey executable doesn't exist!
+	ExitApp
+}
+
+Loop, %AhkExecutable%
+{
+	AhkExecutable := A_LoopFileLongPath
+	break
+}
+
+Loop, 1
+{
+	; Sanity checks
+	
+	FileGetVersion, vert, %AhkExecutable%
+	if !vert
+		goto _error
+	
+	StringSplit, vert, vert, .
+	vert := vert4 | (vert3 << 8) | (vert2 << 16) | (vert1 << 24)
+	
+	AhkExeMachine := GetExeMachine(AhkExecutable)
+	if !AhkExeMachine
+		goto _error
+	
+	if (AhkExeMachine != 0x014C) && (AhkExeMachine != 0x8664)
+		goto _error
+	
+	if !(VersionInfoSize := DllCall("version\GetFileVersionInfoSize", "str", AhkExecutable, "uint*", null, "uint"))
+		goto _error
+	
+	VarSetCapacity(VersionInfo, VersionInfoSize)
+	if !DllCall("version\GetFileVersionInfo", "str", AhkExecutable, "uint", 0, "uint", VersionInfoSize, "ptr", &VersionInfo)
+		goto _error
+	
+	if !DllCall("version\VerQueryValue", "ptr", &VersionInfo, "str", "\VarFileInfo\Translation", "ptr*", lpTranslate, "uint*", cbTranslate)
+		goto _error
+	
+	SetFormat, IntegerFast, H
+	wLanguage := NumGet(lpTranslate+0, "UShort")
+	wCodePage := NumGet(lpTranslate+2, "UShort")
+	id := SubStr("0000" SubStr(wLanguage, 3), -3, 4) SubStr("0000" SubStr(wCodePage, 3), -3, 4)
+	SetFormat, IntegerFast, D
+	
+	if !DllCall("version\VerQueryValue", "ptr", &VersionInfo, "str", "\StringFileInfo\" id "\ProductName", "ptr*", pField, "uint*", cbField)
+		goto _error
+	
+	; if product name = AutoHotkey_L then allow
+	; else if version <= v1.0.48.05  then block
+	if StrGet(pField, cbField) != "AutoHotkey_L" && vert <= 0x01003005
+		goto _error
+	
+	break
+	_error:
+	MsgBox, 16, SciTE4AutoHotkey Debugger, (%A_LastError%) You must use AutoHotkey_L for debugging!`n%a%
+	ExitApp
+}
+
+IsAttach = %2%
 IsAttach := IsAttach = "/attach"
 
 ; Get the HWND of SciTE and its Scintilla control
 scitehwnd := WinExist("")
 ControlGet, scintillahwnd, Hwnd,, Scintilla1, ahk_id %scitehwnd%
 
-/*
-; Get the title and check if it's invalid
-WinGetTitle, scitetitle, ahk_id %scitehwnd%
-if !RegExMatch(scitetitle, "^(.+) [-*] SciTE4AutoHotkey", o)
-{
-	MsgBox, 16, SciTE4AutoHotkey Debugger, Bad SciTE window!
-	ExitApp
-}
-if InStr(scitetitle, "?") && !A_IsUnicode
-{
-	MsgBox, 16, SciTE4AutoHotkey Debugger, A Unicode build of AutoHotkey_L is necessary!
-	ExitApp
-}
-*/
-
 ; Get the COM SciTE object
-ComObjError(false)
-oSciTE := ComObjActive("SciTE4AHK.Application")
-if A_LastError < 0
+oSciTE := GetSciTEInstance()
+if !oSciTE
 {
 	MsgBox, 16, SciTE4AutoHotkey Debugger, Can't find SciTE COM object!
 	ExitApp
 }
-ComObjError(true)
 
 ; Get the script to debug
 szFilename := oSciTE.CurrentFile
@@ -104,9 +154,7 @@ OnMessage(ADM_SCITE, "SciTEMsgHandler")
 SciTE_Connect()
 Hotkey, ^!z, Off
 
-AhkExecutable = %A_AhkPath%
-
-if A_PtrSize = 8
+if (AhkExeMachine = 0x8664)
 	DbgBitIndicator := " (64-bit)"
 else if Util_Is64bitOS()
 	DbgBitIndicator := " (32-bit)"
@@ -1167,4 +1215,14 @@ loadXML(ByRef data)
 	o.setProperty("SelectionLanguage", "XPath")
 	o.loadXML(data)
 	return o
+}
+
+GetExeMachine(exepath)
+{
+	exe := FileOpen(exepath, "r")
+	if !exe
+		return
+	
+	exe.Seek(60), exe.Seek(exe.ReadUInt()+4)
+	return exe.ReadUShort()
 }

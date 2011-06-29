@@ -16,6 +16,7 @@ GetVersion & Version = CoI_GetVersion
 GetSciTEHandle & SciTEHandle = CoI_GetSciTEHandle
 Message
 ReloadProps
+SciTEDir
 
 ; Files
 GetCurrentFile & CurrentFile = CoI_GetCurrentFile
@@ -61,6 +62,12 @@ CoI_ReloadProps(this)
 {
 	global scitehwnd
 	SendMessage, 1024+1, 0, 0,, ahk_id %scitehwnd%
+}
+
+CoI_SciTEDir(this)
+{
+	global SciTEDir
+	return SciTEDir
 }
 
 CoI_GetTabs(this)

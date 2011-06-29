@@ -48,7 +48,7 @@ MAXTOOLS = 50
 ; Check if the properties file exists
 IfNotExist, toolbar.properties
 {
-	MsgBox, 16, AutoHotkey Toolbar for SciTE, The property file doesn't exist!
+	MsgBox, 16, SciTE4AutoHotkey Toolbar, The property file doesn't exist!
 	ExitApp
 }
 
@@ -60,7 +60,7 @@ IfWinNotExist, ahk_class SciTEWindow
 	if ErrorLevel
 	{
 		; Now we can err.
-		MsgBox, 16, AutoHotkey Toolbar for SciTE, SciTE not found!
+		MsgBox, 16, SciTE4AutoHotkey Toolbar, SciTE not found!
 		ExitApp
 	}
 }
@@ -147,6 +147,8 @@ Variable list,9,hidden,autosize
 _ToolIL := IL_Create(MAXTOOLS)
 _IconLib := SciTEDir "\toolicon.icl"
 
+Tools := []
+
 ; Set up the stock buttons
 IL_Add(_ToolIL, _IconLib, 18)
 IL_Add(_ToolIL, _IconLib, 2)
@@ -157,15 +159,15 @@ IL_Add(_ToolIL, _IconLib, 5)
 IL_Add(_ToolIL, _IconLib, 6)
 IL_Add(_ToolIL, _IconLib, 7)
 IL_Add(_ToolIL, _IconLib, 8)
-Tool2_Path = ?switch
-Tool4_Path = ?run
-Tool5_Path = ?debug
-Tool6_Path = ?stop
-Tool7_Path = ?stepinto
-Tool8_Path = ?stepover
-Tool9_Path = ?stepout
-Tool10_Path = ?stacktrace
-Tool11_Path = ?varlist
+Tools[2]  := { Path: "?switch" }
+Tools[4]  := { Path: "?run" }
+Tools[5]  := { Path: "?debug" }
+Tools[6]  := { Path: "?stop" }
+Tools[7]  := { Path: "?stepinto" }
+Tools[8]  := { Path: "?stepover" }
+Tools[9]  := { Path: "?stepout" }
+Tools[10] := { Path: "?stacktrace" }
+Tools[11] := { Path: "?varlist" }
 i := 10
 
 Loop, Parse, ToolbarProps, `n, `r
@@ -192,27 +194,23 @@ Loop, Parse, ToolbarProps, `n, `r
 	ntools ++
 	IfInString, varz1, `,
 	{
-		MsgBox, 16, AutoHotkey Toolbar for SciTE, A tool name can't contain a comma! Specified:`n%varz1%
+		MsgBox, 16, SciTE4AutoHotkey Toolbar, A tool name can't contain a comma! Specified:`n%varz1%
 		ExitApp
 	}
-	Tool%ntools%_Name := Trim(varz1)
-	Tool%ntools%_Path := Trim(varz2)
-	Tool%ntools%_Hotkey := Trim(varz3)
-	if varz4 =
-		varz4 := varz2
-	varz4 := ParseCmdLine(varz4)
-	Tool%ntools%_Picture := Trim(varz4)
+	varz4 := ParseCmdLine(varz4 = "" ? varz2 : varz4)
+	Tools[ntools] := { Name: Trim(varz1), Path: Trim(varz2), Hotkey: Trim(varz3) }
 	IfInString, varz4, `,
 	{
-		_pic := SubStr(varz4, 1, InStr(varz4, ",")-1)
-		_icnum := SubStr(varz4, InStr(varz4, ",")+1)
-		Tool%ntools%_Picture := Trim(_pic)
-		Tool%ntools%_IconNumber := Trim(_icnum)
+		Tools[ntools].Picture := Trim(SubStr(varz4, 1, InStr(varz4, ",")-1))
+		Tools[ntools].IconNumber := Trim(SubStr(varz4, InStr(varz4, ",")+1))
 	}else
-		Tool%ntools%_IconNumber = 1
+	{
+		Tools[ntools].Picture := Trim(varz4)
+		Tools[ntools].IconNumber := 1
+	}
 	
-	_ToolButs .= Tool%ntools%_Name "," i ",,autosize`n"
-	IL_Add(_ToolIL, Tool%ntools%_Picture, Tool%ntools%_IconNumber)
+	_ToolButs .= Tools[ntools].Name "," i ",,autosize`n"
+	IL_Add(_ToolIL, Tools[ntools].Picture, Tools[ntools].IconNumber)
 	i ++
 }
 
@@ -265,8 +263,8 @@ dbg_active := false
 ; Build hotkeys
 Hotkey, IfWinActive, ahk_id %scitehwnd%
 Loop, %ntools%
-	if Tool%A_Index%_Hotkey !=
-		Hotkey, % Tool%A_Index%_Hotkey, ToolHotkeyHandler
+	if Tools[A_Index].Hotkey != ""
+		Hotkey, % Tools[A_Index].Hotkey, ToolHotkeyHandler
 
 ; Create the COM interface
 InitComInterface()
@@ -403,7 +401,7 @@ ToolHotkeyHandler:
 curhotkey := A_ThisHotkey
 Loop, %ntools%
 	toolnumber := A_Index
-until Tool%toolnumber%_Hotkey = curhotkey
+until Tools[toolnumber].Hotkey = curhotkey
 RunTool(toolnumber)
 return
 
@@ -422,18 +420,14 @@ return
 ; Function to run a tool
 RunTool(toolnumber)
 {
-	global
-	t := Tool%toolnumber%_Path
-	if SubStr(t, 1, 1) = "?"
+	global Tools, dbg_active
+	if SubStr(t := Tools[toolnumber].Path, 1, 1) = "?"
+		p := "Cmd_" SubStr(t, 2), (IsFunc(p)) ? p.() : ""
+	else if !dbg_active
 	{
-		p := "Cmd_" SubStr(t, 2), (IsFunc(p)) ? %p%() : ""
-		return
-	}
-	if !dbg_active
-	{
-		Run, % ParseCmdLine(Tool%toolnumber%_Path),, UseErrorLevel
+		Run, % ParseCmdLine(cmd := Tools[toolnumber].Path),, UseErrorLevel
 		if ErrorLevel = ERROR
-			MsgBox, 16, AutoHotkey Toolbar for SciTE, % "Couldn't launch specified command line! Specified:`n" Tool%toolnumber%_Path
+			MsgBox, 16, SciTE4AutoHotkey Toolbar, Couldn't launch specified command line! Specified:`n%cmd%
 	}
 }
 
@@ -537,10 +531,10 @@ GetSciTEOpenedFile()
 		WinGetTitle, sctitle, ahk_id %scitehwnd%
 		if !RegExMatch(sctitle, "^(.+?) [-*] SciTE", o)
 		{
-			MsgBox Bad SciTE window!
+			MsgBox, 16, SciTE4AutoHotkey Toolbar, Bad SciTE window!
 			ExitApp
 		}else
-			return %o1%
+			return o1
 	}
 	;return Director_Send("askfilename:", true).value
 }

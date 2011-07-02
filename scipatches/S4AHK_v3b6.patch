@@ -1,11 +1,11 @@
 diff --strip-trailing-cr -ruN 1/README.txt 2/README.txt
 --- 1/README.txt	1970-01-01 01:00:00 +0100
-+++ 2/README.txt	2011-04-08 21:17:33 +0200
++++ 2/README.txt	2011-07-02 20:14:10 +0200
 @@ -0,0 +1 @@
 +mpress.exe and upx.exe are required to be placed here.
 diff --strip-trailing-cr -ruN 1/SciTE4AutoHotkey.sln 2/SciTE4AutoHotkey.sln
 --- 1/SciTE4AutoHotkey.sln	1970-01-01 01:00:00 +0100
-+++ 2/SciTE4AutoHotkey.sln	2011-04-08 21:17:33 +0200
++++ 2/SciTE4AutoHotkey.sln	2011-07-02 20:14:10 +0200
 @@ -0,0 +1,52 @@
 +﻿
 +Microsoft Visual Studio Solution File, Format Version 11.00
@@ -61,7 +61,7 @@ diff --strip-trailing-cr -ruN 1/SciTE4AutoHotkey.sln 2/SciTE4AutoHotkey.sln
 +EndGlobal
 diff --strip-trailing-cr -ruN 1/dbguihlp/DbgUIHlp.vcxproj 2/dbguihlp/DbgUIHlp.vcxproj
 --- 1/dbguihlp/DbgUIHlp.vcxproj	1970-01-01 01:00:00 +0100
-+++ 2/dbguihlp/DbgUIHlp.vcxproj	2011-04-08 21:17:33 +0200
++++ 2/dbguihlp/DbgUIHlp.vcxproj	2011-07-02 20:14:10 +0200
 @@ -0,0 +1,175 @@
 +﻿<?xml version="1.0" encoding="utf-8"?>
 +<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -241,7 +241,7 @@ diff --strip-trailing-cr -ruN 1/dbguihlp/DbgUIHlp.vcxproj 2/dbguihlp/DbgUIHlp.vc
 \ No newline at end of file
 diff --strip-trailing-cr -ruN 1/dbguihlp/DbgUIHlp.vcxproj.filters 2/dbguihlp/DbgUIHlp.vcxproj.filters
 --- 1/dbguihlp/DbgUIHlp.vcxproj.filters	1970-01-01 01:00:00 +0100
-+++ 2/dbguihlp/DbgUIHlp.vcxproj.filters	2011-04-08 21:17:33 +0200
++++ 2/dbguihlp/DbgUIHlp.vcxproj.filters	2011-07-02 20:14:10 +0200
 @@ -0,0 +1,22 @@
 +﻿<?xml version="1.0" encoding="utf-8"?>
 +<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -268,7 +268,7 @@ diff --strip-trailing-cr -ruN 1/dbguihlp/DbgUIHlp.vcxproj.filters 2/dbguihlp/Dbg
 \ No newline at end of file
 diff --strip-trailing-cr -ruN 1/dbguihlp/src/main.c 2/dbguihlp/src/main.c
 --- 1/dbguihlp/src/main.c	1970-01-01 01:00:00 +0100
-+++ 2/dbguihlp/src/main.c	2011-04-08 21:17:33 +0200
++++ 2/dbguihlp/src/main.c	2011-07-02 20:14:10 +0200
 @@ -0,0 +1,167 @@
 +// SciTE4AutoHotkey v2 Lua message pumper 1.0
 +// Build with: gcc -shared -o module.dll -I..\lualib\src main.c scite.la
@@ -439,7 +439,7 @@ diff --strip-trailing-cr -ruN 1/dbguihlp/src/main.c 2/dbguihlp/src/main.c
 +}
 diff --strip-trailing-cr -ruN 1/dbguihlp/src/scite.def 2/dbguihlp/src/scite.def
 --- 1/dbguihlp/src/scite.def	1970-01-01 01:00:00 +0100
-+++ 2/dbguihlp/src/scite.def	2011-04-08 21:17:33 +0200
++++ 2/dbguihlp/src/scite.def	2011-07-02 20:14:10 +0200
 @@ -0,0 +1,124 @@
 +LIBRARY "SciTE.exe"
 +EXPORTS
@@ -567,8 +567,8 @@ diff --strip-trailing-cr -ruN 1/dbguihlp/src/scite.def 2/dbguihlp/src/scite.def
 +	luaopen_table
 diff --strip-trailing-cr -ruN 1/scintilla/Scintilla.vcxproj 2/scintilla/Scintilla.vcxproj
 --- 1/scintilla/Scintilla.vcxproj	1970-01-01 01:00:00 +0100
-+++ 2/scintilla/Scintilla.vcxproj	2011-04-08 21:17:33 +0200
-@@ -0,0 +1,341 @@
++++ 2/scintilla/Scintilla.vcxproj	2011-07-02 20:39:47 +0200
+@@ -0,0 +1,342 @@
 +﻿<?xml version="1.0" encoding="utf-8"?>
 +<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 +  <ItemGroup Label="ProjectConfigurations">
@@ -834,6 +834,7 @@ diff --strip-trailing-cr -ruN 1/scintilla/Scintilla.vcxproj 2/scintilla/Scintill
 +    <ClCompile Include="lexers\LexMatlab.cxx" />
 +    <ClCompile Include="lexers\LexMetapost.cxx" />
 +    <ClCompile Include="lexers\LexMMIXAL.cxx" />
++    <ClCompile Include="lexers\LexModula.cxx" />
 +    <ClCompile Include="lexers\LexMPT.cxx" />
 +    <ClCompile Include="lexers\LexMSSQL.cxx" />
 +    <ClCompile Include="lexers\LexMySQL.cxx" />
@@ -913,8 +914,8 @@ diff --strip-trailing-cr -ruN 1/scintilla/Scintilla.vcxproj 2/scintilla/Scintill
 \ No newline at end of file
 diff --strip-trailing-cr -ruN 1/scintilla/Scintilla.vcxproj.filters 2/scintilla/Scintilla.vcxproj.filters
 --- 1/scintilla/Scintilla.vcxproj.filters	1970-01-01 01:00:00 +0100
-+++ 2/scintilla/Scintilla.vcxproj.filters	2011-04-08 21:17:33 +0200
-@@ -0,0 +1,508 @@
++++ 2/scintilla/Scintilla.vcxproj.filters	2011-07-02 20:39:47 +0200
+@@ -0,0 +1,511 @@
 +﻿<?xml version="1.0" encoding="utf-8"?>
 +<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 +  <ItemGroup>
@@ -1421,18 +1422,15 @@ diff --strip-trailing-cr -ruN 1/scintilla/Scintilla.vcxproj.filters 2/scintilla/
 +    <ClCompile Include="lexers\LexA68k.cxx">
 +      <Filter>Source Files</Filter>
 +    </ClCompile>
++    <ClCompile Include="lexers\LexModula.cxx">
++      <Filter>Source Files</Filter>
++    </ClCompile>
 +  </ItemGroup>
 +</Project>
 \ No newline at end of file
-diff --strip-trailing-cr -ruN 1/scintilla/bin/.cvsignore 2/scintilla/bin/.cvsignore
---- 1/scintilla/bin/.cvsignore	2010-10-27 23:15:45 +0200
-+++ 2/scintilla/bin/.cvsignore	1970-01-01 01:00:00 +0100
-@@ -1,2 +0,0 @@
--.cvsignore
--*.dll
 diff --strip-trailing-cr -ruN 1/scintilla/build.bat 2/scintilla/build.bat
 --- 1/scintilla/build.bat	1970-01-01 01:00:00 +0100
-+++ 2/scintilla/build.bat	2011-04-08 21:17:43 +0200
++++ 2/scintilla/build.bat	2011-07-02 20:14:17 +0200
 @@ -0,0 +1,25 @@
 +@echo off
 +set path=c:\mingw\bin;%path%
@@ -1462,33 +1460,17 @@ diff --strip-trailing-cr -ruN 1/scintilla/build.bat 2/scintilla/build.bat
 \ No newline at end of file
 diff --strip-trailing-cr -ruN 1/scintilla/clean.bat 2/scintilla/clean.bat
 --- 1/scintilla/clean.bat	1970-01-01 01:00:00 +0100
-+++ 2/scintilla/clean.bat	2011-04-08 21:17:43 +0200
++++ 2/scintilla/clean.bat	2011-07-02 20:14:17 +0200
 @@ -0,0 +1 @@
 +del /F /S /Q *.a *.aps *.bsc *.dsw *.idb *.ilc *.ild *.ilf *.ilk *.ils *.lib *.map *.ncb *.obj *.o *.opt *.pdb *.plg *.res *.sbr *.tds *.exp >NUL:
 diff --strip-trailing-cr -ruN 1/scintilla/cleanexe.bat 2/scintilla/cleanexe.bat
 --- 1/scintilla/cleanexe.bat	1970-01-01 01:00:00 +0100
-+++ 2/scintilla/cleanexe.bat	2011-04-08 21:17:43 +0200
++++ 2/scintilla/cleanexe.bat	2011-07-02 20:14:17 +0200
 @@ -0,0 +1 @@
 +del /F /S /Q bin\SciLexer.dll >NUL:
-diff --strip-trailing-cr -ruN 1/scintilla/delbin.bat 2/scintilla/delbin.bat
---- 1/scintilla/delbin.bat	2010-10-27 23:15:45 +0200
-+++ 2/scintilla/delbin.bat	1970-01-01 01:00:00 +0100
-@@ -1 +0,0 @@
--del /S /Q *.a *.aps *.bsc *.dll *.dsw *.exe *.idb *.ilc *.ild *.ilf *.ilk *.ils *.lib *.map *.ncb *.obj *.o *.opt *.pdb *.plg *.res *.sbr *.tds *.exp >NUL:
-diff --strip-trailing-cr -ruN 1/scintilla/delcvs.bat 2/scintilla/delcvs.bat
---- 1/scintilla/delcvs.bat	2010-10-27 23:15:45 +0200
-+++ 2/scintilla/delcvs.bat	1970-01-01 01:00:00 +0100
-@@ -1 +0,0 @@
--del /S /Q .cvsignore
-diff --strip-trailing-cr -ruN 1/scintilla/include/.cvsignore 2/scintilla/include/.cvsignore
---- 1/scintilla/include/.cvsignore	2010-10-27 23:15:45 +0200
-+++ 2/scintilla/include/.cvsignore	1970-01-01 01:00:00 +0100
-@@ -1,2 +0,0 @@
--.cvsignore
--*.pyc
 diff --strip-trailing-cr -ruN 1/scintilla/include/SciLexer.h 2/scintilla/include/SciLexer.h
 --- 1/scintilla/include/SciLexer.h	2011-03-17 23:41:24 +0100
-+++ 2/scintilla/include/SciLexer.h	2011-04-08 21:24:06 +0200
++++ 2/scintilla/include/SciLexer.h	2011-07-02 20:14:17 +0200
 @@ -114,6 +114,7 @@
  #define SCLEX_TXT2TAGS 99
  #define SCLEX_A68K 100
@@ -1527,7 +1509,7 @@ diff --strip-trailing-cr -ruN 1/scintilla/include/SciLexer.h 2/scintilla/include
  #endif
 diff --strip-trailing-cr -ruN 1/scintilla/lexers/LexAHK1.cxx 2/scintilla/lexers/LexAHK1.cxx
 --- 1/scintilla/lexers/LexAHK1.cxx	1970-01-01 01:00:00 +0100
-+++ 2/scintilla/lexers/LexAHK1.cxx	2011-04-08 21:17:43 +0200
++++ 2/scintilla/lexers/LexAHK1.cxx	2011-07-02 20:14:17 +0200
 @@ -0,0 +1,487 @@
 +// Scintilla source code edit control
 +/** @file LexAHK1.cxx
@@ -2018,7 +2000,7 @@ diff --strip-trailing-cr -ruN 1/scintilla/lexers/LexAHK1.cxx 2/scintilla/lexers/
 +LexerModule lmAHK1(SCLEX_AHK1, ColouriseAHK1Doc, "ahk1", FoldAHK1Doc, ahkWordListDesc);
 diff --strip-trailing-cr -ruN 1/scintilla/rebuild.bat 2/scintilla/rebuild.bat
 --- 1/scintilla/rebuild.bat	1970-01-01 01:00:00 +0100
-+++ 2/scintilla/rebuild.bat	2011-04-08 21:17:43 +0200
++++ 2/scintilla/rebuild.bat	2011-07-02 20:14:17 +0200
 @@ -0,0 +1,27 @@
 +@echo off
 +set path=c:\mingw\bin;%path%
@@ -2050,7 +2032,7 @@ diff --strip-trailing-cr -ruN 1/scintilla/rebuild.bat 2/scintilla/rebuild.bat
 \ No newline at end of file
 diff --strip-trailing-cr -ruN 1/scintilla/src/Catalogue.cxx 2/scintilla/src/Catalogue.cxx
 --- 1/scintilla/src/Catalogue.cxx	2011-03-17 23:41:24 +0100
-+++ 2/scintilla/src/Catalogue.cxx	2011-04-08 21:17:43 +0200
++++ 2/scintilla/src/Catalogue.cxx	2011-07-02 20:14:17 +0200
 @@ -84,6 +84,7 @@
  	LINK_LEXER(lmA68k);
  	LINK_LEXER(lmAbaqus);
@@ -2059,43 +2041,26 @@ diff --strip-trailing-cr -ruN 1/scintilla/src/Catalogue.cxx 2/scintilla/src/Cata
  	LINK_LEXER(lmAns1);
  	LINK_LEXER(lmAPDL);
  	LINK_LEXER(lmAsm);
-diff --strip-trailing-cr -ruN 1/scintilla/tgzsrc 2/scintilla/tgzsrc
---- 1/scintilla/tgzsrc	2010-10-27 23:15:45 +0200
-+++ 2/scintilla/tgzsrc	1970-01-01 01:00:00 +0100
-@@ -1,4 +0,0 @@
--cd ..
--rm -f scintilla.tgz
--tar --create --exclude \*.o --exclude \*.obj --exclude \*.dll --exclude \*.exe --exclude \*.a scintilla/* \
--	| gzip -c >scintilla.tgz
-diff --strip-trailing-cr -ruN 1/scintilla/win32/.cvsignore 2/scintilla/win32/.cvsignore
---- 1/scintilla/win32/.cvsignore	2010-10-27 23:15:45 +0200
-+++ 2/scintilla/win32/.cvsignore	1970-01-01 01:00:00 +0100
-@@ -1,3 +0,0 @@
--.cvsignore
--*.obj
--ScintRes.res
-\ No newline at end of file
-Files 1/scintilla/win32/ScintRes.aps and 2/scintilla/win32/ScintRes.aps differ
 diff --strip-trailing-cr -ruN 1/scintilla/win32/ScintRes.rc 2/scintilla/win32/ScintRes.rc
---- 1/scintilla/win32/ScintRes.rc	2011-03-17 23:41:24 +0100
-+++ 2/scintilla/win32/ScintRes.rc	2011-04-08 21:26:46 +0200
+--- 1/scintilla/win32/ScintRes.rc	2011-06-20 05:44:58 +0200
++++ 2/scintilla/win32/ScintRes.rc	2011-07-02 20:19:05 +0200
 @@ -22,11 +22,11 @@
  		BLOCK "040904b0"
  		BEGIN
  			VALUE	"CompanyName",	"Neil Hodgson neilh@scintilla.org\0"
 -			VALUE	"FileDescription",	"Scintilla.DLL - a Source Editing Component\0"
 +			VALUE	"FileDescription",	"Scintilla.dll - a Source Editing Component\0"
- 			VALUE	"FileVersion",	"2.25\0"
+ 			VALUE	"FileVersion",	"2.27\0"
  			VALUE	"InternalName",	"Scintilla\0"
  			VALUE	"LegalCopyright",	"Copyright 1998-2011 by Neil Hodgson\0"
 -			VALUE	"OriginalFilename",	"Scintilla.DLL\0"
 +			VALUE	"OriginalFilename",	"Scintilla.dll\0"
  			VALUE	"ProductName",	"Scintilla\0"
- 			VALUE	"ProductVersion",	"2.25\0"
+ 			VALUE	"ProductVersion",	"2.27\0"
  		END
 diff --strip-trailing-cr -ruN 1/scintilla/win32/deps.mak 2/scintilla/win32/deps.mak
 --- 1/scintilla/win32/deps.mak	2011-02-03 13:56:34 +0100
-+++ 2/scintilla/win32/deps.mak	2011-04-08 21:17:47 +0200
++++ 2/scintilla/win32/deps.mak	2011-07-02 20:14:17 +0200
 @@ -112,6 +112,10 @@
   ../include/SciLexer.h ../lexlib/PropSetSimple.h ../lexlib/WordList.h \
   ../lexlib/LexAccessor.h ../lexlib/Accessor.h ../lexlib/StyleContext.h \
@@ -2109,7 +2074,7 @@ diff --strip-trailing-cr -ruN 1/scintilla/win32/deps.mak 2/scintilla/win32/deps.
   ../lexlib/WordList.h ../lexlib/LexAccessor.h ../lexlib/Accessor.h \
 diff --strip-trailing-cr -ruN 1/scintilla/win32/makefile 2/scintilla/win32/makefile
 --- 1/scintilla/win32/makefile	2011-02-03 13:56:34 +0100
-+++ 2/scintilla/win32/makefile	2011-04-08 21:17:47 +0200
++++ 2/scintilla/win32/makefile	2011-07-02 20:14:17 +0200
 @@ -16,7 +16,7 @@
  vpath %.cxx ../src ../lexlib ../lexers
  
@@ -2119,18 +2084,10 @@ diff --strip-trailing-cr -ruN 1/scintilla/win32/makefile 2/scintilla/win32/makef
  # Add -MMD to get dependencies
  INCLUDEDIRS=-I ../include -I ../src -I../lexlib
  CXXBASEFLAGS=-Wall -Wno-missing-braces -Wno-char-subscripts -Wno-strict-overflow -pedantic $(INCLUDEDIRS) -fno-rtti -mno-cygwin
-diff --strip-trailing-cr -ruN 1/scintilla/zipsrc.bat 2/scintilla/zipsrc.bat
---- 1/scintilla/zipsrc.bat	2010-10-27 23:15:45 +0200
-+++ 2/scintilla/zipsrc.bat	1970-01-01 01:00:00 +0100
-@@ -1,4 +0,0 @@
--cd ..
--del/q scintilla.zip
--zip scintilla.zip scintilla\*.* scintilla\*\*.* scintilla\*\*\*.* scintilla\*\*\*\*.* scintilla\*\*\*\*\*.* -x *.o -x *.obj -x *.dll -x *.lib -x *.res -x *.exp
--cd scintilla
 diff --strip-trailing-cr -ruN 1/scite/SciTE.vcxproj 2/scite/SciTE.vcxproj
 --- 1/scite/SciTE.vcxproj	1970-01-01 01:00:00 +0100
-+++ 2/scite/SciTE.vcxproj	2011-04-08 21:17:47 +0200
-@@ -0,0 +1,284 @@
++++ 2/scite/SciTE.vcxproj	2011-07-02 20:39:47 +0200
+@@ -0,0 +1,285 @@
 +﻿<?xml version="1.0" encoding="utf-8"?>
 +<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 +  <ItemGroup Label="ProjectConfigurations">
@@ -2384,6 +2341,7 @@ diff --strip-trailing-cr -ruN 1/scite/SciTE.vcxproj 2/scite/SciTE.vcxproj
 +    <ClCompile Include="lua\src\lundump.c" />
 +    <ClCompile Include="lua\src\lvm.c" />
 +    <ClCompile Include="lua\src\lzio.c" />
++    <ClCompile Include="src\Credits.cxx" />
 +    <ClCompile Include="src\Exporters.cxx" />
 +    <ClCompile Include="src\FilePath.cxx" />
 +    <ClCompile Include="src\IFaceTable.cxx" />
@@ -2418,8 +2376,8 @@ diff --strip-trailing-cr -ruN 1/scite/SciTE.vcxproj 2/scite/SciTE.vcxproj
 \ No newline at end of file
 diff --strip-trailing-cr -ruN 1/scite/SciTE.vcxproj.filters 2/scite/SciTE.vcxproj.filters
 --- 1/scite/SciTE.vcxproj.filters	1970-01-01 01:00:00 +0100
-+++ 2/scite/SciTE.vcxproj.filters	2011-04-08 21:17:47 +0200
-@@ -0,0 +1,320 @@
++++ 2/scite/SciTE.vcxproj.filters	2011-07-02 20:39:47 +0200
+@@ -0,0 +1,323 @@
 +﻿<?xml version="1.0" encoding="utf-8"?>
 +<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 +  <ItemGroup>
@@ -2735,6 +2693,9 @@ diff --strip-trailing-cr -ruN 1/scite/SciTE.vcxproj.filters 2/scite/SciTE.vcxpro
 +    <ClCompile Include="src\StringHelpers.cxx">
 +      <Filter>Source Files</Filter>
 +    </ClCompile>
++    <ClCompile Include="src\Credits.cxx">
++      <Filter>Source Files</Filter>
++    </ClCompile>
 +  </ItemGroup>
 +  <ItemGroup>
 +    <Manifest Include="win32\SciTE.exe.manifest" />
@@ -2743,7 +2704,7 @@ diff --strip-trailing-cr -ruN 1/scite/SciTE.vcxproj.filters 2/scite/SciTE.vcxpro
 \ No newline at end of file
 diff --strip-trailing-cr -ruN 1/scite/SciTE.vcxproj.user 2/scite/SciTE.vcxproj.user
 --- 1/scite/SciTE.vcxproj.user	1970-01-01 01:00:00 +0100
-+++ 2/scite/SciTE.vcxproj.user	2011-04-08 21:17:47 +0200
++++ 2/scite/SciTE.vcxproj.user	2011-07-02 20:14:17 +0200
 @@ -0,0 +1,7 @@
 +﻿<?xml version="1.0" encoding="utf-8"?>
 +<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -2753,16 +2714,9 @@ diff --strip-trailing-cr -ruN 1/scite/SciTE.vcxproj.user 2/scite/SciTE.vcxproj.u
 +  </PropertyGroup>
 +</Project>
 \ No newline at end of file
-diff --strip-trailing-cr -ruN 1/scite/bin/.cvsignore 2/scite/bin/.cvsignore
---- 1/scite/bin/.cvsignore	2011-03-17 23:42:00 +0100
-+++ 2/scite/bin/.cvsignore	1970-01-01 01:00:00 +0100
-@@ -1,3 +0,0 @@
--.cvsignore
--*.properties
--*.dll
 diff --strip-trailing-cr -ruN 1/scite/build.bat 2/scite/build.bat
 --- 1/scite/build.bat	1970-01-01 01:00:00 +0100
-+++ 2/scite/build.bat	2011-04-08 21:17:48 +0200
++++ 2/scite/build.bat	2011-07-02 20:14:22 +0200
 @@ -0,0 +1,22 @@
 +@echo off
 +set path=c:\mingw\bin;%path%
@@ -2789,27 +2743,17 @@ diff --strip-trailing-cr -ruN 1/scite/build.bat 2/scite/build.bat
 \ No newline at end of file
 diff --strip-trailing-cr -ruN 1/scite/clean.bat 2/scite/clean.bat
 --- 1/scite/clean.bat	1970-01-01 01:00:00 +0100
-+++ 2/scite/clean.bat	2011-04-08 21:20:28 +0200
++++ 2/scite/clean.bat	2011-07-02 20:14:22 +0200
 @@ -0,0 +1 @@
 +del /S /Q *.a *.aps *.bsc *.dsw *.idb *.ilc *.ild *.ilf *.ilk *.ils *.lib *.map *.ncb *.obj *.o *.opt *.pdb *.plg *.res *.sbr *.tds *.exp >NUL:
 diff --strip-trailing-cr -ruN 1/scite/cleanexe.bat 2/scite/cleanexe.bat
 --- 1/scite/cleanexe.bat	1970-01-01 01:00:00 +0100
-+++ 2/scite/cleanexe.bat	2011-04-08 21:17:56 +0200
++++ 2/scite/cleanexe.bat	2011-07-02 20:14:22 +0200
 @@ -0,0 +1 @@
 +del /Q bin\SciTE.exe bin\lite\SciTE.exe >NUL:
-diff --strip-trailing-cr -ruN 1/scite/delbin.bat 2/scite/delbin.bat
---- 1/scite/delbin.bat	2011-03-17 23:42:00 +0100
-+++ 2/scite/delbin.bat	1970-01-01 01:00:00 +0100
-@@ -1 +0,0 @@
--del /S /Q *.a *.aps *.bsc *.dll *.dsw *.exe *.idb *.ilc *.ild *.ilf *.ilk *.ils *.lib *.map *.ncb *.obj *.o *.opt *.pdb *.plg *.res *.sbr *.tds *.exp >NUL:
-diff --strip-trailing-cr -ruN 1/scite/delcvs.bat 2/scite/delcvs.bat
---- 1/scite/delcvs.bat	2011-03-17 23:42:00 +0100
-+++ 2/scite/delcvs.bat	1970-01-01 01:00:00 +0100
-@@ -1 +0,0 @@
--del /S /Q .cvsignore
 diff --strip-trailing-cr -ruN 1/scite/rebuild.bat 2/scite/rebuild.bat
 --- 1/scite/rebuild.bat	1970-01-01 01:00:00 +0100
-+++ 2/scite/rebuild.bat	2011-04-08 21:17:56 +0200
++++ 2/scite/rebuild.bat	2011-07-02 20:14:22 +0200
 @@ -0,0 +1,25 @@
 +@echo off
 +set path=c:\mingw\bin;%path%
@@ -2837,9 +2781,50 @@ diff --strip-trailing-cr -ruN 1/scite/rebuild.bat 2/scite/rebuild.bat
 +:ERROREXIT
 +pause
 \ No newline at end of file
+diff --strip-trailing-cr -ruN 1/scite/src/Credits.cxx 2/scite/src/Credits.cxx
+--- 1/scite/src/Credits.cxx	2011-06-20 05:49:48 +0200
++++ 2/scite/src/Credits.cxx	2011-07-02 20:25:14 +0200
+@@ -351,7 +351,11 @@
+ 		wsci.Send(SCI_STYLESETSIZE, 0, fontSize);
+ 		wsci.Send(SCI_STYLESETBACK, 0, ColourRGB(0, 0, 0x80));
+ 		AddStyledText(wsci, appTitle, 0);
+-		AddStyledText(wsci, "\n", 0);
++#ifndef _WIN64 // fincs-edit
++		AddStyledText(wsci, "\n", 1 /* fincs-edit */);
++#else // fincs-edit
++		AddStyledText(wsci, " 64-bit Edition\n", 1);
++#endif
+ 		SetAboutStyle(wsci, 1, ColourRGB(0, 0, 0));
+ 		int trsSty = 5; // define the stylenumber to assign font for translators.
+ 		SString translator = GetTranslationToAbout("TranslationCredit", false);
+@@ -371,16 +375,20 @@
+ 		}
+ #endif
+ 		AddStyledText(wsci, GetTranslationToAbout("Version").c_str(), trsSty);
+-		AddStyledText(wsci, " 2.27\n", 1);
++		AddStyledText(wsci, " 3.0 - Based on SciTE 2.27\n", 1);
+ 		AddStyledText(wsci, "    " __DATE__ " " __TIME__ "\n", 1);
+ 		SetAboutStyle(wsci, 2, ColourRGB(0, 0, 0));
+ 		wsci.Send(SCI_STYLESETITALIC, 2, 1);
+ 		AddStyledText(wsci, GetTranslationToAbout("by").c_str(), trsSty);
+-		AddStyledText(wsci, " Neil Hodgson.\n", 2);
++		// fincs-edit start
++		AddStyledText(wsci, " fincs", 2);
++		AddStyledText(wsci, " - Original SciTE by ", trsSty);
++		AddStyledText(wsci, "Neil Hodgson\n", 2);
+ 		SetAboutStyle(wsci, 3, ColourRGB(0, 0, 0));
+-		AddStyledText(wsci, "December 1998-June 2011.\n", 3);
++		AddStyledText(wsci, "SciTE: 1998-2011 Neil Hodgson,\nSciTE4AutoHotkey: 2007-2011 fincs\n", 3);
+ 		SetAboutStyle(wsci, 4, ColourRGB(0, 0x7f, 0x7f));
+-		AddStyledText(wsci, "http://www.scintilla.org\n", 4);
++		AddStyledText(wsci, "http://www.autohotkey.com, http://www.scintilla.org\n", 4);
++		// fincs-edit end
+ 		AddStyledText(wsci, "Lua scripting language by TeCGraf, PUC-Rio\n", 3);
+ 		AddStyledText(wsci, "    http://www.lua.org\n", 4);
+ 		if (translator.length()) {
 diff --strip-trailing-cr -ruN 1/scite/src/Extender.h 2/scite/src/Extender.h
 --- 1/scite/src/Extender.h	2011-03-17 23:42:00 +0100
-+++ 2/scite/src/Extender.h	2011-04-08 21:17:56 +0200
++++ 2/scite/src/Extender.h	2011-07-02 20:14:22 +0200
 @@ -62,7 +62,7 @@
  	}
  	virtual bool OnDoubleClick() { return false; }
@@ -2850,8 +2835,8 @@ diff --strip-trailing-cr -ruN 1/scite/src/Extender.h 2/scite/src/Extender.h
  	virtual bool OnUserListSelection(int, const char *) { return false; }
  
 diff --strip-trailing-cr -ruN 1/scite/src/LuaExtension.cxx 2/scite/src/LuaExtension.cxx
---- 1/scite/src/LuaExtension.cxx	2011-03-17 23:42:00 +0100
-+++ 2/scite/src/LuaExtension.cxx	2011-04-08 21:21:23 +0200
+--- 1/scite/src/LuaExtension.cxx	2011-06-14 02:55:05 +0200
++++ 2/scite/src/LuaExtension.cxx	2011-07-02 20:14:22 +0200
 @@ -809,6 +809,22 @@
  	return handled;
  }
@@ -2888,7 +2873,7 @@ diff --strip-trailing-cr -ruN 1/scite/src/LuaExtension.cxx 2/scite/src/LuaExtens
  bool LuaExtension::OnUserListSelection(int listType, const char *selection) {
 diff --strip-trailing-cr -ruN 1/scite/src/LuaExtension.h 2/scite/src/LuaExtension.h
 --- 1/scite/src/LuaExtension.h	2011-03-17 23:42:00 +0100
-+++ 2/scite/src/LuaExtension.h	2011-04-08 21:17:56 +0200
++++ 2/scite/src/LuaExtension.h	2011-07-02 20:14:22 +0200
 @@ -34,7 +34,7 @@
  	virtual bool OnStyle(unsigned int startPos, int lengthDoc, int initStyle, StyleWriter *styler);
  	virtual bool OnDoubleClick();
@@ -2900,7 +2885,7 @@ diff --strip-trailing-cr -ruN 1/scite/src/LuaExtension.h 2/scite/src/LuaExtensio
  	virtual bool OnDwellStart(int pos, const char *word);
 diff --strip-trailing-cr -ruN 1/scite/src/MultiplexExtension.cxx 2/scite/src/MultiplexExtension.cxx
 --- 1/scite/src/MultiplexExtension.cxx	2011-03-17 23:42:00 +0100
-+++ 2/scite/src/MultiplexExtension.cxx	2011-04-08 21:17:56 +0200
++++ 2/scite/src/MultiplexExtension.cxx	2011-07-02 20:14:22 +0200
 @@ -197,10 +197,10 @@
  	return handled;
  }
@@ -2916,7 +2901,7 @@ diff --strip-trailing-cr -ruN 1/scite/src/MultiplexExtension.cxx 2/scite/src/Mul
  }
 diff --strip-trailing-cr -ruN 1/scite/src/MultiplexExtension.h 2/scite/src/MultiplexExtension.h
 --- 1/scite/src/MultiplexExtension.h	2011-03-17 23:42:00 +0100
-+++ 2/scite/src/MultiplexExtension.h	2011-04-08 21:17:56 +0200
++++ 2/scite/src/MultiplexExtension.h	2011-07-02 20:14:22 +0200
 @@ -64,7 +64,7 @@
  	virtual bool OnStyle(unsigned int, int, int, StyleWriter *);
  	virtual bool OnDoubleClick();
@@ -2927,9 +2912,9 @@ diff --strip-trailing-cr -ruN 1/scite/src/MultiplexExtension.h 2/scite/src/Multi
  	virtual bool OnUserListSelection(int, const char *);
  
 diff --strip-trailing-cr -ruN 1/scite/src/SciTE.h 2/scite/src/SciTE.h
---- 1/scite/src/SciTE.h	2011-03-17 23:42:00 +0100
-+++ 2/scite/src/SciTE.h	2011-04-08 21:17:56 +0200
-@@ -262,3 +262,6 @@
+--- 1/scite/src/SciTE.h	2011-05-02 11:12:03 +0200
++++ 2/scite/src/SciTE.h	2011-07-02 20:14:22 +0200
+@@ -264,3 +264,6 @@
  #define IDBM_AROUND 105
  #define IDBM_UP 106
  #endif
@@ -2937,47 +2922,9 @@ diff --strip-trailing-cr -ruN 1/scite/src/SciTE.h 2/scite/src/SciTE.h
 +// fincs-edit
 +#define IDI_MAINICON 500
 diff --strip-trailing-cr -ruN 1/scite/src/SciTEBase.cxx 2/scite/src/SciTEBase.cxx
---- 1/scite/src/SciTEBase.cxx	2011-03-17 23:42:00 +0100
-+++ 2/scite/src/SciTEBase.cxx	2011-04-08 21:28:05 +0200
-@@ -564,7 +564,11 @@
- 		wsci.Send(SCI_STYLESETSIZE, 0, fontSize);
- 		wsci.Send(SCI_STYLESETBACK, 0, ColourRGB(0, 0, 0x80));
- 		AddStyledText(wsci, appTitle, 0);
--		AddStyledText(wsci, "\n", 0);
-+#ifndef _WIN64 // fincs-edit
-+		AddStyledText(wsci, "\n", 1 /* fincs-edit */);
-+#else // fincs-edit
-+		AddStyledText(wsci, " 64-bit Edition\n", 1);
-+#endif
- 		SetAboutStyle(wsci, 1, ColourRGB(0, 0, 0));
- 		int trsSty = 5; // define the stylenumber to assign font for translators.
- 		SString translator = GetTranslationToAbout("TranslationCredit", false);
-@@ -584,16 +588,20 @@
- 		}
- #endif
- 		AddStyledText(wsci, GetTranslationToAbout("Version").c_str(), trsSty);
--		AddStyledText(wsci, " 2.25\n", 1);
-+		AddStyledText(wsci, " 3.0 - Based on SciTE 2.24\n", 1);
- 		AddStyledText(wsci, "    " __DATE__ " " __TIME__ "\n", 1);
- 		SetAboutStyle(wsci, 2, ColourRGB(0, 0, 0));
- 		wsci.Send(SCI_STYLESETITALIC, 2, 1);
- 		AddStyledText(wsci, GetTranslationToAbout("by").c_str(), trsSty);
--		AddStyledText(wsci, " Neil Hodgson.\n", 2);
-+		// fincs-edit start
-+		AddStyledText(wsci, " fincs", 2);
-+		AddStyledText(wsci, " - Original SciTE by ", trsSty);
-+		AddStyledText(wsci, "Neil Hodgson\n", 2);
- 		SetAboutStyle(wsci, 3, ColourRGB(0, 0, 0));
--		AddStyledText(wsci, "December 1998-March 2011.\n", 3);
-+		AddStyledText(wsci, "SciTE: 1998-2011 Neil Hodgson,\nSciTE4AutoHotkey: 2007-2011 fincs\n", 3);
- 		SetAboutStyle(wsci, 4, ColourRGB(0, 0x7f, 0x7f));
--		AddStyledText(wsci, "http://www.scintilla.org\n", 4);
-+		AddStyledText(wsci, "http://www.autohotkey.com, http://www.scintilla.org\n", 4);
-+		// fincs-edit end
- 		AddStyledText(wsci, "Lua scripting language by TeCGraf, PUC-Rio\n", 3);
- 		AddStyledText(wsci, "    http://www.lua.org\n", 4);
- 		if (translator.length()) {
-@@ -1808,6 +1816,8 @@
+--- 1/scite/src/SciTEBase.cxx	2011-06-20 05:45:09 +0200
++++ 2/scite/src/SciTEBase.cxx	2011-07-02 20:14:22 +0200
+@@ -1490,6 +1490,8 @@
  			} else if (maxCallTips > 1) {
  				functionDefinition.insert(1, "\002");
  			}
@@ -2986,7 +2933,7 @@ diff --strip-trailing-cr -ruN 1/scite/src/SciTEBase.cxx 2/scite/src/SciTEBase.cx
  			wEditor.CallString(SCI_CALLTIPSHOW, lastPosCallTip - currentCallTipWord.length(), functionDefinition.c_str());
  			ContinueCallTip();
  		}
-@@ -4170,7 +4180,7 @@
+@@ -3905,7 +3907,7 @@
  
  	case SCN_MARGINCLICK: {
  			if (extender)
@@ -2995,45 +2942,9 @@ diff --strip-trailing-cr -ruN 1/scite/src/SciTEBase.cxx 2/scite/src/SciTEBase.cx
  			if (!handled) {
  				if (notification->margin == 2) {
  					MarginClick(notification->position, notification->modifiers);
-diff --strip-trailing-cr -ruN 1/scite/tgzgscite 2/scite/tgzgscite
---- 1/scite/tgzgscite	2011-03-17 23:42:00 +0100
-+++ 2/scite/tgzgscite	1970-01-01 01:00:00 +0100
-@@ -1,16 +0,0 @@
--cd ..
--rm -f gscite.tgz
--mkdir gscite
--cp scite/*.txt gscite
--cp scite/bin/SciTE gscite
--strip gscite/SciTE
--cp scite/src/*.properties gscite
--rm -f gscite/Embedded.properties
--cp scite/doc/*.html gscite
--cp scite/doc/*.png gscite
--cp scite/gtk/*.png gscite
--cp scite/doc/*.jpg gscite
--cp scite/doc/*.1 gscite
--tar --create gscite/* | gzip -c >gscite.tgz
--rm -f gscite/*
--rmdir gscite
-diff --strip-trailing-cr -ruN 1/scite/tgzsrc 2/scite/tgzsrc
---- 1/scite/tgzsrc	2011-03-17 23:42:00 +0100
-+++ 2/scite/tgzsrc	1970-01-01 01:00:00 +0100
-@@ -1,6 +0,0 @@
--cd ..
--rm -f scite.tgz
--rm -f scite/bin/*.properties
--tar --create --exclude=*.o --exclude=*.obj --exclude=*.dll --exclude=*.exe --exclude=*.a --exclude=SciTE \
--	scintilla/* scite/* \
--	| gzip -c >scite.tgz
-diff --strip-trailing-cr -ruN 1/scite/upxsc1.bat 2/scite/upxsc1.bat
---- 1/scite/upxsc1.bat	2011-03-17 23:42:00 +0100
-+++ 2/scite/upxsc1.bat	1970-01-01 01:00:00 +0100
-@@ -1,2 +0,0 @@
--del/q ..\Sc1.exe
--upx --best --force -o ..\Sc1.exe bin\Sc1.exe
 diff --strip-trailing-cr -ruN 1/scite/win32/SciTERes.rc 2/scite/win32/SciTERes.rc
---- 1/scite/win32/SciTERes.rc	2011-03-17 23:42:00 +0100
-+++ 2/scite/win32/SciTERes.rc	2011-04-08 21:29:12 +0200
+--- 1/scite/win32/SciTERes.rc	2011-06-20 05:45:09 +0200
++++ 2/scite/win32/SciTERes.rc	2011-07-02 20:26:04 +0200
 @@ -6,7 +6,9 @@
  
  #include "SciTE.h"
@@ -3071,18 +2982,12 @@ diff --strip-trailing-cr -ruN 1/scite/win32/SciTERes.rc 2/scite/win32/SciTERes.r
  	DEFPUSHBUTTON "OK", IDOK, 26, 222, 322, 20, WS_TABSTOP
  END
  
-@@ -569,13 +571,13 @@
- 
- //The embedded properties file is to allow a one file distribution of Sc1.EXE
- #ifdef STATIC_BUILD
--Embedded Properties Embedded.properties
-+Embedded Properties data\SciTEGlobal.properties
- #endif
+@@ -574,8 +576,8 @@
  IDC_DRAGDROP       CURSOR  DISCARDABLE     "DragDrop.cur"
  
  VS_VERSION_INFO VERSIONINFO
--FILEVERSION	2, 2, 5, 0
--PRODUCTVERSION	2, 2, 5, 0
+-FILEVERSION	2, 2, 7, 0
+-PRODUCTVERSION	2, 2, 7, 0
 +FILEVERSION	3, 0, 0, 0
 +PRODUCTVERSION	3, 0, 0, 0
  FILEFLAGSMASK	0x3fL
@@ -3094,12 +2999,12 @@ diff --strip-trailing-cr -ruN 1/scite/win32/SciTERes.rc 2/scite/win32/SciTERes.r
  		BEGIN
 -			VALUE	"CompanyName",	"Neil Hodgson neilh@scintilla.org\0"
 -			VALUE	"FileDescription",	"SciTE - a Scintilla based Text Editor\0"
--			VALUE	"FileVersion",	"2.25\0"
+-			VALUE	"FileVersion",	"2.27\0"
 -			VALUE	"InternalName",	"SciTE\0"
 -			VALUE	"LegalCopyright",	"Copyright 1998-2011 by Neil Hodgson\0"
 -			VALUE	"OriginalFilename",	"SciTE.EXE\0"
 -			VALUE	"ProductName",	"SciTE\0"
--			VALUE	"ProductVersion",	"2.25\0"
+-			VALUE	"ProductVersion",	"2.27\0"
 +			VALUE	"CompanyName",	"fincs @ autohotkey.com forum / Original SciTE by Neil Hodgson: neilh@scintilla.org\0"
 +			VALUE	"FileDescription",	"SciTE4AutoHotkey - a SciTE distribution for AutoHotkey\0"
 +			VALUE	"FileVersion",	"3.0\0"
@@ -3112,8 +3017,8 @@ diff --strip-trailing-cr -ruN 1/scite/win32/SciTERes.rc 2/scite/win32/SciTERes.r
  	END
  END
 diff --strip-trailing-cr -ruN 1/scite/win32/SciTEWin.cxx 2/scite/win32/SciTEWin.cxx
---- 1/scite/win32/SciTEWin.cxx	2011-03-17 23:42:00 +0100
-+++ 2/scite/win32/SciTEWin.cxx	2011-04-08 21:18:03 +0200
+--- 1/scite/win32/SciTEWin.cxx	2011-06-14 02:55:05 +0200
++++ 2/scite/win32/SciTEWin.cxx	2011-07-02 20:14:22 +0200
 @@ -51,9 +51,9 @@
  #endif
  
@@ -3213,7 +3118,7 @@ diff --strip-trailing-cr -ruN 1/scite/win32/SciTEWin.cxx 2/scite/win32/SciTEWin.
  void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
  	int cmdID = ControlIDOfCommand(wParam);
  	if (wParam & 0x10000) {
-@@ -1871,6 +1923,15 @@
+@@ -1889,6 +1941,15 @@
  		case WM_COPYDATA:
  			return uniqueInstance.CopyData(reinterpret_cast<COPYDATASTRUCT *>(lParam));
  
@@ -3229,7 +3134,7 @@ diff --strip-trailing-cr -ruN 1/scite/win32/SciTEWin.cxx 2/scite/win32/SciTEWin.
  		default:
  			return ::DefWindowProcW(MainHWND(), iMessage, wParam, lParam);
  		}
-@@ -3372,13 +3433,12 @@
+@@ -3388,13 +3449,12 @@
  #endif
  
  	SciTEWin::Register(hInstance);
@@ -3246,8 +3151,8 @@ diff --strip-trailing-cr -ruN 1/scite/win32/SciTEWin.cxx 2/scite/win32/SciTEWin.
  		::MessageBox(NULL, TEXT("The Scintilla DLL could not be loaded.  SciTE will now close"),
  			TEXT("Error loading Scintilla"), MB_OK | MB_ICONERROR);
 diff --strip-trailing-cr -ruN 1/scite/win32/SciTEWin.h 2/scite/win32/SciTEWin.h
---- 1/scite/win32/SciTEWin.h	2011-03-17 23:42:00 +0100
-+++ 2/scite/win32/SciTEWin.h	2011-04-08 21:18:03 +0200
+--- 1/scite/win32/SciTEWin.h	2011-06-14 02:55:05 +0200
++++ 2/scite/win32/SciTEWin.h	2011-07-02 20:14:22 +0200
 @@ -48,12 +48,13 @@
  #endif
  #include <commctrl.h>
@@ -3272,8 +3177,8 @@ diff --strip-trailing-cr -ruN 1/scite/win32/SciTEWin.h 2/scite/win32/SciTEWin.h
  	BOOL FindMessage(HWND hDlg, UINT message, WPARAM wParam);
  	static BOOL CALLBACK FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 diff --strip-trailing-cr -ruN 1/scite/win32/SciTEWinDlg.cxx 2/scite/win32/SciTEWinDlg.cxx
---- 1/scite/win32/SciTEWinDlg.cxx	2011-03-17 23:42:00 +0100
-+++ 2/scite/win32/SciTEWinDlg.cxx	2011-04-08 21:18:03 +0200
+--- 1/scite/win32/SciTEWinDlg.cxx	2011-06-14 02:55:05 +0200
++++ 2/scite/win32/SciTEWinDlg.cxx	2011-07-02 20:14:22 +0200
 @@ -286,6 +286,11 @@
  		ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
  		ofn.lpstrFilter = filter;
@@ -3297,7 +3202,7 @@ diff --strip-trailing-cr -ruN 1/scite/win32/SciTEWinDlg.cxx 2/scite/win32/SciTEW
  
 diff --strip-trailing-cr -ruN 1/scite/win32/SingleThreadExtension.cxx 2/scite/win32/SingleThreadExtension.cxx
 --- 1/scite/win32/SingleThreadExtension.cxx	2011-03-17 23:42:00 +0100
-+++ 2/scite/win32/SingleThreadExtension.cxx	2011-04-08 21:18:03 +0200
++++ 2/scite/win32/SingleThreadExtension.cxx	2011-07-02 20:14:22 +0200
 @@ -132,8 +132,8 @@
  	return ext->OnUpdateUI();
  }
@@ -3311,7 +3216,7 @@ diff --strip-trailing-cr -ruN 1/scite/win32/SingleThreadExtension.cxx 2/scite/wi
  bool SingleThreadExtension::OnMacro(const char *p, const char *q) {
 diff --strip-trailing-cr -ruN 1/scite/win32/SingleThreadExtension.h 2/scite/win32/SingleThreadExtension.h
 --- 1/scite/win32/SingleThreadExtension.h	2011-03-17 23:42:00 +0100
-+++ 2/scite/win32/SingleThreadExtension.h	2011-04-08 21:18:03 +0200
++++ 2/scite/win32/SingleThreadExtension.h	2011-07-02 20:14:22 +0200
 @@ -38,7 +38,7 @@
  	virtual bool OnStyle(unsigned int, int, int, StyleWriter *);
  	virtual bool OnDoubleClick();
@@ -3323,7 +3228,7 @@ diff --strip-trailing-cr -ruN 1/scite/win32/SingleThreadExtension.h 2/scite/win3
  	virtual bool SendProperty(const char *);
 diff --strip-trailing-cr -ruN 1/scite/win32/UniqueInstance.cxx 2/scite/win32/UniqueInstance.cxx
 --- 1/scite/win32/UniqueInstance.cxx	2011-03-17 23:42:00 +0100
-+++ 2/scite/win32/UniqueInstance.cxx	2011-04-08 21:18:03 +0200
++++ 2/scite/win32/UniqueInstance.cxx	2011-07-02 20:14:22 +0200
 @@ -124,6 +124,36 @@
  	return 0;
  }
@@ -3373,8 +3278,8 @@ diff --strip-trailing-cr -ruN 1/scite/win32/UniqueInstance.cxx 2/scite/win32/Uni
  
  /**
 diff --strip-trailing-cr -ruN 1/scite/win32/makefile 2/scite/win32/makefile
---- 1/scite/win32/makefile	2011-03-17 23:42:00 +0100
-+++ 2/scite/win32/makefile	2011-04-08 21:22:49 +0200
+--- 1/scite/win32/makefile	2011-06-14 02:55:05 +0200
++++ 2/scite/win32/makefile	2011-07-02 20:18:21 +0200
 @@ -15,7 +15,6 @@
  endif
  
@@ -3392,12 +3297,10 @@ diff --strip-trailing-cr -ruN 1/scite/win32/makefile 2/scite/win32/makefile
  
  .cxx.o:
  	$(CC) $(CXXFLAGS) -c $< -o $@
-@@ -72,39 +71,7 @@
+@@ -74,38 +73,7 @@
  
- OBJS = SciTEBase.o $(OTHER_OBJS)
+ DLLS=..\bin\Scintilla.dll ..\bin\SciLexer.dll
  
--DLLS=..\bin\Scintilla.dll ..\bin\SciLexer.dll
--
 -#++Autogenerated -- run scintilla/src/LexGen.py to regenerate
 -#**LEXPROPS=\\\n\(../bin/\* \)
 -LEXPROPS=\
@@ -3409,21 +3312,22 @@ diff --strip-trailing-cr -ruN 1/scite/win32/makefile 2/scite/win32/makefile
 -../bin/css.properties ../bin/d.properties ../bin/eiffel.properties \
 -../bin/erlang.properties ../bin/escript.properties ../bin/flagship.properties \
 -../bin/forth.properties ../bin/fortran.properties ../bin/freebasic.properties \
--../bin/gap.properties ../bin/html.properties ../bin/inno.properties \
--../bin/kix.properties ../bin/latex.properties ../bin/lisp.properties \
--../bin/lot.properties ../bin/lout.properties ../bin/lua.properties \
--../bin/matlab.properties ../bin/metapost.properties ../bin/mmixal.properties \
--../bin/modula3.properties ../bin/nimrod.properties ../bin/nncrontab.properties \
--../bin/nsis.properties ../bin/opal.properties ../bin/others.properties \
--../bin/pascal.properties ../bin/perl.properties ../bin/pov.properties \
--../bin/powerpro.properties ../bin/powershell.properties ../bin/ps.properties \
--../bin/purebasic.properties ../bin/python.properties ../bin/r.properties \
--../bin/rebol.properties ../bin/ruby.properties ../bin/scriptol.properties \
--../bin/smalltalk.properties ../bin/sorcins.properties \
--../bin/specman.properties ../bin/spice.properties ../bin/sql.properties \
--../bin/tacl.properties ../bin/tal.properties ../bin/tcl.properties \
--../bin/tex.properties ../bin/txt2tags.properties ../bin/vb.properties \
--../bin/verilog.properties ../bin/vhdl.properties ../bin/yaml.properties
+-../bin/gap.properties ../bin/haskell.properties ../bin/html.properties \
+-../bin/inno.properties ../bin/kix.properties ../bin/latex.properties \
+-../bin/lisp.properties ../bin/lot.properties ../bin/lout.properties \
+-../bin/lua.properties ../bin/matlab.properties ../bin/metapost.properties \
+-../bin/mmixal.properties ../bin/modula3.properties ../bin/nimrod.properties \
+-../bin/nncrontab.properties ../bin/nsis.properties ../bin/opal.properties \
+-../bin/others.properties ../bin/pascal.properties ../bin/perl.properties \
+-../bin/pov.properties ../bin/powerpro.properties ../bin/powershell.properties \
+-../bin/ps.properties ../bin/purebasic.properties ../bin/python.properties \
+-../bin/r.properties ../bin/rebol.properties ../bin/ruby.properties \
+-../bin/scriptol.properties ../bin/smalltalk.properties \
+-../bin/sorcins.properties ../bin/specman.properties ../bin/spice.properties \
+-../bin/sql.properties ../bin/tacl.properties ../bin/tal.properties \
+-../bin/tcl.properties ../bin/tex.properties ../bin/txt2tags.properties \
+-../bin/vb.properties ../bin/verilog.properties ../bin/vhdl.properties \
+-../bin/yaml.properties
 -#--Autogenerated -- end of automatically generated section
 -
 -PROPS=../bin/SciTEGlobal.properties ../bin/abbrev.properties $(LEXPROPS)
@@ -3433,10 +3337,12 @@ diff --strip-trailing-cr -ruN 1/scite/win32/makefile 2/scite/win32/makefile
  
  clean:
  	$(DEL) *.exe *.o *.obj *.dll *.res *.map
-@@ -112,53 +79,15 @@
+@@ -113,55 +81,15 @@
  deps:
  	$(CC) -MM $(CXXFLAGS) *.cxx ../src/*.cxx ../lua/src/*.c ../lua/src/lib/*.c >deps.mak
  
+-embedded: ..\src\Embedded.properties
+-
 -..\bin\Scintilla.dll:	..\..\scintilla\bin\Scintilla.dll
 -	$(COPY) ..\..\scintilla\bin\Scintilla.dll $@
 -
@@ -3456,7 +3362,7 @@ diff --strip-trailing-cr -ruN 1/scite/win32/makefile 2/scite/win32/makefile
  	$(CC) $(STRIPFLAG) -Xlinker --subsystem -Xlinker windows -o  $@ $^ $(LDFLAGS)
  
 -OBJSSTATIC = Sc1.o SciTEWinBar.o SciTEWinDlg.o MultiplexExtension.o \
--	StyleWriter.o UniqueInstance.o SciTEBase.o FilePath.o SciTEBuffers.o \
+-	StyleWriter.o UniqueInstance.o SciTEBase.o Credits.o FilePath.o SciTEBuffers.o \
 -	SciTEIO.o Exporters.o PropSetFile.o StringHelpers.o StringList.o SciTEProps.o ScintillaWinL.o \
 -	ScintillaBaseL.o Editor.o Catalogue.o Accessor.o WordList.o CharacterSet.o \
 -	LexerModule.o LexerSimple.o LexerBase.o \
@@ -3487,55 +3393,3 @@ diff --strip-trailing-cr -ruN 1/scite/win32/makefile 2/scite/win32/makefile
  # Make sure SciTEBase gets rebuilt (so its about box gets a new
  # date stamp) when any of the other objects are updated.
  SciTEBase.o: $(OTHER_OBJS)
-diff --strip-trailing-cr -ruN 1/scite/zipsrc.bat 2/scite/zipsrc.bat
---- 1/scite/zipsrc.bat	2011-03-17 23:42:00 +0100
-+++ 2/scite/zipsrc.bat	1970-01-01 01:00:00 +0100
-@@ -1,4 +0,0 @@
--cd ..
--del/q scite.zip
--zip scite.zip scintilla\*.* scintilla\*\*.* scintilla\*\*\*.* scintilla\*\*\*\*.* scintilla\*\*\*\*\*.* scite\*.* scite\*\*.* scite\*\*\*.* scite\*\*\*\*.* -x *.o -x *.obj -x *.lib -x *.dll -x *.exe -x *.pdb -x *.res -x *.exp -x *.ncb -x *.sbr -x *.bsc -x *.ilk -x *.idb -x *.dpsession -x *.bak
--cd scite
-diff --strip-trailing-cr -ruN 1/scite/zipwscite.bat 2/scite/zipwscite.bat
---- 1/scite/zipwscite.bat	2011-03-17 23:42:00 +0100
-+++ 2/scite/zipwscite.bat	1970-01-01 01:00:00 +0100
-@@ -1,17 +0,0 @@
--cd ..
--del/q wscite.zip
--mkdir wscite
--copy scite\license.txt wscite
--copy scite\bin\SciTE.exe wscite
--copy scite\bin\SciLexer.dll wscite
--copy scite\src\*.properties wscite
--copy scite\lua\COPYRIGHT wscite\luaCOPYRIGHT
--del/q wscite\Embedded.properties
--copy scite\doc\*.html wscite
--copy scite\doc\*.png wscite
--copy scite\doc\*.jpg wscite
--copy scite\doc\*.1 wscite
--zip wscite.zip wscite\*.*
--del/q wscite\*.*
--rmdir wscite
--cd scite
-diff --strip-trailing-cr -ruN 1/scite/zipwscited.bat 2/scite/zipwscited.bat
---- 1/scite/zipwscited.bat	2011-03-17 23:42:00 +0100
-+++ 2/scite/zipwscited.bat	1970-01-01 01:00:00 +0100
-@@ -1,19 +0,0 @@
--cd ..
--del/q wscite.zip
--mkdir wscite
--copy scite\license.txt wscite
--copy scite\bin\SciTE.exe wscite
--copy scite\bin\SciTE.pdb wscite
--copy scite\bin\SciLexer.dll wscite
--copy scite\bin\SciLexer.pdb wscite
--copy scite\src\*.properties wscite
--copy scite\lua\COPYRIGHT wscite\luaCOPYRIGHT
--del/q wscite\Embedded.properties
--copy scite\doc\*.html wscite
--copy scite\doc\*.png wscite
--copy scite\doc\*.jpg wscite
--copy scite\doc\*.1 wscite
--zip wscite.zip wscite\*.*
--del/q wscite\*.*
--rmdir wscite
--cd scite

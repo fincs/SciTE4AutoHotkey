@@ -1,12 +1,12 @@
-SciTE/Scintilla 2.25 modified source code
+SciTE/Scintilla 2.27 modified source code
 =========================================
 
 Patch instructions
 ------------------
 
-In order to get the modified source code, download & extract the file scite225.tgz or scite225.zip to a new folder, open a command prompt, navigate to it and issue the following command:
+In order to get the modified source code, download & extract the file scite227.tgz or scite227.zip to a new folder, open a command prompt, navigate to it and issue the following command:
 
-    patch -p1 < path/to/S4AHK_v3b5.patch
+    patch -p1 < path/to/S4AHK_v3b6.patch
 
 The source for dbguihlp.dll is also included in this patch.
 
@@ -15,7 +15,7 @@ Build instructions
 
 ### 32-bit version
 
-Use MinGW to build everything. In order to do that, use the provided batch files. dbguihlp has not got a batch file, so use the instructions in the comments. Newer versions also require the use of `-static-libgcc` in order to remove the libgcc.dll dependency.
+Use MinGW to build everything. In order to do that, use the provided batch files. dbguihlp has not got a batch file, so use the instructions in the comments. Newer versions also require the use of `-static-libgcc` in order to remove the libgcc.dll dependency (already added to the makefiles).
 
 ### 64-bit version
 

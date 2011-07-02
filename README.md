@@ -37,4 +37,4 @@ Afterwards, download the current [portable build](http://www.autohotkey.net/~fin
 * SciTE_beta5/tools/GenDocs/hha.dll and hha.exe -> source/tools/GenDocs/
 * SciTE_beta5/tools/Rebranded/\*.\* -> source/tools/Rebranded/
 
-The latest AutoHotkey_L Unicode binary (v1.0.97.01 at the time of writing) also needs to be placed in the source folder.
+The latest AutoHotkey_L Unicode binary (v1.1.00.00 at the time of writing) also needs to be placed in the source folder.

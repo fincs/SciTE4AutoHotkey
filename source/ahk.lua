@@ -466,7 +466,36 @@ function OpenInclude()
 	-- Replace variables
 	IncFile = string.gsub(IncFile, "%%[Aa]_[Ss][Cc][Rr][Ii][Pp][Tt][Dd][Ii][Rr]%%", props['FileDir'])
 	
-	if FileExists(IncFile) then
+	a,b,IncLib = string.find(IncFile, "^<(.+)>$")
+	
+	if IncLib ~= nil then
+	
+		local IncLib2 = IncLib
+		local RawIncLib = IncLib
+		a,b,whatmatch = string.find(IncLib, "^(.-)_")
+		if whatmatch ~= nil and whatmatch ~= "" then
+			IncLib2 = whatmatch
+		end
+		IncLib = "\\"..IncLib..".ahk"
+		IncLib2 = "\\"..IncLib2..".ahk"
+		
+		local GlobalLib = props['AutoHotkeyDir'].."\\Lib"
+		local UserLib = props['SciteUserHome'].."\\..\\Lib"
+		local LocalLib = props['FileDir'].."\\Lib"
+		
+		for i,LibDir in ipairs({GlobalLib, UserLib, LocalLib}) do
+			if FileExists(LibDir..IncLib) then
+				scite.Open(LibDir..IncLib)
+				return
+			elseif FileExists(LibDir..IncLib2) then
+				scite.Open(LibDir..IncLib2)
+				return
+			end
+		end
+		
+		print("Library not found! Specified: '"..RawIncLib.."'")
+		
+	elseif FileExists(IncFile) then
 		scite.Open(IncFile)
 	else
 		print("File not found! Specified: '"..IncFile.."'")

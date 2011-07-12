@@ -11,6 +11,7 @@
 SetWorkingDir, %A_ScriptDir%
 
 SplitPath, A_AhkPath,, A_AhkDir
+A_AhkDir := RegExReplace(A_AhkDir, "\\[^\\]+?$", "")
 
 MsgBox, 36, SciTE Diagnostics Utility,
 (

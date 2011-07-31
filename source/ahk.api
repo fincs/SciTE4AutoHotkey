@@ -317,6 +317,11 @@ StrGet (address [, max][, encoding]) \n[AutoHotkey_L] Retrieves the null-termina
 StrPut (string [, encoding]) \n[AutoHotkey_L] Retrieves the amount of characters (not bytes) that a string copy requires.
 StrPut (string, address [, max][, encoding]) \n[AutoHotkey_L] Copies a string to the specified location.
 
+GetKeyName (key) \n[AutoHotkey_L]
+GetKeyVK (key) \n[AutoHotkey_L]
+GetKeySC (key) \n[AutoHotkey_L]
+IsByRef (var) \n[AutoHotkey_L]
+
 Object ([key, value, [key2, value2...]]) \n[AutoHotkey_L] Creates a scriptable object which is also an associative array.
 Object (obj) \n[AutoHotkey_L] Retrieves an interface pointer from an object reference or vice versa.
 Array ([values...]) \n[AutoHotkey_L] Creates an array.
@@ -582,6 +587,7 @@ ahk_id
 ahk_pid
 ahk_class
 ahk_group
+ahk_exe
 
 between
 contains
@@ -616,6 +622,7 @@ Region
 ID
 IDLast
 ProcessName
+ProcessPath
 MinMax
 ControlList
 Count
@@ -970,6 +977,7 @@ A_NumBatchLines
 A_OSType
 A_OSVersion
 A_PriorHotkey
+A_PriorKey
 A_ProgramFiles
 A_Programs
 A_ProgramsCommon
@@ -978,6 +986,7 @@ A_ScreenHeight
 A_ScreenWidth
 A_ScriptDir
 A_ScriptFullPath
+A_ScriptHwnd
 A_ScriptName
 A_Sec
 A_Space

@@ -99,6 +99,7 @@ output.code.page=%p_encoding%
 save.position=%p_savepos%
 magnification=%p_zoom%
 import Styles\%p_style%.style
+import _extensions
 )
 
 FileDelete, %UserPropsFile%

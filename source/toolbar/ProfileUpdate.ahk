@@ -5,15 +5,16 @@
 goto _aaa_skip
 
 Update_3_beta3:
-gosub Update_common
-gosub Update_old_settings
-gosub Create_macro_folder
-return
-
 Update_3_beta4:
 gosub Update_common
 gosub Update_old_settings
 gosub Create_macro_folder
+gosub Create_extensions
+return
+
+Update_3_beta5:
+gosub Update_common
+gosub Create_extensions
 return
 
 Update_common:
@@ -59,6 +60,16 @@ return
 Create_macro_folder:
 FileCreateDir, %LocalSciTEPath%\Macros
 FileCopy, %SciTEDir%\newuser\Macros\*.macros, %LocalSciTEPath%\Macros, 1
+return
+
+Create_extensions:
+FileAppend, `nimport _extensions, %LocalSciTEPath%\_config.properties
+FileMove, %LocalSciTEPath%\_extensions.properties, %LocalSciTEPath%\_extensions%A_TickCount%.properties
+FileAppend, # THIS FILE IS SCRIPT-GENERATED - DON'T TOUCH, %LocalSciTEPath%\_extensions.properties
+extfolder := LocalSciTEPath "\Extensions"
+IfExist, %extfolder%
+	FileMoveDir, %extfolder%, %extfolder%%A_TickCount%
+FileCreateDir, %extfolder%
 return
 
 _aaa_skip:

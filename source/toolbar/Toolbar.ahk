@@ -18,7 +18,7 @@
 SetWorkingDir, %A_ScriptDir%
 DetectHiddenWindows, On
 
-CurrentSciTEVersion = 3 beta5
+CurrentSciTEVersion = 3 rc1
 
 ; CLSID and APPID for this script: don't reuse, please!
 CLSID_SciTE4AHK := "{D7334085-22FB-416E-B398-B5038A5A0784}"
@@ -96,6 +96,8 @@ if SciTEVersion = 3 beta3
 	gosub Update_3_beta3
 else if SciTEVersion = 3 beta4
 	gosub Update_3_beta4
+else if SciTEVersion = 3 beta5
+	gosub Update_3_beta5
 else if !IsPortable && (!FileExist(LocalPropsPath) || SciTEVersion != CurrentSciTEVersion)
 {
 	;WinClose, ahk_class SciTEWindow

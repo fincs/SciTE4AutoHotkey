@@ -44,14 +44,14 @@ if HtmDlg("file:///" A_Temp "\dialog.html#" GetSysColor(15), "", dlgoptions) - 1
 	ExitApp
 
 is64 := Util_Is64bitOS()
-tmpdir := A_Temp "\s4av3b5" A_TickCount
+tmpdir := A_Temp "\s4av3rc1" A_TickCount
 ahkdir := GetAutoHotkeyDir()
 if !ahkdir
 {
 	MsgBox, 16, %title%, Failed to find AutoHotkey folder!
 	ExitApp
 }
-instdir = %ahkdir%\SciTE_beta5
+instdir = %ahkdir%\SciTE_rc1
 IfExist, %instdir%
 	FileRemoveDir, %instdir%, 1
 ;~ {
@@ -63,7 +63,7 @@ IfNotExist, beta5_instdata.bin
 {
 	Menu, Tray, Icon
 	TrayTip, SciTE4AutoHotkey Installer, Download in progress..., 5, 1
-	r := NiceDownloader("http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3/repository/beta5_instdata.bin", A_ScriptDir "\beta5_instdata.bin", "Downloading SciTE4AutoHotkey...")
+	r := NiceDownloader("http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3/repository/rc1_instdata.bin", A_ScriptDir "\rc1_instdata.bin", "Downloading SciTE4AutoHotkey...")
 	Menu, Tray, NoIcon
 	if !r
 	{
@@ -72,9 +72,9 @@ IfNotExist, beta5_instdata.bin
 	}
 }
 
-RunWait, %A_Temp%\7z.exe x "%A_ScriptDir%\beta5_instdata.bin" "-o%tmpdir%" -aoa
+RunWait, %A_Temp%\7z.exe x "%A_ScriptDir%\rc1_instdata.bin" "-o%tmpdir%" -aoa
 FileRead, ver, %tmpdir%\$INFO
-if ver != 3 beta5
+if ver != 3 rc1
 {
 	MsgBox, 16, Title, Version mismatch, you are using an outdated installer.
 	ExitApp
@@ -100,14 +100,10 @@ FileCopyDir, %tmpdir%\$MAIN, %instdir%, 1
 ChkCopy()
 Progress, Off
 
-; Remove beta 4
-IfExist, %ahkdir%\SciTE_beta4
-	FileRemoveDir, %ahkdir%\SciTE_beta4, 1
-
 FileInstall, uninst.exe, %instdir%\uninst.exe, 1
 key = Software\Microsoft\Windows\CurrentVersion\Uninstall\SciTE4AutoHotkey
-RegWrite, REG_SZ, HKLM, %key%, DisplayName, SciTE4AutoHotkey v3 beta 5
-RegWrite, REG_SZ, HKLM, %key%, DisplayVersion, v3.0 beta 5
+RegWrite, REG_SZ, HKLM, %key%, DisplayName, SciTE4AutoHotkey v3 RC 1
+RegWrite, REG_SZ, HKLM, %key%, DisplayVersion, v3.0 RC 1
 RegWrite, REG_SZ, HKLM, %key%, Publisher, fincs
 RegWrite, REG_SZ, HKLM, %key%, DisplayIcon, %instdir%\SciTE.exe
 RegWrite, REG_SZ, HKLM, %key%, URLInfoAbout, http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3/web/
@@ -118,12 +114,9 @@ RegWrite, REG_SZ, HKLM, Software\Classes\SciTE4AHK.Application,, SciTE4AHK.Appli
 RegWrite, REG_SZ, HKLM, Software\Classes\SciTE4AHK.Application\CLSID,, {D7334085-22FB-416E-B398-B5038A5A0784}
 RegWrite, REG_SZ, HKLM, Software\Classes\CLSID\{D7334085-22FB-416E-B398-B5038A5A0784},, SciTE4AHK.Application
 
-MsgBox, 36, %title%, Do you want to add an "Edit with SciTE (beta)" entry to the context menu of .ahk files?
+MsgBox, 36, %title%, Do you want to set SciTE4AutoHotkey as the default .ahk editor?
 IfMsgBox, Yes
-{
-	RegWrite, REG_SZ, HKCR, AutoHotkeyScript\Shell\EditSciTEBeta,, Edit with SciTE (Beta)
-	RegWrite, REG_SZ, HKCR, AutoHotkeyScript\Shell\EditSciTEBeta\Command,, "%instdir%\SciTE.exe" "`%1"
-}
+	RegWrite, REG_SZ, HKCR, AutoHotkeyScript\Shell\Edit\command,, "%instdir%\SciTE.exe" "`%1"
 
 MsgBox, 36, %title%, Do you want to create a desktop shortcut?
 IfMsgBox, Yes

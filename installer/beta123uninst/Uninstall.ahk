@@ -10,13 +10,19 @@ UninstallOldBetas(user="ask")
 	inst := _RemoveDir(ahkdir "\SciTE_beta1")
 	inst |= _RemoveDir(ahkdir "\SciTE_beta2")
 	inst |= _RemoveDir(ahkdir "\SciTE_beta3")
+	oldAHKL := inst
+	inst |= _RemoveDir(ahkdir "\SciTE_beta4")
+	inst |= _RemoveDir(ahkdir "\SciTE_beta5")
 	if inst
 	{
-		FileDelete, %ahkdir%\AutoHotkey_La.exe
-		FileDelete, %ahkdir%\AutoHotkey_Lw.exe
-		FileDelete, %ahkdir%\AutoHotkey_L64.exe
-		FileDelete, %ahkdir%\AutoHotkey_L.chm
-		FileDelete, %ahkdir%\AutoHotkey_L.chw
+		if oldAHKL
+		{
+			FileDelete, %ahkdir%\AutoHotkey_La.exe
+			FileDelete, %ahkdir%\AutoHotkey_Lw.exe
+			FileDelete, %ahkdir%\AutoHotkey_L64.exe
+			FileDelete, %ahkdir%\AutoHotkey_L.chm
+			FileDelete, %ahkdir%\AutoHotkey_L.chw
+		}
 		RegDelete, HKCR, AutoHotkeyScript\Shell\EditSciTEBeta
 		profile = %A_MyDocuments%\AutoHotkey\SciTE
 		IfExist, %profile%

@@ -303,8 +303,8 @@ TV_GetSelection ()
 TV_GetText (OutputVar, ItemID)
 TV_Modify (ItemID [, Options, NewName])
 VarSetCapacity (Var [, RequestedCapacity, FillByte])
-WinActive ("WinTitle" [, "WinText", "ExcludeTitle", "ExcludeText"])
-WinExist ("WinTitle" [, "WinText", "ExcludeTitle", "ExcludeText"])
+WinActive (["WinTitle", "WinText", "ExcludeTitle", "ExcludeText"])
+WinExist (["WinTitle" , "WinText", "ExcludeTitle", "ExcludeText"])
 
 Trim (string [, omitchars = " `t"]) \n[AutoHotkey_L] Trims characters from the beginning and end of a string.
 LTrim (string [, omitchars = " `t"]) \n[AutoHotkey_L] Trims characters from the beginning of a string.
@@ -327,8 +327,8 @@ Object (obj) \n[AutoHotkey_L] Retrieves an interface pointer from an object refe
 Array ([values...]) \n[AutoHotkey_L] Creates an array.
 IsObject (param) \n[AutoHotkey_L] Tests if the parameter is an object.
 ObjInsert (obj, index, values...) \n[AutoHotkey_L]
-ObjInsert (value) \n[AutoHotkey_L]
-ObjInsert (key, value) \n[AutoHotkey_L]
+ObjInsert (obj, value) \n[AutoHotkey_L]
+ObjInsert (obj, key, value) \n[AutoHotkey_L]
 _Insert (index, values...) \n[AutoHotkey_L] ??
 _Insert (value) \n[AutoHotkey_L]
 _Insert (key, value) \n[AutoHotkey_L]

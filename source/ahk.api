@@ -304,7 +304,7 @@ TV_GetText (OutputVar, ItemID)
 TV_Modify (ItemID [, Options, NewName])
 VarSetCapacity (Var [, RequestedCapacity, FillByte])
 WinActive (["WinTitle", "WinText", "ExcludeTitle", "ExcludeText"])
-WinExist (["WinTitle" [, "WinText", "ExcludeTitle", "ExcludeText"])
+WinExist (["WinTitle" , "WinText", "ExcludeTitle", "ExcludeText"])
 
 Trim (string [, omitchars = " `t"]) \n[AutoHotkey_L] Trims characters from the beginning and end of a string.
 LTrim (string [, omitchars = " `t"]) \n[AutoHotkey_L] Trims characters from the beginning of a string.

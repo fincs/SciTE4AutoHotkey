@@ -10,11 +10,13 @@ gosub Update_common
 gosub Update_old_settings
 gosub Create_macro_folder
 gosub Create_extensions
+gosub Copy_new_styles
 return
 
 Update_3_beta5:
 gosub Update_common
 gosub Create_extensions
+gosub Copy_new_styles
 return
 
 Update_common:
@@ -70,6 +72,15 @@ extfolder := LocalSciTEPath "\Extensions"
 IfExist, %extfolder%
 	FileMoveDir, %extfolder%, %extfolder%%A_TickCount%
 FileCreateDir, %extfolder%
+return
+
+Copy_new_styles:
+stylepath = %LocalSciTEPath%\Styles
+defstyles = %A_ScriptDir%\newuser\Styles
+IfNotExist, %stylepath%\HatOfGod.style.properties
+	FileCopy, %defstyles%\HatOfGod.style.properties, %stylepath%\HatOfGod.style.properties
+IfNotExist, %stylepath%\tidRich_Zenburn.style.properties
+	FileCopy, %defstyles%\tidRich_Zenburn.style.properties, %stylepath%\tidRich_Zenburn.style.properties
 return
 
 _aaa_skip:

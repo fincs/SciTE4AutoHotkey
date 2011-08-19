@@ -559,9 +559,9 @@ function SetMarkerColors()
 end
 
 function ClearAllMarkers()
-	for i = 0, 23, 1 do
-		editor:MarkerDeleteAll(i)
-	end
+	editor:MarkerDeleteAll(10)
+	editor:MarkerDeleteAll(11)
+	editor:MarkerDeleteAll(12)
 end
 
 -- ======================= --

@@ -473,7 +473,6 @@ Enter
 Escape
 Esc
 BackSpace
-BS
 Delete
 Del
 Insert
@@ -592,7 +591,6 @@ ahk_exe
 between
 contains
 in
-ss
 Integer
 Float
 IntegerFast
@@ -715,13 +713,6 @@ Grid
 Hdr
 AutoSize
 Range
-
-xm
-ym
-ys
-xs
-xp
-yp
 
 Font
 Resize

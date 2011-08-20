@@ -55,8 +55,8 @@ HighlightComments(script){
 	script := RegExReplace(script, "[^&]#(.+?);", "&#$1" Chr(5))
 	Loop, Parse, script, `n, `r
 	{
-		line := RegExReplace(A_LoopField, "^(;.*)$", "<span class=""CodeCom"">$1</span>")
-		line := RegExReplace(line, "(\s+)(;.*)$", "$1<span class=""CodeCom"">$2</span>")
+		line := RegExReplace(A_LoopField, "^(;.*)$", "<em>$1</em>")
+		line := RegExReplace(line, "(\s+)(;.*)$", "$1<em>$2</em>")
 		if A_Index = 1
 			script2 := line
 		else

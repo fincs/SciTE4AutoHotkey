@@ -537,7 +537,6 @@ Loop, %nfuncs%
 echo("Making CSS files", ICON_COPY)
 
 FileWriteEncoding(filedir "\" foldername "\commands.css", css_commands)
-FileWriteEncoding(filedir "\" foldername "\print.css", css_print)
 
 ; Generate the CHM file if needed
 if usechm
@@ -567,13 +566,13 @@ if usechm
 	}
 	
 	; Add the CSS files
-	list = %list%`r`n%filedir%\%foldername%\commands.css`r`n%filedir%\%foldername%\print.css
+	list = %list%`r`n%filedir%\%foldername%\commands.css
 	Progress, Off
 	while(Trim(doctitle) = "")
 		InputBox, doctitle, GenDocs, Please type the window title for the CHM file,,,,,,,, %foldername%
 	title = %doctitle%
 	
-	proj := CreateProj("GenDocs", title, list, topics, 2)
+	proj := CreateProj("GenDocs", title, list, topics, 1)
 	if(!proj || !CompileProj(proj, filedir "\" foldername "\" foldername ".chm"))
 	{
 		echo("CHM Error #2: CHM creation error! " CHM_Error, ICON_ERROR)

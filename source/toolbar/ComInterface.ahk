@@ -277,7 +277,8 @@ InitComInterface()
 	if !(hSciTE_Remote := ComRemote(oSciTE, CLSID_SciTE4AHK))
 	{
 		MsgBox, 16, SciTE4AutoHotkey, Can't create COM interface!`nSome program functions may not work.
-		RevokeIDs(CLSID_SciTE4AHK, APPID_SciTE4AHK)
+		if IsPortable
+			RevokeIDs(CLSID_SciTE4AHK, APPID_SciTE4AHK)
 		OnExit
 	}
 }

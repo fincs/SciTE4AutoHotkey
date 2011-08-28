@@ -77,7 +77,7 @@ end
 -- ====================================== --
 
 function OnChar(curChar)
-	local ignoreStyles = {SCE_AHK_COMMENTLINE, SCE_AHK_COMMENTBLOCK, SCE_AHK_STRING, SCE_AHK_ERROR}
+	local ignoreStyles = {SCE_AHK_COMMENTLINE, SCE_AHK_COMMENTBLOCK, SCE_AHK_STRING, SCE_AHK_ERROR, SCE_AHK_ESCAPE}
 	
 	-- This function only works with the AutoHotkey lexer
 	if editor.Lexer ~= SCLEX_AHK1 then return false end

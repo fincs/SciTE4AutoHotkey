@@ -302,6 +302,7 @@ TV_GetPrev (ItemID)
 TV_GetSelection ()
 TV_GetText (OutputVar, ItemID)
 TV_Modify (ItemID [, Options, NewName])
+TV_SetImageList (ImageList [, 0|2])
 VarSetCapacity (Var [, RequestedCapacity, FillByte])
 WinActive (["WinTitle", "WinText", "ExcludeTitle", "ExcludeText"])
 WinExist (["WinTitle" , "WinText", "ExcludeTitle", "ExcludeText"])
@@ -371,7 +372,7 @@ extends
 
 ComObjCreate (ProgIdOrCLSID [, IID]) \n[AutoHotkey_L] Creates a COM object.
 ComObjGet (name) \n[AutoHotkey_L] Returns a reference to an object provided by a COM component.
-ComObjConnect (obj [, prefix])  \n[AutoHotkey_L] Listens to events from a ComObject (omit prefix to stop listening).
+ComObjConnect (obj [, funcPrefixOrObj])  \n[AutoHotkey_L] Listens to events from a ComObject (omit the 2nd parameter to stop listening).
 ComObjError ([Enable])\nEnables or disables notification of COM errors. If Enable is omitted, the current setting is returned.
 ComObjActive (ProgIdOrCLSID) \n[AutoHotkey_L] Retrieves a running object that has been registered with OLE.
 ComObjEnwrap (pdisp) \n[AutoHotkey_L] Wraps a raw IDispatch pointer in a usable object.
@@ -702,6 +703,7 @@ Tab
 Tab2
 TreeView
 UpDown
+ActiveX
 
 IconSmall
 Tile

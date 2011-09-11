@@ -379,7 +379,11 @@ function AutoIndent_OnNewLine()
 	
 	if curLine ~= nil and string.find(curLine, "^%s*[^%s]+") then return end
 	
-	if prevprevPos >= 0 then
+	if isIndentStatement(prevLine) then
+		editor:Home()
+		editor:Tab()
+		editor:LineEnd()
+	elseif prevprevPos >= 0 then
 		local prevprevLine = GetFilteredLine(prevprevPos, SCE_AHK_COMMENTLINE, SCE_AHK_COMMENTBLOCK)
 		local reqLvl = editor.LineIndentation[prevprevPos] + editor.Indent
 		local prevLvl = editor.LineIndentation[prevPos]
@@ -390,11 +394,6 @@ function AutoIndent_OnNewLine()
 			editor:LineEnd()
 			return true
 		end
-	end
-	if isIndentStatement(prevLine) then
-		editor:Home()
-		editor:Tab()
-		editor:LineEnd()
 	end
 	return false
 end

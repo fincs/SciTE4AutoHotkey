@@ -36,6 +36,7 @@ BlockInput , On|Off|Send|Mouse|SendAndMouse|Default|MouseMove|MouseMoveOff
 break
 Click
 ClipWait [, SecondsToWait, 1]
+catch [, OutputVar]\n[AutoHotkey_L]
 continue
 Control , Cmd [, Value, Control, WinTitle, WinText, ExcludeTitle, ExcludeText]
 ControlClick [, Control-or-Pos, WinTitle, WinText, WhichButton, ClickCount, Options, ExcludeTitle, ExcludeText]
@@ -210,9 +211,11 @@ StringUpper , OutputVar, InputVar [, T]
 Suspend [, On|Off|Toggle|Permit]
 SysGet , OutputVar, Sub-command [, Param3]
 Thread , Setting, P2 [, P3]
+throw , Expression\n[AutoHotkey_L]
 ToolTip [, Text, X, Y, WhichToolTip]
 Transform , OutputVar, Cmd, Value1 [, Value2]
 TrayTip [, Title, Text, Seconds, Options]
+try \n[AutoHotkey_L]
 until Expression \n[AutoHotkey_L]
 URLDownloadToFile , URL, Filename
 while Expression
@@ -252,6 +255,7 @@ Ceil (Number)
 Chr (Number)
 Cos (Number)
 DllCall ("[DllFile\\]Function" [, Type1, Arg1, Type2, Arg2, ..., "Cdecl ReturnType"])
+Exception (message [, what, extra]) \n[AutoHotkey_L]
 Exp (Number)
 FileExist ("FilePattern")
 Floor (Number)

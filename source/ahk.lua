@@ -309,7 +309,7 @@ function isForLine(line)
 end
 
 function isLoopLineAllowBraces(line)
-	return isLoopLine(line) or string.find(line, "^%s*"..loopPat.."{%s*$") ~= nil
+	return isLoopLine(line) or string.find(line, "^%s*"..loopPat.."%s*{%s*$") ~= nil
 end
 
 function isElseLine(line)

@@ -287,7 +287,7 @@ function isIfLineNoBraces(line)
 end
 
 function isTryLine(line)
-	return string.find(line, "^%s*"..tryPat.."%s+") ~= nil
+	return string.find(line, "^%s*"..tryPat.."%s+$") ~= nil
 end
 
 function isTryLineAllowBraces(line)

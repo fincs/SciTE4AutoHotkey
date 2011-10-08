@@ -354,15 +354,11 @@ _wP1: ; Breakpoint setting
 	
 	lParam ++ ; from 0-based to 1-based, that's what DBGp uses
 	
-	DBGp(Dbg_Session, "breakpoint_list", "", Dbg_BkList)
-	file := "file:///" (uri := DBGp_EncodeFileURI(SciTE_GetFile()))
-	
-	RegExMatch(Dbg_BkList, "<breakpoint id=""(\d+)"" .+? state=""(.+?)"" filename=""" Util_EscapeRegEx(file) """ .+>", o)
-	bkID := Trim(o1)
-	bkStatus := Trim(o2)
-	if bkStatus = enabled
+	uri := DBGp_EncodeFileURI(SciTE_GetFile())
+	bk := Util_GetBk(uri, lParam)
+	if bk
 	{
-		DBGp(Dbg_Session, "breakpoint_remove", "-d " bkID)
+		DBGp(Dbg_Session, "breakpoint_remove", "-d " bk.id)
 		SciTE_BPSymbolRemove(lParam)
 		Util_RemoveBk(uri, lParam)
 	}else
@@ -376,7 +372,7 @@ _wP1: ; Breakpoint setting
 		dom := loadXML(Dbg_Response)
 		lParam := dom.selectSingleNode("/response/breakpoint[@id=" bkID "]/@lineno").text
 		SciTE_BPSymbol(lParam)
-		Util_AddBkToList(uri, lParam)
+		Util_AddBkToList(uri, lParam, bkID)
 	}
 	
 	return true
@@ -1194,18 +1190,24 @@ Util_ProcessExist(a)
 	return r
 }
 
-Util_AddBkToList(uri, line, cond="")
+Util_AddBkToList(uri, line, id, cond="")
 {
 	global Dbg_BkList
-	Dbg_BkList[uri, line] := cond
+	Dbg_BkList[uri, line] := { id: id, cond: cond }
 	;IsObject(Dbg_BkList[uri]) ? "" : (Dbg_BkList[uri] := Object())
 	;,Dbg_BkList[uri][line] := cond
+}
+
+Util_GetBk(uri, line)
+{
+	global Dbg_BkList
+	return Dbg_BkList[uri, line]
 }
 
 Util_RemoveBk(uri, line)
 {
 	global Dbg_BkList
-	Dbg_BkList[url]._Remove(line)
+	Dbg_BkList[uri]._Remove(line)
 }
 
 loadXML(ByRef data)

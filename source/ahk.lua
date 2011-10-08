@@ -59,17 +59,15 @@ end
 
 function OnClear()
 	-- This function only works with the AutoHotkey lexer
-	if editor.Lexer ~= SCLEX_AHK1 then return false end
+	--if editor.Lexer ~= SCLEX_AHK1 then return false end
 	
 	if not prepared then
-		-- Remove the breakpoint and current line markers.
-		-- This could be improved to autodetect if SciTE has itself
-		-- placed the breakpoint (in yellow) and not delete it then.
+		-- Remove the current line markers.
 		ClearAllMarkers()
-	else
-		-- Set the marker colors
-		SetMarkerColors()
 	end
+	
+	SetMarkerColors()
+	editor.MarginSensitiveN[1] = true
 end
 
 -- ====================================== --
@@ -133,12 +131,21 @@ function OnMarginClick(position, margin)
 	-- This function only works with the AutoHotkey lexer
 	if editor.Lexer ~= SCLEX_AHK1 then return false end
 	
-	-- Sanity checks
-	if not prepared then return false end
-	if margin == 2 then return false end
-	
-	-- Tell the debugger to set a breakpoint
-	return pumpmsg(4112, 1, editor:LineFromPosition(position))
+	if margin == 1 then
+		if prepared then
+			return pumpmsg(4112, 1, editor:LineFromPosition(position))
+		else
+			line = editor:LineFromPosition(position)
+			if editor:MarkerNext(line, 1024) == line then -- 1024 = BIT(10)
+				editor:MarkerDelete(line, 10)
+			else
+				editor:MarkerAdd(line, 10)
+			end
+			return true
+		end
+	else
+		return false
+	end
 end
 
 -- =============================================== --
@@ -197,9 +204,36 @@ function DBGp_Connect()
 	-- Initialize
 	pumpmsg(4112, 0, 0)
 	prepared = true
-	editor.MarginSensitiveN[1] = true
-	SetMarkerColors()
+	--SetMarkerColors()
 	ClearAllMarkers()
+	resetBreakpoints()
+end
+
+function enumBreakpoints()
+	line = editor:MarkerNext(0, 1024) -- 1024 = BIT(10)
+	if line ~= -1 then
+		i = 2
+		tbl = { line }
+		while true do
+			line = editor:MarkerNext(line+1, 1024)
+			if line == -1 then break end
+			tbl[i] = line
+			i = i + 1
+		end
+		return tbl
+	end
+	return nil
+end
+
+function resetBreakpoints()
+	bk = enumBreakpoints()
+	if bk == nil then return end
+	
+	while pumpmsg(4112, 5, 0) == 0 do end
+	editor:MarkerDeleteAll(10)
+	for i,v in ipairs(bk) do
+		pumpmsg(4112, 1, v)
+	end
 end
 
 function DBGp_Disconnect()
@@ -207,7 +241,7 @@ function DBGp_Disconnect()
 	u = pumpmsg(4112, 255, 0)
 	if u == 0 then return false end
 	
-	editor.MarginSensitiveN[1] = false
+	--editor.MarginSensitiveN[1] = false
 	prepared = false
 	ClearAllMarkers()
 end
@@ -591,7 +625,7 @@ function SetMarkerColors()
 end
 
 function ClearAllMarkers()
-	editor:MarkerDeleteAll(10)
+	--editor:MarkerDeleteAll(10)
 	editor:MarkerDeleteAll(11)
 	editor:MarkerDeleteAll(12)
 end

@@ -434,6 +434,13 @@ _wP4: ; Hovering
 	}
 	return true
 
+_wP5: ; AHK_L check
+	global Dbg_AHKLExists
+	Critical, Off
+	if Dbg_AHKLExists
+		Sleep, 100
+	return Dbg_AHKLExists
+
 _wP255: ; Disconnect
 	if !Dbg_ExitByDisconnect
 	{ ; this code is executed if the debugger is still present

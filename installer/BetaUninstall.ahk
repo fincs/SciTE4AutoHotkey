@@ -37,7 +37,7 @@ DoIt:
 FileRemoveDir, %2%, 1
 RegRead, ov, HKCR, AutoHotkeyScript\Shell\Edit\command
 if ov = "%2%\SciTE.exe" "`%1"
-	RegWrite, HKCR, AutoHotkeyScript\Shell\Edit\command,, notepad.exe `%1
+	RegWrite, REG_SZ, HKCR, AutoHotkeyScript\Shell\Edit\command,, notepad.exe `%1
 RegDelete, HKLM, Software\Microsoft\Windows\CurrentVersion\Uninstall\SciTE4AutoHotkey
 RegDelete, HKLM, Software\Classes\SciTE4AHK.Application
 RegDelete, HKLM, Software\Classes\CLSID\{D7334085-22FB-416E-B398-B5038A5A0784}

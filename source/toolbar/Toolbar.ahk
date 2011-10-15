@@ -200,19 +200,19 @@ Loop, Parse, ToolbarProps, `n, `r
 		ExitApp
 	}
 	varz4 := ParseCmdLine(varz4 = "" ? varz2 : varz4)
-	Tools[ntools] := { Name: Trim(varz1), Path: Trim(varz2), Hotkey: Trim(varz3) }
+	curtool := Tools[ntools] := { Name: Trim(varz1), Path: Trim(varz2), Hotkey: Trim(varz3) }
 	IfInString, varz4, `,
 	{
-		Tools[ntools].Picture := Trim(SubStr(varz4, 1, InStr(varz4, ",")-1))
-		Tools[ntools].IconNumber := Trim(SubStr(varz4, InStr(varz4, ",")+1))
+		curtool.Picture := Trim(SubStr(varz4, 1, InStr(varz4, ",")-1))
+		curtool.IconNumber := Trim(SubStr(varz4, InStr(varz4, ",")+1))
 	}else
 	{
-		Tools[ntools].Picture := Trim(varz4)
-		Tools[ntools].IconNumber := 1
+		curtool.Picture := Trim(varz4)
+		curtool.IconNumber := 1
 	}
 	
-	_ToolButs .= Tools[ntools].Name "," i ",,autosize`n"
-	IL_Add(_ToolIL, Tools[ntools].Picture, Tools[ntools].IconNumber)
+	_ToolButs .= curtool.Name "," i ",,autosize`n"
+	IL_Add(_ToolIL, curtool.Picture, curtool.IconNumber)
 	i ++
 }
 

@@ -216,28 +216,25 @@ Loop, Parse, ToolbarProps, `n, `r
 	i ++
 }
 
-Gui, +LastFound -Caption
-; Get the HWND of our GUI
-hwndgui := WinExist()
-Gui, Show, Hide NoActivate
 ;  Get HWND of real SciTE toolbar. ~L
 ControlGet, scitool, Hwnd,, ToolbarWindow321, ahk_id %scitehwnd%
 ControlGetPos,,, guiw, guih,, ahk_id %scitool% ; Get size of real SciTE toolbar. ~L
-Gui, Show, w%guiw% h%guih% Hide NoActivate
+; Get width of real SciTE toolbar to determine placement for our toolbar. ~L
+SendMessage, 1024, 0, 0,, ahk_id %scitehwnd% ; send our custom message to SciTE
+x := ErrorLevel
+
+; Create and show the AutoHotkey toolbar
+Gui, New, hwndhwndgui +Parent%scitool% -Caption, AHKToolbar4SciTE
+Gui, +0x40000000 -0x80000000 ; Must be done *after* the GUI is created. Fixes focus issues. ~L
+Gui, Show, x%x% y-2 w%guiw% h%guih% NoActivate
+WinActivate, ahk_id %scitehwnd%
+
 OnMessage(ATM_STARTDEBUG, "Msg_StartDebug")
 OnMessage(ATM_STOPDEBUG, "Msg_StopDebug")
 OnMessage(ATM_RELOAD, "Msg_Reload")
 hToolbar := Toolbar_Add(hwndgui, "OnToolbar", "FLAT TOOLTIPS", _ToolIL)
 Toolbar_Insert(hToolbar, _ToolButs)
 Toolbar_SetMaxTextRows(hToolbar, 0)
-
-; Get width of real SciTE toolbar to determine placement for our toolbar. ~L
-SendMessage, 1024, 0, 0,, ahk_id %scitehwnd% ; send our custom message to SciTE
-x := ErrorLevel
-DllCall("SetParent", "uint", hwndgui, "uint", scitool) ; Insert our toolbar onto real SciTE toolbar. ~L
-Gui, +0x40000000 -0x80000000 ; Must be done *after* the GUI is created. Fixes focus issues. ~L
-Gui, Show, x%x% y-2 w%guiw% h%guih% NoActivate, AHKToolbar4SciTE
-WinActivate, ahk_id %scitehwnd%
 
 ; Build the menu
 Menu, ToolMenu, Add, Edit User toolbar properties, editprops

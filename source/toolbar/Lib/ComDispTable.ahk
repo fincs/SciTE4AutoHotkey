@@ -8,7 +8,7 @@
 ComDispTable(methods)
 {
 	id2method := {}, method2id := {}
-	Loop, Parse, methods, `, ;, %A_Space%%A_Tab%
+	Loop, Parse, methods, `,
 	{
 		dispid := A_Index - 1
 		StringLower, method, A_LoopField
@@ -21,9 +21,9 @@ ComDispTable(methods)
 		}else
 			 method2id[method] := dispid
 			,ahkmethod := method
-		if !(q := IsFunc(ahkmethod)) || q < 2
+		if !(q := Func(ahkmethod)) || (!q.IsVariadic && q.MinParams < 1)
 			return
-		id2method[dispid] := ahkmethod
+		id2method[dispid] := q
 	}
 	return [id2method, method2id]
 }

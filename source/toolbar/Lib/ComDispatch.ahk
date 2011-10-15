@@ -66,8 +66,8 @@ _1: ; IUnknown::AddRef
 _2: ; IUnknown::Release
 	if !(new := (this.refcount := this.refcount - 1))
 	{
-		if func := this.dispids[this.methods.__Delete] && IsFunc(func) = 2
-			%func%(this.this)
+		if func := this.dispids[this.methods.__Delete] && func.MinParams = 1
+			func.(this.this)
 		 _CoTaskMemFree(this_)
 		,this := ""
 		,ObjRelease(this_ptr)
@@ -103,7 +103,7 @@ _6: ; IDispatch::Invoke
 	func := this.dispids[prm0 & 0xFFFFFFFF]
 	if !func || !((prm3 & 0xFFFF) & 1)
 		return 0x80020003 ; DISP_E_MEMBERNOTFOUND
-	 nexpectedparams := IsFunc(func) - 2
+	 nexpectedparams := func.MinParams - 1
 	,paramarray := NumGet(prm4+0)
 	,nparams := NumGet(prm4+2*A_PtrSize, "UInt")
 	,params := []
@@ -134,7 +134,7 @@ _call:
 	,ret      := ComObjValue(retvar.ref)
 	
 	; Call the function
-	,retvar[] := %func%(this.this, params*)
+	,retvar[] := func.(this.this, params*)
 	
 	; Move the converted return value to the caller-supplied VARIANT. Also clear the ComVar.
 	Loop, % sizeof_VARIANT // 8

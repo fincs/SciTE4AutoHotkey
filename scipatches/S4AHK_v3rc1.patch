@@ -1,26 +1,22 @@
-diff --strip-trailing-cr -ruN 1/README.txt 2/README.txt
+﻿diff --strip-trailing-cr -rupN 1/README.txt 2/README.txt
 --- 1/README.txt	1970-01-01 01:00:00 +0100
-+++ 2/README.txt	2011-07-02 20:14:10 +0200
++++ 2/README.txt	2011-12-23 13:48:55 +0100
 @@ -0,0 +1 @@
 +mpress.exe and upx.exe are required to be placed here.
-diff --strip-trailing-cr -ruN 1/SciTE4AutoHotkey.sln 2/SciTE4AutoHotkey.sln
+Files 1/SciTE4AutoHotkey.sdf and 2/SciTE4AutoHotkey.sdf differ
+diff --strip-trailing-cr -rupN 1/SciTE4AutoHotkey.sln 2/SciTE4AutoHotkey.sln
 --- 1/SciTE4AutoHotkey.sln	1970-01-01 01:00:00 +0100
-+++ 2/SciTE4AutoHotkey.sln	2011-07-02 20:14:10 +0200
-@@ -0,0 +1,52 @@
++++ 2/SciTE4AutoHotkey.sln	2011-12-23 17:27:01 +0100
+@@ -0,0 +1,39 @@
 +﻿
 +Microsoft Visual Studio Solution File, Format Version 11.00
-+# Visual C++ Express 2010
++# Visual Studio 2010
 +Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SciTE", "scite\SciTE.vcxproj", "{2DC33974-65FD-4DAF-B522-ACA7A7AC9721}"
 +	ProjectSection(ProjectDependencies) = postProject
 +		{8FBDA743-F364-430E-BC7E-207D7469215A} = {8FBDA743-F364-430E-BC7E-207D7469215A}
 +	EndProjectSection
 +EndProject
 +Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Scintilla", "Scintilla\Scintilla.vcxproj", "{8FBDA743-F364-430E-BC7E-207D7469215A}"
-+EndProject
-+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DbgUIHlp", "dbguihlp\DbgUIHlp.vcxproj", "{869900B8-C930-46F7-B246-F01DE958D86E}"
-+	ProjectSection(ProjectDependencies) = postProject
-+		{2DC33974-65FD-4DAF-B522-ACA7A7AC9721} = {2DC33974-65FD-4DAF-B522-ACA7A7AC9721}
-+	EndProjectSection
 +EndProject
 +Global
 +	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,529 +42,16 @@ diff --strip-trailing-cr -ruN 1/SciTE4AutoHotkey.sln 2/SciTE4AutoHotkey.sln
 +		{8FBDA743-F364-430E-BC7E-207D7469215A}.Release|Win32.Build.0 = Release|Win32
 +		{8FBDA743-F364-430E-BC7E-207D7469215A}.Release|x64.ActiveCfg = Release|x64
 +		{8FBDA743-F364-430E-BC7E-207D7469215A}.Release|x64.Build.0 = Release|x64
-+		{869900B8-C930-46F7-B246-F01DE958D86E}.Debug|Win32.ActiveCfg = Debug|Win32
-+		{869900B8-C930-46F7-B246-F01DE958D86E}.Debug|Win32.Build.0 = Debug|Win32
-+		{869900B8-C930-46F7-B246-F01DE958D86E}.Debug|x64.ActiveCfg = Debug|x64
-+		{869900B8-C930-46F7-B246-F01DE958D86E}.Debug|x64.Build.0 = Debug|x64
-+		{869900B8-C930-46F7-B246-F01DE958D86E}.Release|Win32.ActiveCfg = Release|Win32
-+		{869900B8-C930-46F7-B246-F01DE958D86E}.Release|Win32.Build.0 = Release|Win32
-+		{869900B8-C930-46F7-B246-F01DE958D86E}.Release|x64.ActiveCfg = Release|x64
-+		{869900B8-C930-46F7-B246-F01DE958D86E}.Release|x64.Build.0 = Release|x64
 +	EndGlobalSection
 +	GlobalSection(SolutionProperties) = preSolution
 +		HideSolutionNode = FALSE
 +	EndGlobalSection
 +EndGlobal
-diff --strip-trailing-cr -ruN 1/dbguihlp/DbgUIHlp.vcxproj 2/dbguihlp/DbgUIHlp.vcxproj
---- 1/dbguihlp/DbgUIHlp.vcxproj	1970-01-01 01:00:00 +0100
-+++ 2/dbguihlp/DbgUIHlp.vcxproj	2011-07-02 20:14:10 +0200
-@@ -0,0 +1,175 @@
-+﻿<?xml version="1.0" encoding="utf-8"?>
-+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-+  <ItemGroup Label="ProjectConfigurations">
-+    <ProjectConfiguration Include="Debug|Win32">
-+      <Configuration>Debug</Configuration>
-+      <Platform>Win32</Platform>
-+    </ProjectConfiguration>
-+    <ProjectConfiguration Include="Debug|x64">
-+      <Configuration>Debug</Configuration>
-+      <Platform>x64</Platform>
-+    </ProjectConfiguration>
-+    <ProjectConfiguration Include="Release|Win32">
-+      <Configuration>Release</Configuration>
-+      <Platform>Win32</Platform>
-+    </ProjectConfiguration>
-+    <ProjectConfiguration Include="Release|x64">
-+      <Configuration>Release</Configuration>
-+      <Platform>x64</Platform>
-+    </ProjectConfiguration>
-+  </ItemGroup>
-+  <PropertyGroup Label="Globals">
-+    <ProjectGuid>{869900B8-C930-46F7-B246-F01DE958D86E}</ProjectGuid>
-+    <Keyword>Win32Proj</Keyword>
-+    <RootNamespace>DbgUIHlp</RootNamespace>
-+  </PropertyGroup>
-+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-+    <ConfigurationType>DynamicLibrary</ConfigurationType>
-+    <UseDebugLibraries>true</UseDebugLibraries>
-+    <CharacterSet>Unicode</CharacterSet>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-+    <ConfigurationType>DynamicLibrary</ConfigurationType>
-+    <UseDebugLibraries>true</UseDebugLibraries>
-+    <CharacterSet>Unicode</CharacterSet>
-+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-+    <ConfigurationType>DynamicLibrary</ConfigurationType>
-+    <UseDebugLibraries>false</UseDebugLibraries>
-+    <WholeProgramOptimization>true</WholeProgramOptimization>
-+    <CharacterSet>Unicode</CharacterSet>
-+    <PlatformToolset>v100</PlatformToolset>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-+    <ConfigurationType>DynamicLibrary</ConfigurationType>
-+    <UseDebugLibraries>false</UseDebugLibraries>
-+    <WholeProgramOptimization>true</WholeProgramOptimization>
-+    <CharacterSet>NotSet</CharacterSet>
-+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
-+  </PropertyGroup>
-+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-+  <ImportGroup Label="ExtensionSettings">
-+  </ImportGroup>
-+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-+  </ImportGroup>
-+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
-+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-+  </ImportGroup>
-+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-+  </ImportGroup>
-+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
-+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-+  </ImportGroup>
-+  <PropertyGroup Label="UserMacros" />
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-+    <LinkIncremental>true</LinkIncremental>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-+    <LinkIncremental>true</LinkIncremental>
-+    <OutDir>$(SolutionDir)debug\x64\</OutDir>
-+    <IntDir>$(SolutionDir)debug\x64\temp\DbgUIHlp\</IntDir>
-+    <TargetName>DbgUIHlp</TargetName>
-+    <IncludePath>$(SolutionDir)scite\lua\include;$(IncludePath)</IncludePath>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-+    <LinkIncremental>false</LinkIncremental>
-+    <OutDir>$(SolutionDir)bin\x86\</OutDir>
-+    <IntDir>$(SolutionDir)obj\x86\dbguihlp\</IntDir>
-+    <TargetName>dbguihlp</TargetName>
-+    <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
-+    <IncludePath>$(SolutionDir)scite\lua\include;$(IncludePath)</IncludePath>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-+    <LinkIncremental>false</LinkIncremental>
-+    <OutDir>$(SolutionDir)bin\x64\</OutDir>
-+    <IntDir>$(SolutionDir)obj\x64\dbguihlp\</IntDir>
-+    <TargetName>dbguihlp</TargetName>
-+    <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
-+    <IncludePath>$(SolutionDir)scite\lua\include;$(IncludePath)</IncludePath>
-+  </PropertyGroup>
-+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-+    <ClCompile>
-+      <PrecompiledHeader>
-+      </PrecompiledHeader>
-+      <WarningLevel>Level3</WarningLevel>
-+      <Optimization>Disabled</Optimization>
-+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;DBGUIHLP_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-+    </ClCompile>
-+    <Link>
-+      <SubSystem>Windows</SubSystem>
-+      <GenerateDebugInformation>true</GenerateDebugInformation>
-+    </Link>
-+  </ItemDefinitionGroup>
-+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-+    <ClCompile>
-+      <PrecompiledHeader>
-+      </PrecompiledHeader>
-+      <WarningLevel>Level3</WarningLevel>
-+      <Optimization>Disabled</Optimization>
-+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;LUA_BUILD_AS_DLL;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-+    </ClCompile>
-+    <Link>
-+      <SubSystem>Windows</SubSystem>
-+      <GenerateDebugInformation>true</GenerateDebugInformation>
-+      <AdditionalDependencies>$(TargetDir)SciTE.lib;%(AdditionalDependencies)</AdditionalDependencies>
-+    </Link>
-+  </ItemDefinitionGroup>
-+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-+    <ClCompile>
-+      <WarningLevel>Level3</WarningLevel>
-+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-+      <Optimization>MaxSpeed</Optimization>
-+      <FunctionLevelLinking>true</FunctionLevelLinking>
-+      <IntrinsicFunctions>true</IntrinsicFunctions>
-+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;LUA_BUILD_AS_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-+      <BufferSecurityCheck>false</BufferSecurityCheck>
-+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-+    </ClCompile>
-+    <Link>
-+      <SubSystem>Windows</SubSystem>
-+      <GenerateDebugInformation>false</GenerateDebugInformation>
-+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-+      <OptimizeReferences>true</OptimizeReferences>
-+      <AdditionalDependencies>$(TargetDir)SciTE.lib;%(AdditionalDependencies)</AdditionalDependencies>
-+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-+      <DataExecutionPrevention>false</DataExecutionPrevention>
-+    </Link>
-+    <PostBuildEvent>
-+      <Command>"$(SolutionDir)upx.exe" --best --no-lzma --filter=73 --compress-icons=0 "$(TargetPath)"</Command>
-+    </PostBuildEvent>
-+  </ItemDefinitionGroup>
-+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-+    <ClCompile>
-+      <WarningLevel>Level3</WarningLevel>
-+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-+      <Optimization>MaxSpeed</Optimization>
-+      <FunctionLevelLinking>true</FunctionLevelLinking>
-+      <IntrinsicFunctions>true</IntrinsicFunctions>
-+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;LUA_BUILD_AS_DLL;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-+      <BufferSecurityCheck>false</BufferSecurityCheck>
-+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-+    </ClCompile>
-+    <Link>
-+      <SubSystem>Windows</SubSystem>
-+      <GenerateDebugInformation>false</GenerateDebugInformation>
-+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-+      <OptimizeReferences>true</OptimizeReferences>
-+      <AdditionalDependencies>$(TargetDir)SciTE.lib;%(AdditionalDependencies)</AdditionalDependencies>
-+    </Link>
-+    <PostBuildEvent>
-+      <Command>"$(SolutionDir)mpress.exe" "$(TargetPath)"</Command>
-+    </PostBuildEvent>
-+  </ItemDefinitionGroup>
-+  <ItemGroup>
-+    <ClCompile Include="src\main.c" />
-+  </ItemGroup>
-+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-+  <ImportGroup Label="ExtensionTargets">
-+  </ImportGroup>
-+</Project>
-\ No newline at end of file
-diff --strip-trailing-cr -ruN 1/dbguihlp/DbgUIHlp.vcxproj.filters 2/dbguihlp/DbgUIHlp.vcxproj.filters
---- 1/dbguihlp/DbgUIHlp.vcxproj.filters	1970-01-01 01:00:00 +0100
-+++ 2/dbguihlp/DbgUIHlp.vcxproj.filters	2011-07-02 20:14:10 +0200
-@@ -0,0 +1,22 @@
-+﻿<?xml version="1.0" encoding="utf-8"?>
-+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-+  <ItemGroup>
-+    <Filter Include="Source Files">
-+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-+    </Filter>
-+    <Filter Include="Header Files">
-+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
-+    </Filter>
-+    <Filter Include="Resource Files">
-+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-+    </Filter>
-+  </ItemGroup>
-+  <ItemGroup>
-+    <ClCompile Include="src\main.c">
-+      <Filter>Source Files</Filter>
-+    </ClCompile>
-+  </ItemGroup>
-+</Project>
-\ No newline at end of file
-diff --strip-trailing-cr -ruN 1/dbguihlp/src/main.c 2/dbguihlp/src/main.c
---- 1/dbguihlp/src/main.c	1970-01-01 01:00:00 +0100
-+++ 2/dbguihlp/src/main.c	2011-07-02 20:14:10 +0200
-@@ -0,0 +1,167 @@
-+// SciTE4AutoHotkey v2 Lua message pumper 1.0
-+// Build with: gcc -shared -o module.dll -I..\lualib\src main.c scite.la
-+// You've got to have a Lua distribution at ..\lualib (creates the src folder)
-+// for this to work.
-+// Also copy the scite.* files from http://luaforge.net/frs/download.php/3293/scite-debug.zip (scite.la, scite.def and scite.lib)
-+
-+// Includes
-+#include <windows.h> // Windows include
-+#include <tchar.h>
-+#include "lauxlib.h" // Lua include
-+
-+// Some defines
-+#define DllExport __declspec(dllexport)
-+#define RET_OK 1
-+#define RET_FAIL 0
-+#define MAX_TITLE 255
-+#define ADDFUNC(a) lua_register(L, #a, lib_##a)
-+
-+// Those defines may not be present
-+#ifndef PROCESS_VM_OPERATION
-+#define PROCESS_VM_OPERATION 0x0008
-+#endif
-+#ifndef PROCESS_VM_READ
-+#define PROCESS_VM_READ 0x0010
-+#endif
-+#ifndef PROCESS_VM_WRITE
-+#define PROCESS_VM_WRITE 0x0020
-+#endif
-+#ifndef MEM_COMMIT
-+#define MEM_COMMIT 0x1000
-+#endif
-+#ifndef PAGE_READWRITE
-+#define PAGE_READWRITE 4
-+#endif
-+#ifndef MEM_RELEASE
-+#define MEM_RELEASE 0x8000
-+#endif
-+
-+// Global variables
-+HWND cWindow = 0, tWindow = 0;
-+const char* cWinTitle; // variable pointer to constant char
-+
-+// For IsHungAppWindowProc()
-+typedef BOOL (*IWAPtype)(HWND);
-+IWAPtype IsHungAppWindowProc;
-+
-+// Dummy function that always returns false
-+BOOL _lib_ishungapp(HWND hWnd){ return 0; }
-+
-+// Initializes the IsHungAppWindow() function.
-+void _lib_initprocs(){
-+	HMODULE user32 = LoadLibrary(_T("user32"));
-+	IsHungAppWindowProc = (IWAPtype) GetProcAddress(user32, "IsHungAppWindow");
-+	if(!IsHungAppWindowProc)
-+		IsHungAppWindowProc = (IWAPtype) _lib_ishungapp;
-+}
-+
-+// Private callback function to enumerate the windows.
-+BOOL CALLBACK _lib_winsearchproc(HWND hWnd, LPARAM lParam){
-+	char wTitle[MAX_TITLE+1];
-+	// Get window title
-+	GetWindowTextA(hWnd, wTitle, MAX_TITLE);
-+	if(!strncmp(wTitle, cWinTitle, lParam)){
-+		// Window found.
-+		cWindow = hWnd;
-+		return 0; // Cancel the enumeration
-+	}
-+	return 1; // Continue enumerating the windows
-+}
-+
-+// localizewin(wintitle) -- Localizes the window with the specified window title to
-+//  further send messages to it. True = sucess, false = failure.
-+int lib_localizewin(lua_State* L){
-+	// set the global variables
-+	cWinTitle = luaL_checkstring(L, 1);
-+	tWindow = cWindow, cWindow = 0;
-+
-+	// look for the window
-+	EnumWindows((WNDENUMPROC)_lib_winsearchproc, strlen(cWinTitle));
-+	if(!cWindow){ // no window found?
-+		// just restore the old window and return false.
-+		cWindow = tWindow;
-+		lua_pushboolean(L, RET_FAIL);
-+		return 1;
-+	}
-+	// return true.
-+	lua_pushboolean(L, RET_OK);
-+	return 1;
-+}
-+
-+// pumpmsg(msg, wparam, lparam) -- Sends a message to the current window.
-+//  Timeout of 8 seconds. It returns the value that the window returns.
-+int lib_pumpmsg(lua_State* L){
-+	int result;
-+
-+	// get the parameters
-+	int iMsg = luaL_checkint(L, 1);
-+	int wParam = luaL_checkint(L, 2);
-+	int lParam = luaL_checkint(L, 3);
-+
-+	if(!IsWindow(cWindow)) // invalid window?
-+		return luaL_error(L, "Invalid window handle.");
-+	if(IsHungAppWindowProc(cWindow))
-+		return luaL_error(L, "The window appears to be hung. Aborting...");
-+
-+	// just dispatch the message to the window
-+	result = (int) SendMessageA(cWindow, (UINT)iMsg, (WPARAM)wParam, (LPARAM)lParam);
-+	
-+	// return the number that the window gave to us
-+	lua_pushinteger(L, result);
-+	return 1;
-+}
-+
-+// pumpmsg(msg, wparam, lparam) -- Sends a message with lparam as string to the current window.
-+//  Timeout of 8 seconds. It returns the value that the window returns.
-+int lib_pumpmsgstr(lua_State* L){
-+	DWORD pID;
-+	HANDLE hProcess;
-+	void* rlParam;
-+	int result;
-+
-+	// get the parameters
-+	int iMsg = luaL_checkint(L, 1);
-+	int wParam = luaL_checkint(L, 2);
-+	const char* lParam = luaL_checkstring(L, 3);
-+	// get the string length
-+	size_t lParamSize = strlen(lParam) + 1;
-+
-+	if(!IsWindow(cWindow)) // invalid window?
-+		return luaL_error(L, "Invalid window handle.");
-+	if(IsHungAppWindowProc(cWindow))
-+		return luaL_error(L, "The window appears to be hung. Aborting...");
-+
-+	// inject the string at the process.
-+	GetWindowThreadProcessId(cWindow, &pID);
-+	hProcess = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE, 0, pID);
-+	if(!hProcess)
-+		return luaL_error(L, "Couldn't open the memory of the window!");
-+	rlParam = VirtualAllocEx(hProcess, 0, lParamSize, MEM_COMMIT, PAGE_READWRITE);
-+	if(!rlParam)
-+		return luaL_error(L, "Couldn't allocate the memory at the window!");
-+	if(!WriteProcessMemory(hProcess, rlParam, lParam, lParamSize, NULL))
-+		return luaL_error(L, "Couldn't inject the string parameter at the window!");
-+
-+	// just dispatch the message to the window
-+	result = (int) SendMessageA(cWindow, (UINT)iMsg, (WPARAM)wParam, (LPARAM)rlParam);
-+
-+	// free the memory used by the string
-+	if(!VirtualFreeEx(hProcess, rlParam, 0, MEM_RELEASE))
-+		return luaL_error(L, "Failed to free the memory at the window!");
-+	if(!CloseHandle(hProcess))
-+		return luaL_error(L, "Couldn't close the process handle!");
-+
-+	// return the number that the window gave to us
-+	lua_pushinteger(L, result);
-+	return 1;
-+}
-+
-+DllExport int libinit(lua_State* L){
-+	// initialize the IsHungAppWindowProc() function
-+	_lib_initprocs();
-+	// add the following functions to the Lua engine
-+	ADDFUNC(localizewin);
-+	ADDFUNC(pumpmsg);
-+	ADDFUNC(pumpmsgstr);
-+	return 0;
-+}
-diff --strip-trailing-cr -ruN 1/dbguihlp/src/scite.def 2/dbguihlp/src/scite.def
---- 1/dbguihlp/src/scite.def	1970-01-01 01:00:00 +0100
-+++ 2/dbguihlp/src/scite.def	2011-07-02 20:14:10 +0200
-@@ -0,0 +1,124 @@
-+LIBRARY "SciTE.exe"
-+EXPORTS
-+	luaL_addlstring
-+	luaL_addstring
-+	luaL_addvalue
-+	luaL_argerror
-+	luaL_buffinit
-+	luaL_callmeta
-+	luaL_checkany
-+	luaL_checkinteger
-+	luaL_checklstring
-+	luaL_checknumber
-+	luaL_checkoption
-+	luaL_checkstack
-+	luaL_checktype
-+	luaL_checkudata
-+	luaL_error
-+	luaL_findtable
-+	luaL_getmetafield
-+	luaL_gsub
-+	luaL_loadbuffer
-+	luaL_loadfile
-+	luaL_loadstring
-+	luaL_newmetatable
-+	luaL_newstate
-+	luaL_openlib
-+	luaL_openlibs
-+	luaL_optinteger
-+	luaL_optlstring
-+	luaL_optnumber
-+	luaL_prepbuffer
-+	luaL_pushresult
-+	luaL_ref
-+	luaL_register
-+	luaL_typerror
-+	luaL_unref
-+	luaL_where
-+	lua_atpanic
-+	lua_call
-+	lua_checkstack
-+	lua_close
-+	lua_concat
-+	lua_cpcall
-+	lua_createtable
-+	lua_dump
-+	lua_equal
-+	lua_error
-+	lua_gc
-+	lua_getallocf
-+	lua_getfenv
-+	lua_getfield
-+	lua_gethook
-+	lua_gethookcount
-+	lua_gethookmask
-+	lua_getinfo
-+	lua_getlocal
-+	lua_getmetatable
-+	lua_getstack
-+	lua_gettable
-+	lua_gettop
-+	lua_getupvalue
-+	lua_insert
-+	lua_iscfunction
-+	lua_isnumber
-+	lua_isstring
-+	lua_isuserdata
-+	lua_lessthan
-+	lua_load
-+	lua_newstate
-+	lua_newthread
-+	lua_newuserdata
-+	lua_next
-+	lua_objlen
-+	lua_pcall
-+	lua_pushboolean
-+	lua_pushcclosure
-+	lua_pushfstring
-+	lua_pushinteger
-+	lua_pushlightuserdata
-+	lua_pushlstring
-+	lua_pushnil
-+	lua_pushnumber
-+	lua_pushstring
-+	lua_pushthread
-+	lua_pushvalue
-+	lua_pushvfstring
-+	lua_rawequal
-+	lua_rawget
-+	lua_rawgeti
-+	lua_rawset
-+	lua_rawseti
-+	lua_remove
-+	lua_replace
-+	lua_resume
-+	lua_setallocf
-+	lua_setfenv
-+	lua_setfield
-+	lua_sethook
-+	lua_setlocal
-+	lua_setmetatable
-+	lua_settable
-+	lua_settop
-+	lua_setupvalue
-+	lua_status
-+	lua_toboolean
-+	lua_tocfunction
-+	lua_tointeger
-+	lua_tolstring
-+	lua_tonumber
-+	lua_topointer
-+	lua_tothread
-+	lua_touserdata
-+	lua_type
-+	lua_typename
-+	lua_xmove
-+	lua_yield
-+	luaopen_base
-+	luaopen_debug
-+	luaopen_io
-+	luaopen_math
-+	luaopen_os
-+	luaopen_package
-+	luaopen_string
-+	luaopen_table
-diff --strip-trailing-cr -ruN 1/scintilla/Scintilla.vcxproj 2/scintilla/Scintilla.vcxproj
+Files 1/mpress.exe and 2/mpress.exe differ
+diff --strip-trailing-cr -rupN 1/scintilla/Scintilla.vcxproj 2/scintilla/Scintilla.vcxproj
 --- 1/scintilla/Scintilla.vcxproj	1970-01-01 01:00:00 +0100
-+++ 2/scintilla/Scintilla.vcxproj	2011-07-02 20:39:47 +0200
-@@ -0,0 +1,342 @@
++++ 2/scintilla/Scintilla.vcxproj	2011-12-23 16:01:55 +0100
+@@ -0,0 +1,343 @@
 +﻿<?xml version="1.0" encoding="utf-8"?>
 +<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 +  <ItemGroup Label="ProjectConfigurations">
@@ -711,7 +194,7 @@ diff --strip-trailing-cr -ruN 1/scintilla/Scintilla.vcxproj 2/scintilla/Scintill
 +      <DataExecutionPrevention>false</DataExecutionPrevention>
 +    </Link>
 +    <PostBuildEvent>
-+      <Command>"$(SolutionDir)upx.exe" --best --no-lzma --filter=73 --compress-icons=0 "$(TargetPath)"</Command>
++      <Command>"$(SolutionDir)mpress.exe" -x "$(TargetPath)"</Command>
 +    </PostBuildEvent>
 +  </ItemDefinitionGroup>
 +  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -734,7 +217,7 @@ diff --strip-trailing-cr -ruN 1/scintilla/Scintilla.vcxproj 2/scintilla/Scintill
 +      <AdditionalDependencies>imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
 +    </Link>
 +    <PostBuildEvent>
-+      <Command>"$(SolutionDir)mpress.exe" "$(TargetPath)"</Command>
++      <Command>"$(SolutionDir)mpress.exe" -x "$(TargetPath)"</Command>
 +    </PostBuildEvent>
 +  </ItemDefinitionGroup>
 +  <ItemGroup>
@@ -808,6 +291,7 @@ diff --strip-trailing-cr -ruN 1/scintilla/Scintilla.vcxproj 2/scintilla/Scintill
 +    <ClCompile Include="lexers\LexCLW.cxx" />
 +    <ClCompile Include="lexers\LexCmake.cxx" />
 +    <ClCompile Include="lexers\LexCOBOL.cxx" />
++    <ClCompile Include="lexers\LexCoffeeScript.cxx" />
 +    <ClCompile Include="lexers\LexConf.cxx" />
 +    <ClCompile Include="lexers\LexCPP.cxx" />
 +    <ClCompile Include="lexers\LexCrontab.cxx" />
@@ -912,10 +396,10 @@ diff --strip-trailing-cr -ruN 1/scintilla/Scintilla.vcxproj 2/scintilla/Scintill
 +  </ImportGroup>
 +</Project>
 \ No newline at end of file
-diff --strip-trailing-cr -ruN 1/scintilla/Scintilla.vcxproj.filters 2/scintilla/Scintilla.vcxproj.filters
+diff --strip-trailing-cr -rupN 1/scintilla/Scintilla.vcxproj.filters 2/scintilla/Scintilla.vcxproj.filters
 --- 1/scintilla/Scintilla.vcxproj.filters	1970-01-01 01:00:00 +0100
-+++ 2/scintilla/Scintilla.vcxproj.filters	2011-07-02 20:39:47 +0200
-@@ -0,0 +1,511 @@
++++ 2/scintilla/Scintilla.vcxproj.filters	2011-12-23 14:07:10 +0100
+@@ -0,0 +1,514 @@
 +﻿<?xml version="1.0" encoding="utf-8"?>
 +<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 +  <ItemGroup>
@@ -1425,64 +909,20 @@ diff --strip-trailing-cr -ruN 1/scintilla/Scintilla.vcxproj.filters 2/scintilla/
 +    <ClCompile Include="lexers\LexModula.cxx">
 +      <Filter>Source Files</Filter>
 +    </ClCompile>
++    <ClCompile Include="lexers\LexCoffeeScript.cxx">
++      <Filter>Source Files</Filter>
++    </ClCompile>
 +  </ItemGroup>
 +</Project>
 \ No newline at end of file
-diff --strip-trailing-cr -ruN 1/scintilla/build.bat 2/scintilla/build.bat
---- 1/scintilla/build.bat	1970-01-01 01:00:00 +0100
-+++ 2/scintilla/build.bat	2011-07-02 20:14:17 +0200
-@@ -0,0 +1,25 @@
-+@echo off
-+set path=c:\mingw\bin;%path%
-+
-+echo Building...
-+cd win32
-+make
-+if %ERRORLEVEL% NEQ 0 goto ERROREXIT
-+cd ..
-+
-+echo.
-+echo Compressing...
-+cd bin
-+
-+del /f /q Scintilla.dll
-+ ..\..\upx --best --no-lzma --filter=73 --compress-icons=0 SciLexer.dll
-+REM ..\..\mpress -x SciLexer.dll
-+echo.
-+echo End.
-+
-+pause
-+
-+exit
-+
-+:ERROREXIT
-+pause
-\ No newline at end of file
-diff --strip-trailing-cr -ruN 1/scintilla/clean.bat 2/scintilla/clean.bat
---- 1/scintilla/clean.bat	1970-01-01 01:00:00 +0100
-+++ 2/scintilla/clean.bat	2011-07-02 20:14:17 +0200
-@@ -0,0 +1 @@
-+del /F /S /Q *.a *.aps *.bsc *.dsw *.idb *.ilc *.ild *.ilf *.ilk *.ils *.lib *.map *.ncb *.obj *.o *.opt *.pdb *.plg *.res *.sbr *.tds *.exp >NUL:
-diff --strip-trailing-cr -ruN 1/scintilla/cleanexe.bat 2/scintilla/cleanexe.bat
---- 1/scintilla/cleanexe.bat	1970-01-01 01:00:00 +0100
-+++ 2/scintilla/cleanexe.bat	2011-07-02 20:14:17 +0200
-@@ -0,0 +1 @@
-+del /F /S /Q bin\SciLexer.dll >NUL:
-diff --strip-trailing-cr -ruN 1/scintilla/include/SciLexer.h 2/scintilla/include/SciLexer.h
---- 1/scintilla/include/SciLexer.h	2011-03-17 23:41:24 +0100
-+++ 2/scintilla/include/SciLexer.h	2011-07-02 20:14:17 +0200
-@@ -114,6 +114,7 @@
- #define SCLEX_TXT2TAGS 99
- #define SCLEX_A68K 100
- #define SCLEX_MODULA 101
+diff --strip-trailing-cr -rupN 1/scintilla/include/SciLexer.h 2/scintilla/include/SciLexer.h
+--- 1/scintilla/include/SciLexer.h	2011-12-08 23:17:01 +0100
++++ 2/scintilla/include/SciLexer.h	2011-12-23 14:05:51 +0100
+@@ -1506,4 +1506,27 @@
+ #define SCE_COFFEESCRIPT_VERBOSE_REGEX_COMMENT 24
+ /* --Autogenerated -- end of section automatically generated from Scintilla.iface */
+ 
 +#define SCLEX_AHK1 200
- #define SCLEX_AUTOMATIC 1000
- #define SCE_P_DEFAULT 0
- #define SCE_P_COMMENTLINE 1
-@@ -1457,6 +1458,27 @@
- #define SCE_MODULA_PRGKEY 15
- #define SCE_MODULA_OPERATOR 16
- #define SCE_MODULA_BADSTR 17
 +#define SCE_AHK_DEFAULT 0
 +#define SCE_AHK_COMMENTLINE 1
 +#define SCE_AHK_COMMENTBLOCK 2
@@ -1504,12 +944,11 @@ diff --strip-trailing-cr -ruN 1/scintilla/include/SciLexer.h 2/scintilla/include
 +#define SCE_AHK_WORD_UD 18
 +#define SCE_AHK_VARREFKW 19
 +#define SCE_AHK_ERROR 20
- /* --Autogenerated -- end of section automatically generated from Scintilla.iface */
- 
++
  #endif
-diff --strip-trailing-cr -ruN 1/scintilla/lexers/LexAHK1.cxx 2/scintilla/lexers/LexAHK1.cxx
+diff --strip-trailing-cr -rupN 1/scintilla/lexers/LexAHK1.cxx 2/scintilla/lexers/LexAHK1.cxx
 --- 1/scintilla/lexers/LexAHK1.cxx	1970-01-01 01:00:00 +0100
-+++ 2/scintilla/lexers/LexAHK1.cxx	2011-07-02 20:14:17 +0200
++++ 2/scintilla/lexers/LexAHK1.cxx	2011-12-23 13:48:56 +0100
 @@ -0,0 +1,487 @@
 +// Scintilla source code edit control
 +/** @file LexAHK1.cxx
@@ -1998,42 +1437,10 @@ diff --strip-trailing-cr -ruN 1/scintilla/lexers/LexAHK1.cxx 2/scintilla/lexers/
 +};
 +
 +LexerModule lmAHK1(SCLEX_AHK1, ColouriseAHK1Doc, "ahk1", FoldAHK1Doc, ahkWordListDesc);
-diff --strip-trailing-cr -ruN 1/scintilla/rebuild.bat 2/scintilla/rebuild.bat
---- 1/scintilla/rebuild.bat	1970-01-01 01:00:00 +0100
-+++ 2/scintilla/rebuild.bat	2011-07-02 20:14:17 +0200
-@@ -0,0 +1,27 @@
-+@echo off
-+set path=c:\mingw\bin;%path%
-+
-+echo Clean...
-+call clean.bat
-+call cleanexe.bat
-+echo.
-+
-+echo Building...
-+cd win32
-+make
-+if %ERRORLEVEL% NEQ 0 goto ERROREXIT
-+cd ..
-+
-+echo.
-+echo Compressing...
-+cd bin
-+
-+del /f /q Scintilla.dll
-+../../upx --best --no-lzma --filter=73 --compress-icons=0 SciLexer.dll
-+echo.
-+echo End.
-+
-+exit
-+
-+:ERROREXIT
-+pause
-\ No newline at end of file
-diff --strip-trailing-cr -ruN 1/scintilla/src/Catalogue.cxx 2/scintilla/src/Catalogue.cxx
---- 1/scintilla/src/Catalogue.cxx	2011-03-17 23:41:24 +0100
-+++ 2/scintilla/src/Catalogue.cxx	2011-07-02 20:14:17 +0200
-@@ -84,6 +84,7 @@
+diff --strip-trailing-cr -rupN 1/scintilla/src/Catalogue.cxx 2/scintilla/src/Catalogue.cxx
+--- 1/scintilla/src/Catalogue.cxx	2011-12-08 23:17:01 +0100
++++ 2/scintilla/src/Catalogue.cxx	2011-12-23 13:48:56 +0100
+@@ -84,6 +84,7 @@ int Scintilla_LinkLexers() {
  	LINK_LEXER(lmA68k);
  	LINK_LEXER(lmAbaqus);
  	LINK_LEXER(lmAda);
@@ -2041,27 +1448,27 @@ diff --strip-trailing-cr -ruN 1/scintilla/src/Catalogue.cxx 2/scintilla/src/Cata
  	LINK_LEXER(lmAns1);
  	LINK_LEXER(lmAPDL);
  	LINK_LEXER(lmAsm);
-diff --strip-trailing-cr -ruN 1/scintilla/win32/ScintRes.rc 2/scintilla/win32/ScintRes.rc
---- 1/scintilla/win32/ScintRes.rc	2011-06-20 05:44:58 +0200
-+++ 2/scintilla/win32/ScintRes.rc	2011-07-02 20:19:05 +0200
-@@ -22,11 +22,11 @@
+diff --strip-trailing-cr -rupN 1/scintilla/win32/ScintRes.rc 2/scintilla/win32/ScintRes.rc
+--- 1/scintilla/win32/ScintRes.rc	2011-12-08 23:17:01 +0100
++++ 2/scintilla/win32/ScintRes.rc	2011-12-23 13:58:24 +0100
+@@ -22,11 +22,11 @@ BEGIN
  		BLOCK "040904b0"
  		BEGIN
  			VALUE	"CompanyName",	"Neil Hodgson neilh@scintilla.org\0"
 -			VALUE	"FileDescription",	"Scintilla.DLL - a Source Editing Component\0"
-+			VALUE	"FileDescription",	"Scintilla.dll - a Source Editing Component\0"
- 			VALUE	"FileVersion",	"2.27\0"
++			VALUE	"FileDescription",	"Scintilla.dll (with AHK support) - a Source Editing Component\0"
+ 			VALUE	"FileVersion",	"3.0.2\0"
  			VALUE	"InternalName",	"Scintilla\0"
  			VALUE	"LegalCopyright",	"Copyright 1998-2011 by Neil Hodgson\0"
 -			VALUE	"OriginalFilename",	"Scintilla.DLL\0"
 +			VALUE	"OriginalFilename",	"Scintilla.dll\0"
  			VALUE	"ProductName",	"Scintilla\0"
- 			VALUE	"ProductVersion",	"2.27\0"
+ 			VALUE	"ProductVersion",	"3.0.2\0"
  		END
-diff --strip-trailing-cr -ruN 1/scintilla/win32/deps.mak 2/scintilla/win32/deps.mak
---- 1/scintilla/win32/deps.mak	2011-02-03 13:56:34 +0100
-+++ 2/scintilla/win32/deps.mak	2011-07-02 20:14:17 +0200
-@@ -112,6 +112,10 @@
+diff --strip-trailing-cr -rupN 1/scintilla/win32/deps.mak 2/scintilla/win32/deps.mak
+--- 1/scintilla/win32/deps.mak	2011-08-01 04:49:04 +0200
++++ 2/scintilla/win32/deps.mak	2011-12-23 13:48:56 +0100
+@@ -112,6 +112,10 @@ LexAda.o: ../lexers/LexAda.cxx ../includ
   ../include/SciLexer.h ../lexlib/PropSetSimple.h ../lexlib/WordList.h \
   ../lexlib/LexAccessor.h ../lexlib/Accessor.h ../lexlib/StyleContext.h \
   ../lexlib/CharacterSet.h ../lexlib/LexerModule.h
@@ -2072,22 +1479,10 @@ diff --strip-trailing-cr -ruN 1/scintilla/win32/deps.mak 2/scintilla/win32/deps.
  LexAPDL.o: ../lexers/LexAPDL.cxx ../include/ILexer.h \
   ../include/Scintilla.h ../include/SciLexer.h ../lexlib/PropSetSimple.h \
   ../lexlib/WordList.h ../lexlib/LexAccessor.h ../lexlib/Accessor.h \
-diff --strip-trailing-cr -ruN 1/scintilla/win32/makefile 2/scintilla/win32/makefile
---- 1/scintilla/win32/makefile	2011-02-03 13:56:34 +0100
-+++ 2/scintilla/win32/makefile	2011-07-02 20:14:17 +0200
-@@ -16,7 +16,7 @@
- vpath %.cxx ../src ../lexlib ../lexers
- 
- LDFLAGS=-shared -static -Wl,--enable-runtime-pseudo-reloc-v2 -mno-cygwin -mwindows --relocatable -Wl,--add-stdcall-alias
--LIBS=-lstdc++ -limm32 -lole32 -luuid
-+LIBS=-lstdc++ -limm32 -lole32 -luuid -static-libgcc
- # Add -MMD to get dependencies
- INCLUDEDIRS=-I ../include -I ../src -I../lexlib
- CXXBASEFLAGS=-Wall -Wno-missing-braces -Wno-char-subscripts -Wno-strict-overflow -pedantic $(INCLUDEDIRS) -fno-rtti -mno-cygwin
-diff --strip-trailing-cr -ruN 1/scite/SciTE.vcxproj 2/scite/SciTE.vcxproj
+diff --strip-trailing-cr -rupN 1/scite/SciTE.vcxproj 2/scite/SciTE.vcxproj
 --- 1/scite/SciTE.vcxproj	1970-01-01 01:00:00 +0100
-+++ 2/scite/SciTE.vcxproj	2011-07-02 20:39:47 +0200
-@@ -0,0 +1,285 @@
++++ 2/scite/SciTE.vcxproj	2011-12-23 17:52:09 +0100
+@@ -0,0 +1,288 @@
 +﻿<?xml version="1.0" encoding="utf-8"?>
 +<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 +  <ItemGroup Label="ProjectConfigurations">
@@ -2229,12 +1624,12 @@ diff --strip-trailing-cr -ruN 1/scite/SciTE.vcxproj 2/scite/SciTE.vcxproj
 +      <GenerateDebugInformation>false</GenerateDebugInformation>
 +      <EnableCOMDATFolding>true</EnableCOMDATFolding>
 +      <OptimizeReferences>true</OptimizeReferences>
-+      <AdditionalDependencies>comctl32.lib;uxtheme.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
++      <AdditionalDependencies>comctl32.lib;Msimg32.lib;uxtheme.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
 +      <RandomizedBaseAddress>false</RandomizedBaseAddress>
 +      <DataExecutionPrevention>false</DataExecutionPrevention>
 +    </Link>
 +    <PostBuildEvent>
-+      <Command>"$(SolutionDir)upx.exe" --best --no-lzma --filter=73 --compress-icons=0 "$(TargetPath)"</Command>
++      <Command>"$(SolutionDir)mpress.exe" -x "$(TargetPath)"</Command>
 +    </PostBuildEvent>
 +  </ItemDefinitionGroup>
 +  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -2255,10 +1650,10 @@ diff --strip-trailing-cr -ruN 1/scite/SciTE.vcxproj 2/scite/SciTE.vcxproj
 +      <GenerateDebugInformation>false</GenerateDebugInformation>
 +      <EnableCOMDATFolding>true</EnableCOMDATFolding>
 +      <OptimizeReferences>true</OptimizeReferences>
-+      <AdditionalDependencies>comctl32.lib;imm32.lib;uxtheme.lib;shlwapi.lib;msimg32.lib;%(AdditionalDependencies)</AdditionalDependencies>
++      <AdditionalDependencies>comctl32.lib;Msimg32.lib;imm32.lib;uxtheme.lib;shlwapi.lib;msimg32.lib;%(AdditionalDependencies)</AdditionalDependencies>
 +    </Link>
 +    <PostBuildEvent>
-+      <Command>"$(SolutionDir)mpress.exe" "$(TargetPath)"</Command>
++      <Command>"$(SolutionDir)mpress.exe" -x "$(TargetPath)"</Command>
 +    </PostBuildEvent>
 +  </ItemDefinitionGroup>
 +  <ItemGroup>
@@ -2285,8 +1680,10 @@ diff --strip-trailing-cr -ruN 1/scite/SciTE.vcxproj 2/scite/SciTE.vcxproj
 +    <ClInclude Include="lua\src\lundump.h" />
 +    <ClInclude Include="lua\src\lvm.h" />
 +    <ClInclude Include="lua\src\lzio.h" />
++    <ClInclude Include="src\Cookie.h" />
 +    <ClInclude Include="src\Extender.h" />
 +    <ClInclude Include="src\FilePath.h" />
++    <ClInclude Include="src\FileWorker.h" />
 +    <ClInclude Include="src\GUI.h" />
 +    <ClInclude Include="src\IFaceTable.h" />
 +    <ClInclude Include="src\JobQueue.h" />
@@ -2305,7 +1702,6 @@ diff --strip-trailing-cr -ruN 1/scite/SciTE.vcxproj 2/scite/SciTE.vcxproj
 +    <ClInclude Include="src\Utf8_16.h" />
 +    <ClInclude Include="win32\DirectorExtension.h" />
 +    <ClInclude Include="win32\SciTEWin.h" />
-+    <ClInclude Include="win32\SingleThreadExtension.h" />
 +    <ClInclude Include="win32\UniqueInstance.h" />
 +  </ItemGroup>
 +  <ItemGroup>
@@ -2341,9 +1737,11 @@ diff --strip-trailing-cr -ruN 1/scite/SciTE.vcxproj 2/scite/SciTE.vcxproj
 +    <ClCompile Include="lua\src\lundump.c" />
 +    <ClCompile Include="lua\src\lvm.c" />
 +    <ClCompile Include="lua\src\lzio.c" />
++    <ClCompile Include="src\Cookie.cxx" />
 +    <ClCompile Include="src\Credits.cxx" />
 +    <ClCompile Include="src\Exporters.cxx" />
 +    <ClCompile Include="src\FilePath.cxx" />
++    <ClCompile Include="src\FileWorker.cxx" />
 +    <ClCompile Include="src\IFaceTable.cxx" />
 +    <ClCompile Include="src\JobQueue.cxx" />
 +    <ClCompile Include="src\LuaExtension.cxx" />
@@ -2359,10 +1757,10 @@ diff --strip-trailing-cr -ruN 1/scite/SciTE.vcxproj 2/scite/SciTE.vcxproj
 +    <ClCompile Include="src\Utf8_16.cxx" />
 +    <ClCompile Include="win32\DirectorExtension.cxx" />
 +    <ClCompile Include="win32\GUIWin.cxx" />
++    <ClCompile Include="win32\MessagePump.cxx" />
 +    <ClCompile Include="win32\SciTEWin.cxx" />
 +    <ClCompile Include="win32\SciTEWinBar.cxx" />
 +    <ClCompile Include="win32\SciTEWinDlg.cxx" />
-+    <ClCompile Include="win32\SingleThreadExtension.cxx" />
 +    <ClCompile Include="win32\UniqueInstance.cxx" />
 +    <ClCompile Include="win32\WinMutex.cxx" />
 +  </ItemGroup>
@@ -2374,10 +1772,10 @@ diff --strip-trailing-cr -ruN 1/scite/SciTE.vcxproj 2/scite/SciTE.vcxproj
 +  </ImportGroup>
 +</Project>
 \ No newline at end of file
-diff --strip-trailing-cr -ruN 1/scite/SciTE.vcxproj.filters 2/scite/SciTE.vcxproj.filters
+diff --strip-trailing-cr -rupN 1/scite/SciTE.vcxproj.filters 2/scite/SciTE.vcxproj.filters
 --- 1/scite/SciTE.vcxproj.filters	1970-01-01 01:00:00 +0100
-+++ 2/scite/SciTE.vcxproj.filters	2011-07-02 20:39:47 +0200
-@@ -0,0 +1,323 @@
++++ 2/scite/SciTE.vcxproj.filters	2011-12-23 17:27:01 +0100
+@@ -0,0 +1,332 @@
 +﻿<?xml version="1.0" encoding="utf-8"?>
 +<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 +  <ItemGroup>
@@ -2450,9 +1848,6 @@ diff --strip-trailing-cr -ruN 1/scite/SciTE.vcxproj.filters 2/scite/SciTE.vcxpro
 +      <Filter>Header Files</Filter>
 +    </ClInclude>
 +    <ClInclude Include="win32\SciTEWin.h">
-+      <Filter>Header Files</Filter>
-+    </ClInclude>
-+    <ClInclude Include="win32\SingleThreadExtension.h">
 +      <Filter>Header Files</Filter>
 +    </ClInclude>
 +    <ClInclude Include="win32\UniqueInstance.h">
@@ -2530,6 +1925,12 @@ diff --strip-trailing-cr -ruN 1/scite/SciTE.vcxproj.filters 2/scite/SciTE.vcxpro
 +    <ClInclude Include="src\StringHelpers.h">
 +      <Filter>Header Files</Filter>
 +    </ClInclude>
++    <ClInclude Include="src\FileWorker.h">
++      <Filter>Header Files</Filter>
++    </ClInclude>
++    <ClInclude Include="src\Cookie.h">
++      <Filter>Header Files</Filter>
++    </ClInclude>
 +  </ItemGroup>
 +  <ItemGroup>
 +    <ResourceCompile Include="win32\SciTERes.rc">
@@ -2550,9 +1951,6 @@ diff --strip-trailing-cr -ruN 1/scite/SciTE.vcxproj.filters 2/scite/SciTE.vcxpro
 +      <Filter>Source Files</Filter>
 +    </ClCompile>
 +    <ClCompile Include="win32\SciTEWinDlg.cxx">
-+      <Filter>Source Files</Filter>
-+    </ClCompile>
-+    <ClCompile Include="win32\SingleThreadExtension.cxx">
 +      <Filter>Source Files</Filter>
 +    </ClCompile>
 +    <ClCompile Include="win32\UniqueInstance.cxx">
@@ -2696,95 +2094,25 @@ diff --strip-trailing-cr -ruN 1/scite/SciTE.vcxproj.filters 2/scite/SciTE.vcxpro
 +    <ClCompile Include="src\Credits.cxx">
 +      <Filter>Source Files</Filter>
 +    </ClCompile>
++    <ClCompile Include="src\FileWorker.cxx">
++      <Filter>Source Files</Filter>
++    </ClCompile>
++    <ClCompile Include="src\Cookie.cxx">
++      <Filter>Source Files</Filter>
++    </ClCompile>
++    <ClCompile Include="win32\MessagePump.cxx">
++      <Filter>Source Files</Filter>
++    </ClCompile>
 +  </ItemGroup>
 +  <ItemGroup>
 +    <Manifest Include="win32\SciTE.exe.manifest" />
 +  </ItemGroup>
 +</Project>
 \ No newline at end of file
-diff --strip-trailing-cr -ruN 1/scite/SciTE.vcxproj.user 2/scite/SciTE.vcxproj.user
---- 1/scite/SciTE.vcxproj.user	1970-01-01 01:00:00 +0100
-+++ 2/scite/SciTE.vcxproj.user	2011-07-02 20:14:17 +0200
-@@ -0,0 +1,7 @@
-+﻿<?xml version="1.0" encoding="utf-8"?>
-+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-+    <LocalDebuggerCommand>C:\Program Files (x86)\AutoHotkey\SciTE\SciTE.exe</LocalDebuggerCommand>
-+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-+  </PropertyGroup>
-+</Project>
-\ No newline at end of file
-diff --strip-trailing-cr -ruN 1/scite/build.bat 2/scite/build.bat
---- 1/scite/build.bat	1970-01-01 01:00:00 +0100
-+++ 2/scite/build.bat	2011-07-02 20:14:22 +0200
-@@ -0,0 +1,22 @@
-+@echo off
-+set path=c:\mingw\bin;%path%
-+
-+echo Building...
-+cd win32
-+make
-+if %ERRORLEVEL% NEQ 0 goto ERROREXIT
-+cd ..
-+
-+echo.
-+echo Compressing...
-+cd bin
-+..\..\upx --best --no-lzma --filter=73 --compress-icons=0 --compress-exports=0 SciTE.exe
-+REM ..\..\mpress -x SciTE.exe
-+echo.
-+echo End.
-+
-+pause
-+exit
-+
-+:ERROREXIT
-+pause
-\ No newline at end of file
-diff --strip-trailing-cr -ruN 1/scite/clean.bat 2/scite/clean.bat
---- 1/scite/clean.bat	1970-01-01 01:00:00 +0100
-+++ 2/scite/clean.bat	2011-07-02 20:14:22 +0200
-@@ -0,0 +1 @@
-+del /S /Q *.a *.aps *.bsc *.dsw *.idb *.ilc *.ild *.ilf *.ilk *.ils *.lib *.map *.ncb *.obj *.o *.opt *.pdb *.plg *.res *.sbr *.tds *.exp >NUL:
-diff --strip-trailing-cr -ruN 1/scite/cleanexe.bat 2/scite/cleanexe.bat
---- 1/scite/cleanexe.bat	1970-01-01 01:00:00 +0100
-+++ 2/scite/cleanexe.bat	2011-07-02 20:14:22 +0200
-@@ -0,0 +1 @@
-+del /Q bin\SciTE.exe bin\lite\SciTE.exe >NUL:
-diff --strip-trailing-cr -ruN 1/scite/rebuild.bat 2/scite/rebuild.bat
---- 1/scite/rebuild.bat	1970-01-01 01:00:00 +0100
-+++ 2/scite/rebuild.bat	2011-07-02 20:14:22 +0200
-@@ -0,0 +1,25 @@
-+@echo off
-+set path=c:\mingw\bin;%path%
-+
-+echo Clean...
-+call clean.bat
-+call cleanexe.bat
-+echo.
-+
-+echo Building...
-+cd win32
-+make
-+if %ERRORLEVEL% NEQ 0 goto ERROREXIT
-+cd ..
-+
-+echo.
-+echo Compressing...
-+cd bin
-+..\..\upx --best --no-lzma --filter=73 --compress-icons=0 --compress-exports=0 SciTE.exe
-+echo.
-+echo End.
-+
-+exit
-+
-+:ERROREXIT
-+pause
-\ No newline at end of file
-diff --strip-trailing-cr -ruN 1/scite/src/Credits.cxx 2/scite/src/Credits.cxx
---- 1/scite/src/Credits.cxx	2011-06-20 05:49:48 +0200
-+++ 2/scite/src/Credits.cxx	2011-07-02 20:25:14 +0200
-@@ -351,7 +351,11 @@
+diff --strip-trailing-cr -rupN 1/scite/src/Credits.cxx 2/scite/src/Credits.cxx
+--- 1/scite/src/Credits.cxx	2011-12-08 23:16:52 +0100
++++ 2/scite/src/Credits.cxx	2011-12-23 13:56:59 +0100
+@@ -363,7 +363,11 @@ void SciTEBase::SetAboutMessage(GUI::Sci
  		wsci.Send(SCI_STYLESETSIZE, 0, fontSize);
  		wsci.Send(SCI_STYLESETBACK, 0, ColourRGB(0, 0, 0x80));
  		AddStyledText(wsci, appTitle, 0);
@@ -2797,35 +2125,33 @@ diff --strip-trailing-cr -ruN 1/scite/src/Credits.cxx 2/scite/src/Credits.cxx
  		SetAboutStyle(wsci, 1, ColourRGB(0, 0, 0));
  		int trsSty = 5; // define the stylenumber to assign font for translators.
  		SString translator = GetTranslationToAbout("TranslationCredit", false);
-@@ -371,16 +375,20 @@
+@@ -383,16 +387,18 @@ void SciTEBase::SetAboutMessage(GUI::Sci
  		}
  #endif
  		AddStyledText(wsci, GetTranslationToAbout("Version").c_str(), trsSty);
--		AddStyledText(wsci, " 2.27\n", 1);
-+		AddStyledText(wsci, " 3.0 - Based on SciTE 2.27\n", 1);
+-		AddStyledText(wsci, " " VERSION_SCITE "\n", 1);
++		AddStyledText(wsci, " " VERSION_SCITE " - Based on SciTE 3.0.2\n", 1);
  		AddStyledText(wsci, "    " __DATE__ " " __TIME__ "\n", 1);
  		SetAboutStyle(wsci, 2, ColourRGB(0, 0, 0));
  		wsci.Send(SCI_STYLESETITALIC, 2, 1);
  		AddStyledText(wsci, GetTranslationToAbout("by").c_str(), trsSty);
 -		AddStyledText(wsci, " Neil Hodgson.\n", 2);
-+		// fincs-edit start
 +		AddStyledText(wsci, " fincs", 2);
 +		AddStyledText(wsci, " - Original SciTE by ", trsSty);
 +		AddStyledText(wsci, "Neil Hodgson\n", 2);
  		SetAboutStyle(wsci, 3, ColourRGB(0, 0, 0));
--		AddStyledText(wsci, "December 1998-June 2011.\n", 3);
-+		AddStyledText(wsci, "SciTE: 1998-2011 Neil Hodgson,\nSciTE4AutoHotkey: 2007-2011 fincs\n", 3);
+-		AddStyledText(wsci, COPYRIGHT_DATES ".\n", 3);
++		AddStyledText(wsci, "SciTE: " COPYRIGHT_DATES " Neil Hodgson.\nSciTE4AutoHotkey: 2007-2011 fincs.\n", 3);
  		SetAboutStyle(wsci, 4, ColourRGB(0, 0x7f, 0x7f));
 -		AddStyledText(wsci, "http://www.scintilla.org\n", 4);
 +		AddStyledText(wsci, "http://www.autohotkey.com, http://www.scintilla.org\n", 4);
-+		// fincs-edit end
  		AddStyledText(wsci, "Lua scripting language by TeCGraf, PUC-Rio\n", 3);
  		AddStyledText(wsci, "    http://www.lua.org\n", 4);
  		if (translator.length()) {
-diff --strip-trailing-cr -ruN 1/scite/src/Extender.h 2/scite/src/Extender.h
---- 1/scite/src/Extender.h	2011-03-17 23:42:00 +0100
-+++ 2/scite/src/Extender.h	2011-07-02 20:14:22 +0200
-@@ -62,7 +62,7 @@
+diff --strip-trailing-cr -rupN 1/scite/src/Extender.h 2/scite/src/Extender.h
+--- 1/scite/src/Extender.h	2011-08-01 04:49:30 +0200
++++ 2/scite/src/Extender.h	2011-12-23 13:49:38 +0100
+@@ -62,7 +62,7 @@ public:
  	}
  	virtual bool OnDoubleClick() { return false; }
  	virtual bool OnUpdateUI() { return false; }
@@ -2834,10 +2160,10 @@ diff --strip-trailing-cr -ruN 1/scite/src/Extender.h 2/scite/src/Extender.h
  	virtual bool OnMacro(const char *, const char *) { return false; }
  	virtual bool OnUserListSelection(int, const char *) { return false; }
  
-diff --strip-trailing-cr -ruN 1/scite/src/LuaExtension.cxx 2/scite/src/LuaExtension.cxx
---- 1/scite/src/LuaExtension.cxx	2011-06-14 02:55:05 +0200
-+++ 2/scite/src/LuaExtension.cxx	2011-07-02 20:14:22 +0200
-@@ -809,6 +809,22 @@
+diff --strip-trailing-cr -rupN 1/scite/src/LuaExtension.cxx 2/scite/src/LuaExtension.cxx
+--- 1/scite/src/LuaExtension.cxx	2011-11-15 09:47:56 +0100
++++ 2/scite/src/LuaExtension.cxx	2011-12-23 17:30:37 +0100
+@@ -810,6 +810,22 @@ static bool CallNamedFunction(const char
  	return handled;
  }
  
@@ -2860,7 +2186,19 @@ diff --strip-trailing-cr -ruN 1/scite/src/LuaExtension.cxx 2/scite/src/LuaExtens
  static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
  	ExtensionAPI::Pane p = check_pane_object(L, 1);
  
-@@ -1994,8 +2010,8 @@
+@@ -1299,6 +1315,11 @@ static bool InitGlobalScope(bool checkPr
+ 	// ...register standard libraries
+ 	luaL_openlibs(luaState);
+ 
++#ifdef WIN32
++	extern int MessagePumpLibInit(lua_State* L);
++	MessagePumpLibInit(luaState);
++#endif
++
+ 	lua_register(luaState, "_ALERT", cf_global_print);
+ 
+ 	// although this is mostly redundant with output:append
+@@ -1995,8 +2016,8 @@ bool LuaExtension::OnUpdateUI() {
  	return CallNamedFunction("OnUpdateUI");
  }
  
@@ -2871,10 +2209,10 @@ diff --strip-trailing-cr -ruN 1/scite/src/LuaExtension.cxx 2/scite/src/LuaExtens
  }
  
  bool LuaExtension::OnUserListSelection(int listType, const char *selection) {
-diff --strip-trailing-cr -ruN 1/scite/src/LuaExtension.h 2/scite/src/LuaExtension.h
---- 1/scite/src/LuaExtension.h	2011-03-17 23:42:00 +0100
-+++ 2/scite/src/LuaExtension.h	2011-07-02 20:14:22 +0200
-@@ -34,7 +34,7 @@
+diff --strip-trailing-cr -rupN 1/scite/src/LuaExtension.h 2/scite/src/LuaExtension.h
+--- 1/scite/src/LuaExtension.h	2011-08-01 04:49:30 +0200
++++ 2/scite/src/LuaExtension.h	2011-12-23 13:49:38 +0100
+@@ -34,7 +34,7 @@ public:
  	virtual bool OnStyle(unsigned int startPos, int lengthDoc, int initStyle, StyleWriter *styler);
  	virtual bool OnDoubleClick();
  	virtual bool OnUpdateUI();
@@ -2883,10 +2221,10 @@ diff --strip-trailing-cr -ruN 1/scite/src/LuaExtension.h 2/scite/src/LuaExtensio
  	virtual bool OnUserListSelection(int listType, const char *selection);
  	virtual bool OnKey(int keyval, int modifiers);
  	virtual bool OnDwellStart(int pos, const char *word);
-diff --strip-trailing-cr -ruN 1/scite/src/MultiplexExtension.cxx 2/scite/src/MultiplexExtension.cxx
---- 1/scite/src/MultiplexExtension.cxx	2011-03-17 23:42:00 +0100
-+++ 2/scite/src/MultiplexExtension.cxx	2011-07-02 20:14:22 +0200
-@@ -197,10 +197,10 @@
+diff --strip-trailing-cr -rupN 1/scite/src/MultiplexExtension.cxx 2/scite/src/MultiplexExtension.cxx
+--- 1/scite/src/MultiplexExtension.cxx	2011-08-01 04:49:30 +0200
++++ 2/scite/src/MultiplexExtension.cxx	2011-12-23 13:49:38 +0100
+@@ -197,10 +197,10 @@ bool MultiplexExtension::OnUpdateUI() {
  	return handled;
  }
  
@@ -2899,10 +2237,10 @@ diff --strip-trailing-cr -ruN 1/scite/src/MultiplexExtension.cxx 2/scite/src/Mul
  			handled = true;
  	return handled;
  }
-diff --strip-trailing-cr -ruN 1/scite/src/MultiplexExtension.h 2/scite/src/MultiplexExtension.h
---- 1/scite/src/MultiplexExtension.h	2011-03-17 23:42:00 +0100
-+++ 2/scite/src/MultiplexExtension.h	2011-07-02 20:14:22 +0200
-@@ -64,7 +64,7 @@
+diff --strip-trailing-cr -rupN 1/scite/src/MultiplexExtension.h 2/scite/src/MultiplexExtension.h
+--- 1/scite/src/MultiplexExtension.h	2011-08-01 04:49:30 +0200
++++ 2/scite/src/MultiplexExtension.h	2011-12-23 13:49:38 +0100
+@@ -64,7 +64,7 @@ public:
  	virtual bool OnStyle(unsigned int, int, int, StyleWriter *);
  	virtual bool OnDoubleClick();
  	virtual bool OnUpdateUI();
@@ -2911,20 +2249,31 @@ diff --strip-trailing-cr -ruN 1/scite/src/MultiplexExtension.h 2/scite/src/Multi
  	virtual bool OnMacro(const char *, const char *);
  	virtual bool OnUserListSelection(int, const char *);
  
-diff --strip-trailing-cr -ruN 1/scite/src/SciTE.h 2/scite/src/SciTE.h
---- 1/scite/src/SciTE.h	2011-05-02 11:12:03 +0200
-+++ 2/scite/src/SciTE.h	2011-07-02 20:14:22 +0200
-@@ -264,3 +264,6 @@
+diff --strip-trailing-cr -rupN 1/scite/src/SciTE.h 2/scite/src/SciTE.h
+--- 1/scite/src/SciTE.h	2011-12-08 23:16:52 +0100
++++ 2/scite/src/SciTE.h	2011-12-23 13:54:20 +0100
+@@ -9,8 +9,8 @@
+ #define SCITE_H
+ 
+ // Version numbers and dates
+-#define VERSION_SCITE "3.0.2"
+-#define VERSION_WORDS 3, 0, 2, 0
++#define VERSION_SCITE "3.0"
++#define VERSION_WORDS 3, 0, 0, 0
+ #define COPYRIGHT_DATES "December 1998-December 2011"
+ #define COPYRIGHT_YEARS "1998-2011"
+ 
+@@ -269,3 +269,6 @@
  #define IDBM_AROUND 105
  #define IDBM_UP 106
  #endif
 +
 +// fincs-edit
 +#define IDI_MAINICON 500
-diff --strip-trailing-cr -ruN 1/scite/src/SciTEBase.cxx 2/scite/src/SciTEBase.cxx
---- 1/scite/src/SciTEBase.cxx	2011-06-20 05:45:09 +0200
-+++ 2/scite/src/SciTEBase.cxx	2011-07-02 20:14:22 +0200
-@@ -1490,6 +1490,8 @@
+diff --strip-trailing-cr -rupN 1/scite/src/SciTEBase.cxx 2/scite/src/SciTEBase.cxx
+--- 1/scite/src/SciTEBase.cxx	2011-12-08 23:16:52 +0100
++++ 2/scite/src/SciTEBase.cxx	2011-12-23 13:49:38 +0100
+@@ -1517,6 +1517,8 @@ void SciTEBase::FillFunctionDefinition(i
  			} else if (maxCallTips > 1) {
  				functionDefinition.insert(1, "\002");
  			}
@@ -2933,7 +2282,7 @@ diff --strip-trailing-cr -ruN 1/scite/src/SciTEBase.cxx 2/scite/src/SciTEBase.cx
  			wEditor.CallString(SCI_CALLTIPSHOW, lastPosCallTip - currentCallTipWord.length(), functionDefinition.c_str());
  			ContinueCallTip();
  		}
-@@ -3905,7 +3907,7 @@
+@@ -3946,7 +3948,7 @@ void SciTEBase::Notify(SCNotification *n
  
  	case SCN_MARGINCLICK: {
  			if (extender)
@@ -2942,9 +2291,157 @@ diff --strip-trailing-cr -ruN 1/scite/src/SciTEBase.cxx 2/scite/src/SciTEBase.cx
  			if (!handled) {
  				if (notification->margin == 2) {
  					MarginClick(notification->position, notification->modifiers);
-diff --strip-trailing-cr -ruN 1/scite/win32/SciTERes.rc 2/scite/win32/SciTERes.rc
---- 1/scite/win32/SciTERes.rc	2011-06-20 05:45:09 +0200
-+++ 2/scite/win32/SciTERes.rc	2011-07-02 20:26:04 +0200
+diff --strip-trailing-cr -rupN 1/scite/win32/MessagePump.cxx 2/scite/win32/MessagePump.cxx
+--- 1/scite/win32/MessagePump.cxx	1970-01-01 01:00:00 +0100
++++ 2/scite/win32/MessagePump.cxx	2011-12-23 18:16:36 +0100
+@@ -0,0 +1,144 @@
++// SciTE4AutoHotkey v3 Lua message pumper
++
++// Includes
++#include <windows.h>
++#include <tchar.h>
++extern "C"
++{
++#include "lauxlib.h"
++}
++
++// Some defines
++#define RET_OK 1
++#define RET_FAIL 0
++#define MAX_TITLE 255
++
++// Global variables
++static HWND cWindow = 0, tWindow = 0;
++static const char* cWinTitle; // variable pointer to constant char
++
++// Private callback function to enumerate the windows.
++static BOOL CALLBACK _lib_winsearchproc(HWND hWnd, LPARAM lParam)
++{
++	char wTitle[MAX_TITLE+1];
++	// Get window title
++	GetWindowTextA(hWnd, wTitle, MAX_TITLE);
++	if (strncmp(wTitle, cWinTitle, lParam) == 0)
++	{
++		// Window found.
++		cWindow = hWnd;
++		return 0; // Cancel the enumeration
++	}
++	return 1; // Continue enumerating the windows
++}
++
++// localizewin(wintitle) -- Localizes the window with the specified window title to
++//  further send messages to it. True = sucess, false = failure.
++static int lib_localizewin(lua_State* L)
++{
++	// set the global variables
++	cWinTitle = luaL_checkstring(L, 1);
++	tWindow = cWindow, cWindow = 0;
++
++	// look for the window
++	EnumWindows((WNDENUMPROC)_lib_winsearchproc, strlen(cWinTitle));
++	if (!cWindow) // no window found?
++	{
++		// just restore the old window and return false.
++		cWindow = tWindow;
++		lua_pushboolean(L, RET_FAIL);
++		return 1;
++	}
++	// return true.
++	lua_pushboolean(L, RET_OK);
++	return 1;
++}
++
++// pumpmsg(msg, wParam, lParam) -- Sends a message to the current window.
++static int lib_pumpmsg(lua_State* L)
++{
++	int result;
++
++	// get the parameters
++	int iMsg = luaL_checkint(L, 1);
++	int wParam = luaL_checkint(L, 2);
++	int lParam = luaL_checkint(L, 3);
++
++	if (!IsWindow(cWindow)) // invalid window?
++		return luaL_error(L, "Invalid window handle.");
++
++	// just dispatch the message to the window
++	result = (int) SendMessageA(cWindow, (UINT)iMsg, (WPARAM)wParam, (LPARAM)lParam);
++	
++	// return the number that the window gave to us
++	lua_pushinteger(L, result);
++	return 1;
++}
++
++// pumpmsg(msg, wparam, lparam) -- Sends a message in which lParam will be received as a string.
++static int lib_pumpmsgstr(lua_State* L)
++{
++	DWORD pID;
++	HANDLE hProcess;
++	void* rlParam;
++	int result;
++
++	// get the parameters
++	int iMsg = luaL_checkint(L, 1);
++	int wParam = luaL_checkint(L, 2);
++	const char* lParam = luaL_checkstring(L, 3);
++	// get the string length
++	size_t lParamSize = strlen(lParam) + 1;
++
++	if (!IsWindow(cWindow)) // invalid window?
++		return luaL_error(L, "Invalid window handle.");
++
++	// inject the string at the process.
++	GetWindowThreadProcessId(cWindow, &pID);
++	hProcess = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE, 0, pID);
++	if (!hProcess)
++		return luaL_error(L, "Couldn't open the memory of the window!");
++	rlParam = VirtualAllocEx(hProcess, 0, lParamSize, MEM_COMMIT, PAGE_READWRITE);
++	if (!rlParam)
++		return luaL_error(L, "Couldn't allocate the memory at the window!");
++	if (!WriteProcessMemory(hProcess, rlParam, lParam, lParamSize, NULL))
++		return luaL_error(L, "Couldn't inject the string parameter at the window!");
++
++	// just dispatch the message to the window
++	result = (int) SendMessageA(cWindow, (UINT)iMsg, (WPARAM)wParam, (LPARAM)rlParam);
++
++	// free the memory used by the string
++	if (!VirtualFreeEx(hProcess, rlParam, 0, MEM_RELEASE))
++		return luaL_error(L, "Failed to free the memory at the window!");
++	if (!CloseHandle(hProcess))
++		return luaL_error(L, "Couldn't close the process handle!");
++
++	// return the number that the window gave to us
++	lua_pushinteger(L, result);
++	return 1;
++}
++
++// sleep(time) -- sleeps for the specified amount of time
++static int lib_sleep(lua_State* L)
++{
++	Sleep(luaL_checkint(L, 1));
++	return 0;
++}
++
++static const luaL_Reg pumpLib[] =
++{
++	{ "localizewin", lib_localizewin },
++	{ "pumpmsg", lib_pumpmsg },
++	{ "pumpmsgstr", lib_pumpmsgstr },
++	{ "sleep", lib_sleep },
++	{ NULL, NULL }
++};
++
++int MessagePumpLibInit(lua_State* L)
++{
++	// register the library's functions in the Lua engine
++	for (const luaL_Reg* it = pumpLib; it->name; it ++)
++		lua_register(L, it->name, it->func);
++
++	return 0;
++}
+diff --strip-trailing-cr -rupN 1/scite/win32/SciTERes.rc 2/scite/win32/SciTERes.rc
+--- 1/scite/win32/SciTERes.rc	2011-08-01 04:49:30 +0200
++++ 2/scite/win32/SciTERes.rc	2011-12-23 13:53:49 +0100
 @@ -6,7 +6,9 @@
  
  #include "SciTE.h"
@@ -2956,7 +2453,7 @@ diff --strip-trailing-cr -ruN 1/scite/win32/SciTERes.rc 2/scite/win32/SciTERes.r
  
  1 RT_MANIFEST SciTE.exe.manifest
  
-@@ -176,12 +178,11 @@
+@@ -176,12 +178,11 @@ END
  POPUP "&Help"
  BEGIN
  	MENUITEM "&Help\tF1", 				IDM_HELP
@@ -2972,7 +2469,7 @@ diff --strip-trailing-cr -ruN 1/scite/win32/SciTERes.rc 2/scite/win32/SciTERes.r
  #endif
  END
  
-@@ -193,7 +194,8 @@
+@@ -193,7 +194,8 @@ STYLE DS_MODALFRAME | DS_3DLOOK | DS_FIX
  FONT 8, "MS Shell Dlg"
  BEGIN
  	CONTROL "", IDABOUTSCINTILLA, "Scintilla", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 1, 1, 346, 218
@@ -2982,29 +2479,18 @@ diff --strip-trailing-cr -ruN 1/scite/win32/SciTERes.rc 2/scite/win32/SciTERes.r
  	DEFPUSHBUTTON "OK", IDOK, 26, 222, 322, 20, WS_TABSTOP
  END
  
-@@ -574,8 +576,8 @@
- IDC_DRAGDROP       CURSOR  DISCARDABLE     "DragDrop.cur"
- 
- VS_VERSION_INFO VERSIONINFO
--FILEVERSION	2, 2, 7, 0
--PRODUCTVERSION	2, 2, 7, 0
-+FILEVERSION	3, 0, 0, 0
-+PRODUCTVERSION	3, 0, 0, 0
- FILEFLAGSMASK	0x3fL
- FILEFLAGS 0
- FILEOS VOS_NT_WINDOWS32
-@@ -590,14 +592,14 @@
+@@ -590,14 +592,14 @@ BEGIN
  	BEGIN
  		BLOCK "040904b0"
  		BEGIN
 -			VALUE	"CompanyName",	"Neil Hodgson neilh@scintilla.org\0"
 -			VALUE	"FileDescription",	"SciTE - a Scintilla based Text Editor\0"
--			VALUE	"FileVersion",	"2.27\0"
+-			VALUE	"FileVersion",	VERSION_SCITE "\0"
 -			VALUE	"InternalName",	"SciTE\0"
--			VALUE	"LegalCopyright",	"Copyright 1998-2011 by Neil Hodgson\0"
+-			VALUE	"LegalCopyright",	"Copyright " COPYRIGHT_YEARS " by Neil Hodgson\0"
 -			VALUE	"OriginalFilename",	"SciTE.EXE\0"
 -			VALUE	"ProductName",	"SciTE\0"
--			VALUE	"ProductVersion",	"2.27\0"
+-			VALUE	"ProductVersion",	VERSION_SCITE "\0"
 +			VALUE	"CompanyName",	"fincs @ autohotkey.com forum / Original SciTE by Neil Hodgson: neilh@scintilla.org\0"
 +			VALUE	"FileDescription",	"SciTE4AutoHotkey - a SciTE distribution for AutoHotkey\0"
 +			VALUE	"FileVersion",	"3.0\0"
@@ -3016,10 +2502,10 @@ diff --strip-trailing-cr -ruN 1/scite/win32/SciTERes.rc 2/scite/win32/SciTERes.r
  		END
  	END
  END
-diff --strip-trailing-cr -ruN 1/scite/win32/SciTEWin.cxx 2/scite/win32/SciTEWin.cxx
---- 1/scite/win32/SciTEWin.cxx	2011-06-14 02:55:05 +0200
-+++ 2/scite/win32/SciTEWin.cxx	2011-07-02 20:14:22 +0200
-@@ -51,9 +51,9 @@
+diff --strip-trailing-cr -rupN 1/scite/win32/SciTEWin.cxx 2/scite/win32/SciTEWin.cxx
+--- 1/scite/win32/SciTEWin.cxx	2011-12-08 23:16:52 +0100
++++ 2/scite/win32/SciTEWin.cxx	2011-12-23 13:49:38 +0100
+@@ -50,9 +50,9 @@
  #endif
  
  #ifdef STATIC_BUILD
@@ -3031,7 +2517,7 @@ diff --strip-trailing-cr -ruN 1/scite/win32/SciTEWin.cxx 2/scite/win32/SciTEWin.
  #endif
  
  static GUI::gui_string GetErrorMessage(DWORD nRet) {
-@@ -212,6 +212,11 @@
+@@ -211,6 +211,11 @@ SciTEWin::SciTEWin(Extension *ext) : Sci
  	// System type properties are also stored in the embedded properties.
  	propsEmbed.Set("PLAT_WIN", "1");
  	propsEmbed.Set("PLAT_WINNT", "1");
@@ -3043,7 +2529,7 @@ diff --strip-trailing-cr -ruN 1/scite/win32/SciTEWin.cxx 2/scite/win32/SciTEWin.
  
  	HRSRC handProps = ::FindResource(hInstance, TEXT("Embedded"), TEXT("Properties"));
  	if (handProps) {
-@@ -276,7 +281,9 @@
+@@ -277,7 +282,9 @@ void SciTEWin::Register(HINSTANCE hInsta
  	wndclass.cbClsExtra = 0;
  	wndclass.cbWndExtra = sizeof(SciTEWin*);
  	wndclass.hInstance = hInstance;
@@ -3054,7 +2540,7 @@ diff --strip-trailing-cr -ruN 1/scite/win32/SciTEWin.cxx 2/scite/win32/SciTEWin.
  	wndclass.hCursor = NULL;
  	wndclass.hbrBackground = NULL;
  	wndclass.lpszMenuName = resourceName;
-@@ -424,10 +431,51 @@
+@@ -423,10 +430,51 @@ FilePath SciTEWin::GetSciteDefaultHome()
  	return GetSciTEPath(home);
  }
  
@@ -3107,7 +2593,7 @@ diff --strip-trailing-cr -ruN 1/scite/win32/SciTEWin.cxx 2/scite/win32/SciTEWin.
  	return GetSciTEPath(home);
  }
  
-@@ -583,6 +631,10 @@
+@@ -582,6 +630,10 @@ HWND SciTEWin::MainHWND() {
  	return HwndOf(wSciTE);
  }
  
@@ -3116,9 +2602,9 @@ diff --strip-trailing-cr -ruN 1/scite/win32/SciTEWin.cxx 2/scite/win32/SciTEWin.
 +} // fincs-edit
 +
  void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
- 	int cmdID = ControlIDOfCommand(wParam);
+ 	int cmdID = ControlIDOfWParam(wParam);
  	if (wParam & 0x10000) {
-@@ -1889,6 +1941,15 @@
+@@ -1954,6 +2006,15 @@ LRESULT SciTEWin::WndProc(UINT iMessage,
  		case WM_COPYDATA:
  			return uniqueInstance.CopyData(reinterpret_cast<COPYDATASTRUCT *>(lParam));
  
@@ -3134,7 +2620,7 @@ diff --strip-trailing-cr -ruN 1/scite/win32/SciTEWin.cxx 2/scite/win32/SciTEWin.
  		default:
  			return ::DefWindowProcW(MainHWND(), iMessage, wParam, lParam);
  		}
-@@ -3388,13 +3449,12 @@
+@@ -3560,13 +3621,12 @@ int PASCAL WinMain(HINSTANCE hInstance,
  #endif
  
  	SciTEWin::Register(hInstance);
@@ -3150,10 +2636,10 @@ diff --strip-trailing-cr -ruN 1/scite/win32/SciTEWin.cxx 2/scite/win32/SciTEWin.
  	if (hmod == NULL)
  		::MessageBox(NULL, TEXT("The Scintilla DLL could not be loaded.  SciTE will now close"),
  			TEXT("Error loading Scintilla"), MB_OK | MB_ICONERROR);
-diff --strip-trailing-cr -ruN 1/scite/win32/SciTEWin.h 2/scite/win32/SciTEWin.h
---- 1/scite/win32/SciTEWin.h	2011-06-14 02:55:05 +0200
-+++ 2/scite/win32/SciTEWin.h	2011-07-02 20:14:22 +0200
-@@ -48,12 +48,13 @@
+diff --strip-trailing-cr -rupN 1/scite/win32/SciTEWin.h 2/scite/win32/SciTEWin.h
+--- 1/scite/win32/SciTEWin.h	2011-12-08 23:16:52 +0100
++++ 2/scite/win32/SciTEWin.h	2011-12-23 13:49:38 +0100
+@@ -45,12 +45,13 @@ typedef HANDLE HTHEME;
  #endif
  #include <commctrl.h>
  #include <richedit.h>
@@ -3168,18 +2654,18 @@ diff --strip-trailing-cr -ruN 1/scite/win32/SciTEWin.h 2/scite/win32/SciTEWin.h
  #ifdef _MSC_VER
  #include <direct.h>
  #endif
-@@ -416,6 +417,7 @@
+@@ -465,6 +466,7 @@ protected:
  	void FullScreenToggle();
  	void Command(WPARAM wParam, LPARAM lParam);
  	HWND MainHWND();
 +	HWND ToolHWND(); // fincs-edit
  
+ 	virtual void ShowBackgroundProgress(const GUI::gui_string &explanation, int size, int progress);
  	BOOL FindMessage(HWND hDlg, UINT message, WPARAM wParam);
- 	static BOOL CALLBACK FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-diff --strip-trailing-cr -ruN 1/scite/win32/SciTEWinDlg.cxx 2/scite/win32/SciTEWinDlg.cxx
---- 1/scite/win32/SciTEWinDlg.cxx	2011-06-14 02:55:05 +0200
-+++ 2/scite/win32/SciTEWinDlg.cxx	2011-07-02 20:14:22 +0200
-@@ -286,6 +286,11 @@
+diff --strip-trailing-cr -rupN 1/scite/win32/SciTEWinDlg.cxx 2/scite/win32/SciTEWinDlg.cxx
+--- 1/scite/win32/SciTEWinDlg.cxx	2011-12-08 23:16:52 +0100
++++ 2/scite/win32/SciTEWinDlg.cxx	2011-12-23 13:49:38 +0100
+@@ -287,6 +287,11 @@ FilePath SciTEWin::ChooseSaveName(FilePa
  		ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
  		ofn.lpstrFilter = filter;
  		ofn.lpstrInitialDir = directory.AsInternal();
@@ -3191,7 +2677,7 @@ diff --strip-trailing-cr -ruN 1/scite/win32/SciTEWinDlg.cxx 2/scite/win32/SciTEW
  
  		dialogsOnScreen++;
  		if (::GetSaveFileNameW(&ofn)) {
-@@ -1612,7 +1617,7 @@
+@@ -1620,7 +1625,7 @@ BOOL SciTEWin::AboutMessage(HWND hDlg, U
  		LONG_PTR subclassedProc = ::SetWindowLongPtr(hwndCredits, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(CreditsWndProc));
  		::SetWindowLongPtr(hwndCredits, GWLP_USERDATA, subclassedProc);
  		ss.SetID(hwndCredits);
@@ -3200,36 +2686,10 @@ diff --strip-trailing-cr -ruN 1/scite/win32/SciTEWinDlg.cxx 2/scite/win32/SciTEW
  		}
  		return TRUE;
  
-diff --strip-trailing-cr -ruN 1/scite/win32/SingleThreadExtension.cxx 2/scite/win32/SingleThreadExtension.cxx
---- 1/scite/win32/SingleThreadExtension.cxx	2011-03-17 23:42:00 +0100
-+++ 2/scite/win32/SingleThreadExtension.cxx	2011-07-02 20:14:22 +0200
-@@ -132,8 +132,8 @@
- 	return ext->OnUpdateUI();
- }
- 
--bool SingleThreadExtension::OnMarginClick() {
--	return ext->OnMarginClick();
-+bool SingleThreadExtension::OnMarginClick(int p, int q) { // fincs-edit
-+	return ext->OnMarginClick(p, q); // fincs-edit
- }
- 
- bool SingleThreadExtension::OnMacro(const char *p, const char *q) {
-diff --strip-trailing-cr -ruN 1/scite/win32/SingleThreadExtension.h 2/scite/win32/SingleThreadExtension.h
---- 1/scite/win32/SingleThreadExtension.h	2011-03-17 23:42:00 +0100
-+++ 2/scite/win32/SingleThreadExtension.h	2011-07-02 20:14:22 +0200
-@@ -38,7 +38,7 @@
- 	virtual bool OnStyle(unsigned int, int, int, StyleWriter *);
- 	virtual bool OnDoubleClick();
- 	virtual bool OnUpdateUI();
--	virtual bool OnMarginClick();
-+	virtual bool OnMarginClick(int, int); // fincs-edit
- 	virtual bool OnMacro(const char *, const char *);
- 	virtual bool OnUserListSelection(int, const char *);
- 	virtual bool SendProperty(const char *);
-diff --strip-trailing-cr -ruN 1/scite/win32/UniqueInstance.cxx 2/scite/win32/UniqueInstance.cxx
---- 1/scite/win32/UniqueInstance.cxx	2011-03-17 23:42:00 +0100
-+++ 2/scite/win32/UniqueInstance.cxx	2011-07-02 20:14:22 +0200
-@@ -124,6 +124,36 @@
+diff --strip-trailing-cr -rupN 1/scite/win32/UniqueInstance.cxx 2/scite/win32/UniqueInstance.cxx
+--- 1/scite/win32/UniqueInstance.cxx	2011-08-01 04:49:30 +0200
++++ 2/scite/win32/UniqueInstance.cxx	2011-12-23 13:51:46 +0100
+@@ -124,6 +124,36 @@ LRESULT UniqueInstance::CheckMessage(UIN
  	return 0;
  }
  
@@ -3266,7 +2726,7 @@ diff --strip-trailing-cr -ruN 1/scite/win32/UniqueInstance.cxx 2/scite/win32/Uni
  /**
   * To be called only if check.if.already.open option is set to 1.
   * Create the mutex name, try to set the mutex.
-@@ -151,6 +181,10 @@
+@@ -151,6 +181,10 @@ void UniqueInstance::CheckOtherInstance(
  		// Don't answer to requests from other starting instances
  		stw->openFilesHere = false;
  	}
@@ -3277,119 +2737,3 @@ diff --strip-trailing-cr -ruN 1/scite/win32/UniqueInstance.cxx 2/scite/win32/Uni
  }
  
  /**
-diff --strip-trailing-cr -ruN 1/scite/win32/makefile 2/scite/win32/makefile
---- 1/scite/win32/makefile	2011-06-14 02:55:05 +0200
-+++ 2/scite/win32/makefile	2011-07-02 20:18:21 +0200
-@@ -15,7 +15,6 @@
- endif
- 
- PROG	= ../bin/SciTE.exe
--PROGSTATIC = ../bin/Sc1.exe
- WIDEFLAGS=-DUNICODE -D_UNICODE
- 
- vpath %.h ../src ../../scintilla/include ../../scintilla/win32
-@@ -56,7 +55,7 @@
- 
- CXXFLAGS = $(CFLAGS) -Wno-char-subscripts -pedantic -fno-rtti -mno-cygwin
- 
--LDFLAGS=-mwindows -lmsimg32 -lcomctl32 -limm32 -lole32 -luuid -luxtheme $(LUA_LDFLAGS) -mno-cygwin
-+LDFLAGS=-mwindows -static-libgcc -static-libstdc++ -lmsimg32 -lcomctl32 -limm32 -lole32 -luuid -luxtheme $(LUA_LDFLAGS) -lshlwapi -mno-cygwin
- 
- .cxx.o:
- 	$(CC) $(CXXFLAGS) -c $< -o $@
-@@ -74,38 +73,7 @@
- 
- DLLS=..\bin\Scintilla.dll ..\bin\SciLexer.dll
- 
--#++Autogenerated -- run scintilla/src/LexGen.py to regenerate
--#**LEXPROPS=\\\n\(../bin/\* \)
--LEXPROPS=\
--../bin/abaqus.properties ../bin/ada.properties ../bin/asm.properties \
--../bin/asn1.properties ../bin/au3.properties ../bin/ave.properties \
--../bin/baan.properties ../bin/blitzbasic.properties ../bin/bullant.properties \
--../bin/caml.properties ../bin/cmake.properties ../bin/cobol.properties \
--../bin/conf.properties ../bin/cpp.properties ../bin/csound.properties \
--../bin/css.properties ../bin/d.properties ../bin/eiffel.properties \
--../bin/erlang.properties ../bin/escript.properties ../bin/flagship.properties \
--../bin/forth.properties ../bin/fortran.properties ../bin/freebasic.properties \
--../bin/gap.properties ../bin/haskell.properties ../bin/html.properties \
--../bin/inno.properties ../bin/kix.properties ../bin/latex.properties \
--../bin/lisp.properties ../bin/lot.properties ../bin/lout.properties \
--../bin/lua.properties ../bin/matlab.properties ../bin/metapost.properties \
--../bin/mmixal.properties ../bin/modula3.properties ../bin/nimrod.properties \
--../bin/nncrontab.properties ../bin/nsis.properties ../bin/opal.properties \
--../bin/others.properties ../bin/pascal.properties ../bin/perl.properties \
--../bin/pov.properties ../bin/powerpro.properties ../bin/powershell.properties \
--../bin/ps.properties ../bin/purebasic.properties ../bin/python.properties \
--../bin/r.properties ../bin/rebol.properties ../bin/ruby.properties \
--../bin/scriptol.properties ../bin/smalltalk.properties \
--../bin/sorcins.properties ../bin/specman.properties ../bin/spice.properties \
--../bin/sql.properties ../bin/tacl.properties ../bin/tal.properties \
--../bin/tcl.properties ../bin/tex.properties ../bin/txt2tags.properties \
--../bin/vb.properties ../bin/verilog.properties ../bin/vhdl.properties \
--../bin/yaml.properties
--#--Autogenerated -- end of automatically generated section
--
--PROPS=../bin/SciTEGlobal.properties ../bin/abbrev.properties $(LEXPROPS)
--
--ALL:	$(PROG) $(PROGSTATIC) $(DLLS) $(PROPS) $(LUA_SCRIPTS)
-+ALL:	$(PROG) $(LUA_SCRIPTS)
- 
- clean:
- 	$(DEL) *.exe *.o *.obj *.dll *.res *.map
-@@ -113,55 +81,15 @@
- deps:
- 	$(CC) -MM $(CXXFLAGS) *.cxx ../src/*.cxx ../lua/src/*.c ../lua/src/lib/*.c >deps.mak
- 
--embedded: ..\src\Embedded.properties
--
--..\bin\Scintilla.dll:	..\..\scintilla\bin\Scintilla.dll
--	$(COPY) ..\..\scintilla\bin\Scintilla.dll $@
--
--..\bin\SciLexer.dll:	..\..\scintilla\bin\SciLexer.dll
--	$(COPY) ..\..\scintilla\bin\SciLexer.dll $@
--
--# Using '/' rather than '\' as that allows make to match the next rule
--../bin/%.properties:	../src/%.properties
--	$(COPY) $(subst /,\,$^) $(subst /,\,$@)
--
--# Normally distributed rather than built as may not have grep on all machines
--# Copy all non-comment lines from all the properties files into one combined file
--..\src\Embedded.properties: $(PROPS)
--	grep -v -h "^[#]" $(PROPS) >..\src\Embedded.properties
--
- $(PROG): $(OBJS)
- 	$(CC) $(STRIPFLAG) -Xlinker --subsystem -Xlinker windows -o  $@ $^ $(LDFLAGS)
- 
--OBJSSTATIC = Sc1.o SciTEWinBar.o SciTEWinDlg.o MultiplexExtension.o \
--	StyleWriter.o UniqueInstance.o SciTEBase.o Credits.o FilePath.o SciTEBuffers.o \
--	SciTEIO.o Exporters.o PropSetFile.o StringHelpers.o StringList.o SciTEProps.o ScintillaWinL.o \
--	ScintillaBaseL.o Editor.o Catalogue.o Accessor.o WordList.o CharacterSet.o \
--	LexerModule.o LexerSimple.o LexerBase.o \
--	ExternalLexer.o StyleContext.o Lexers.a PropSetSimple.o RunStyles.o \
--	ContractionState.o CharClassify.o Decoration.o Document.o CellBuffer.o CallTip.o Sc1Res.o PlatWin.o \
--	PositionCache.o UniConversion.o Utf8_16.o GUIWin.o KeyMap.o Indicator.o LineMarker.o RESearch.o Selection.o Style.o \
--	ViewStyle.o AutoComplete.o IFaceTable.o DirectorExtension.o MultiplexExtension.o XPM.o PerLine.o \
--	JobQueue.o WinMutex.o $(LUA_OBJS)
--
--$(PROGSTATIC): $(OBJSSTATIC)
--	$(CC) $(STRIPFLAG) -Xlinker --subsystem -Xlinker windows -o $@ $^ $(LDFLAGS)
--
- # Automatically generate dependencies for most files with "make deps"
- include deps.mak
- 
--Sc1.o: SciTEWin.cxx SciTEWin.h SciTE.h PropSetFile.h \
-- SString.h Scintilla.h Extender.h FilePath.h SciTEBase.h JobQueue.h
--	$(CC) $(CXXFLAGS) -D STATIC_BUILD -c $< -o $@
--
- SciTERes.o:	SciTERes.rc SciTE.h SciTE.exe.manifest
- 	windres $(RCINCLUDEDIRS) SciTERes.rc $@
- 
--# Also depends on ../src/Embedded.properties but may not want to build everywhere
--# so must explicitly ask to build it.
--Sc1Res.o:	SciTERes.rc SciTE.h SciTE.exe.manifest
--	windres $(RCINCLUDEDIRS) SciTERes.rc --define STATIC_BUILD $@
--
- # Make sure SciTEBase gets rebuilt (so its about box gets a new
- # date stamp) when any of the other objects are updated.
- SciTEBase.o: $(OTHER_OBJS)

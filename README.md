@@ -26,10 +26,7 @@ Complete. The recommended "setup" procedure is fetching the repository somewhere
 Building SciTE4AutoHotkey
 -------------------------
 
-In order to do so, follow the instructions in the *scipatches* folder. When done building, copy the following files to the following locations:
-
-* SciTE.exe and SciLexer.dll -> source/
-* dbguihlp.dll -> source/debugger/
+In order to do so, follow the instructions in the *scipatches* folder. When done building, copy SciTE.exe and SciLexer.dll to the /source folder.
 
 Afterwards, download the current [portable build](http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3/SciTE4AutoHotkey_v3_beta5a_Portable.zip) in order to get some files from it:
 
@@ -38,4 +35,4 @@ Afterwards, download the current [portable build](http://www.autohotkey.net/~fin
 
 You must also build the [documentation](https://github.com/fincs/SciTE4AHK-Docs) and place it in the source folder.
 
-The latest AutoHotkey_L Unicode binary (v1.1.04.00 at the time of writing) also needs to be placed in the source folder.
+The latest AutoHotkey_L Unicode binary (v1.1.05.05 at the time of writing) also needs to be placed in the source folder.

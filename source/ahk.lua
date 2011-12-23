@@ -39,6 +39,7 @@ local SCE_AHK_VARREFKW     = 19
 local SCE_AHK_ERROR        = 20
 
 local prepared = false
+local savedbk = nil
 
 -- ================================================== --
 -- OnClear event - fired when SciTE changes documents --
@@ -182,7 +183,7 @@ function DBGp_Connect()
 	prepared = true
 	--SetMarkerColors()
 	ClearAllMarkers()
-	resetBreakpoints()
+	savedbk = enumBreakpoints()
 end
 
 function enumBreakpoints()
@@ -201,15 +202,15 @@ function enumBreakpoints()
 	return nil
 end
 
-function resetBreakpoints()
-	bk = enumBreakpoints()
-	if bk == nil then return end
+function DBGp_BkReset()
+	if savedbk == nil then return end
 	
-	while pumpmsg(4112, 5, 0) == 0 do end
 	editor:MarkerDeleteAll(10)
-	for i,v in ipairs(bk) do
+	for i,v in ipairs(savedbk) do
 		pumpmsg(4112, 1, v)
 	end
+	
+	savedbk = nil
 end
 
 function DBGp_Disconnect()

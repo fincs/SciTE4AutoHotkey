@@ -238,6 +238,9 @@ if Dbg_Lang != AutoHotkey
 ; Show the splash
 SetTimer, ReadyToDebugSplash, -1
 
+; Reset saved breakpoints
+PostMessage, 0x111, 1135, 0,, ahk_id %scitehwnd%
+
 ; Main loop
 while !Dbg_IsClosing ; while the debugger is active
 {
@@ -433,13 +436,6 @@ _wP4: ; Hovering
 			ToolTip, %Dbg_VarName% is an object
 	}
 	return true
-
-_wP5: ; AHK_L check
-	global Dbg_AHKLExists
-	Critical, Off
-	if Dbg_AHKLExists
-		Sleep, 100
-	return Dbg_AHKLExists
 
 _wP255: ; Disconnect
 	if !Dbg_ExitByDisconnect

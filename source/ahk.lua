@@ -38,20 +38,7 @@ local SCE_AHK_WORD_UD      = 18
 local SCE_AHK_VARREFKW     = 19
 local SCE_AHK_ERROR        = 20
 
--- ============================= --
--- Message pumper initialization --
--- ============================= --
-
-local dbguihlp,err = package.loadlib(props['SciteDefaultHome'].."\\debugger\\dbguihlp.dll", "libinit")
-local debugon  = true
 local prepared = false
-
-if dbguihlp then
-	dbguihlp()
-else
-	print(err)
-	debugon = false
-end
 
 -- ================================================== --
 -- OnClear event - fired when SciTE changes documents --
@@ -168,11 +155,6 @@ end
 function get_director_HWND()
 	if prepared then return end
 	
-	if not debugon then
-		print("ERROR: dbguihlp can't be loaded.")
-		return
-	end
-	
 	if localizewin("scite4ahkToolbarTempWin") == false then
 		print("Window doesn't exist.")
 		return
@@ -189,12 +171,6 @@ end
 
 function DBGp_Connect()
 	if prepared then return end
-	
-	if not debugon then
-		print("Debugging features are disabled because the debugger helper is not present.")
-		print("Hit Ctrl-Alt-Z to close the debugger.")
-		return
-	end
 	
 	if localizewin("SciTEDebugStub") == false then
 		print("Window doesn't exist.")

@@ -17,17 +17,21 @@ SetWorkingDir, %A_ScriptDir%
 Menu, Tray, NoStandard
 
 title = SciTE4AutoHotkey installation
+downloadurl = http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3/rc1_instdata.bin
 
-if GetWinVer() < 5.1
+if A_IsCompiled
 {
-	MsgBox, 16, %title%, Windows XP or newer is required.
-	ExitApp
-}
+	if GetWinVer() < 5.1
+	{
+		MsgBox, 16, %title%, Windows XP or newer is required.
+		ExitApp
+	}
 
-if GetWinVer() >= 6 && !A_IsAdmin
-{
-	MsgBox, 16, %title%, Admin rights required.
-	ExitApp
+	if GetWinVer() >= 6 && !A_IsAdmin
+	{
+		MsgBox, 16, %title%, Admin rights required.
+		ExitApp
+	}
 }
 
 FileEncoding, UTF-8
@@ -63,7 +67,7 @@ IfNotExist, beta5_instdata.bin
 {
 	Menu, Tray, Icon
 	TrayTip, SciTE4AutoHotkey Installer, Download in progress..., 5, 1
-	r := NiceDownloader("http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3/repository/rc1_instdata.bin", A_ScriptDir "\rc1_instdata.bin", "Downloading SciTE4AutoHotkey...")
+	r := NiceDownloader(downloadurl, A_ScriptDir "\rc1_instdata.bin", "Downloading SciTE4AutoHotkey...")
 	Menu, Tray, NoIcon
 	if !r
 	{
@@ -102,8 +106,8 @@ Progress, Off
 
 FileInstall, uninst.exe, %instdir%\uninst.exe, 1
 key = Software\Microsoft\Windows\CurrentVersion\Uninstall\SciTE4AutoHotkey
-RegWrite, REG_SZ, HKLM, %key%, DisplayName, SciTE4AutoHotkey v3 RC 1
-RegWrite, REG_SZ, HKLM, %key%, DisplayVersion, v3.0 RC 1
+RegWrite, REG_SZ, HKLM, %key%, DisplayName, SciTE4AutoHotkey v3.0.00 (Release Candidate)
+RegWrite, REG_SZ, HKLM, %key%, DisplayVersion, v3.0.00 (rc1)
 RegWrite, REG_SZ, HKLM, %key%, Publisher, fincs
 RegWrite, REG_SZ, HKLM, %key%, DisplayIcon, %instdir%\SciTE.exe
 RegWrite, REG_SZ, HKLM, %key%, URLInfoAbout, http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3/web/
@@ -123,6 +127,7 @@ IfMsgBox, Yes
 	Shortcut(A_DesktopCommon "\SciTE4AutoHotkey.lnk", instdir "\SciTE.exe", "AutoHotkey Script Editor")
 
 MsgBox, 36, %title%, Do you want to create a Start Menu folder?
+IfMsgBox, Yes
 {
 	FileCreateDir, %A_ProgramsCommon%\SciTE4AutoHotkey
 	Shortcut(A_ProgramsCommon "\SciTE4AutoHotkey\SciTE4AutoHotkey.lnk", instdir "\SciTE.exe", "AutoHotkey Script Editor")

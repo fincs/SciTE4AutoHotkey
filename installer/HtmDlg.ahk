@@ -30,7 +30,7 @@ Static _hInst,_hDLG,_DlgP,_B$,_B$L,_pIWEB,_pV,_DlgT,CliC,HtmF=0,_Brush=0,Pntr,Pt
  }
 
  If ! ( _hInst ) {
- Pntr := InStr( A_AhkVersion, "L" ) ? "UPtr" : "UInt", PtrS := (A_PtrSize != "") ? A_PtrSize : 4
+ Pntr := A_PtrSize ? "Ptr" : "UInt", PtrS := A_PtrSize ? A_PtrSize : 4
  _hInst := DllCall( "GetModuleHandle", Str,A_IsCompiled ? A_ScriptFullpath : A_AhkPath, Pntr )
 
  _DT := "61160CD3AFCDD0118A3EGC04FC9E26EZQ1GFFFFUCHC88GAZO9G9G1I4DG53G2H53G68G65G6CG6CG2H"

@@ -552,7 +552,7 @@ OnDebuggerConnection(session, init)
 	DBGp(session, "property_set", "-n A_DebuggerName -- " DBGp_Base64UTF8Encode("SciTE4AutoHotkey"))
 	DBGp(session, "feature_set", "-n max_children -v 100")
 	DBGp(session, "feature_set", "-n max_data -v " (Dbg_MemLimit := 128*1024)) ; Requested by Lexikos
-	DBGp(session, "feature_set", "-n max_depth -v 10")
+	DBGp(session, "feature_set", "-n max_depth -v 32")
 	DBGp(session, "stdout", "-c 2")
 	DBGp(session, "stderr", "-c 2")
 	; Really nothing more to do

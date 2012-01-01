@@ -357,7 +357,7 @@ _wP1: ; Breakpoint setting
 	
 	lParam ++ ; from 0-based to 1-based, that's what DBGp uses
 	
-	uri := DBGp_EncodeFileURI(SciTE_GetFile())
+	uri := DBGp_EncodeFileURI(file := SciTE_GetFile())
 	bk := Util_GetBk(uri, lParam)
 	if bk
 	{

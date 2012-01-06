@@ -63,7 +63,7 @@ IfExist, %instdir%
 	;~ ExitApp
 ;~ }
 
-IfNotExist, beta5_instdata.bin
+IfNotExist, rc1_instdata.bin
 {
 	Menu, Tray, Icon
 	TrayTip, SciTE4AutoHotkey Installer, Download in progress..., 5, 1

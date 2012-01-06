@@ -164,7 +164,19 @@ GetWinVer()
 GetAutoHotkeyDir()
 {
 	if A_AhkPath =
-		return
+	{
+		if !Util_Is64bitOS()
+			return
+		
+		VarSetCapacity(ahkDir, 1024*(!!A_IsUnicode+1))
+		; 0x80000002=HKLM, 0x101=KEY_QUERY_VALUE | KEY_WOW64_64KEY
+		if DllCall("advapi32\RegOpenKeyEx", "uint", 0x80000002, "str", "SOFTWARE\AutoHotkey", "uint", 0, "uint", 0x101, "ptr*", hKey)
+			return
+		
+		DllCall("advapi32\RegQueryValueEx", "ptr", hKey, "str", "InstallDir", "ptr", 0, "ptr", 0, "str", ahkDir, "uint*", VarSetCapacity(ahkDir))
+		DllCall("advapi32\RegCloseKey", "ptr", hKey)
+		return ahkDir
+	}
 	SplitPath, A_AhkPath,, ahkdir
 	return ahkdir
 }

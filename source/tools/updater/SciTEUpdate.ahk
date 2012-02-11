@@ -100,7 +100,8 @@ Loop, % toFetch
 		upd.Run(updfold)
 		FileRemoveDir, %updfold%, 1
 		
-		FileDelete, ..\..\$REVISION
+		IfExist, ..\..\$REVISION
+			FileDelete, ..\..\$REVISION
 		FileAppend, %i%, ..\..\$REVISION
 		
 		LV_Modify(A_Index, "", i, "Done!", upd.title, upd.descr)

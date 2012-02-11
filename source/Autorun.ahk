@@ -15,6 +15,7 @@ else
 
 UserAutorun = %LocalSciTEPath%\Autorun.ahk
 
+Run, "%A_AhkPath%" tools\updater\SciTEUpdate.ahk /silent
 Run, "%A_AhkPath%" tools\TillaGoto.ahk
 IfExist, %UserAutorun%
 	Run, "%A_AhkPath%" "%UserAutorun%"

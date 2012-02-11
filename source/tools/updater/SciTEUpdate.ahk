@@ -42,6 +42,8 @@ if !ErrorLevel
 }
 
 FileRead, curRev, ..\..\$REVISION
+if curRev =
+	curRev := 0
 
 if (curRev >= latestRev)
 {

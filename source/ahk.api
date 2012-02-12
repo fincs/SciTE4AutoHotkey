@@ -14,6 +14,7 @@
 #IfWinNotExist [, WinTitle, WinText] \nMakes subsequent hotkeys and hotstrings only function when the specified window doesn't exist.
 #Include FileName \nCauses the script to behave as though the specified file's contents are present at this exact position.
 #IncludeAgain FileName \nCauses the script to behave as though the specified file's contents are present at this exact position.
+#InputLevel [, Level] \nControls which artificial keyboard and mouse events are ignored by hotkeys and hotstrings.
 #InstallKeybdHook
 #InstallMouseHook
 #KeyHistory MaxEvents
@@ -162,6 +163,7 @@ RunWait , Target [, WorkingDir, Max|Min|Hide|UseErrorLevel, OutputVarPID]
 Send , Keys
 SendEvent , Keys
 SendInput , Keys
+SendLevel [, Level] \nControls which artificial keyboard and mouse events are ignored by hotkeys and hotstrings.
 SendMessage , Msg [, wParam, lParam, Control, WinTitle, WinText, ExcludeTitle, ExcludeText]
 SendMode , Event|Play|Input|InputThenPlay
 SendPlay , Keys
@@ -708,6 +710,7 @@ Tab2
 TreeView
 UpDown
 ActiveX
+Link
 
 IconSmall
 Tile

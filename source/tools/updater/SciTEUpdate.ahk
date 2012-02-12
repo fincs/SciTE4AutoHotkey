@@ -121,6 +121,14 @@ updDone := 1
 MsgBox, 64, SciTE4AutoHotkey Updater, SciTE4AutoHotkey was successfully updated!
 return
 
+GuiClose:
+if !updDone
+{
+	MsgBox, 48, SciTE4AutoHotkey Updater, You cannot stop the updating process.
+	return
+}
+ExitApp
+
 /*
 Format of a SciTE4AutoHotkey update file:
 

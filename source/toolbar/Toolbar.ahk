@@ -250,6 +250,7 @@ Menu, ToolMenu, Add
 Menu, ToolMenu, Add, Reload toolbar, reloadtoolbar
 Menu, ToolMenu, Add, Reload toolbar (with autorun), reloadtoolbarautorun
 Menu, ToolMenu, Add
+Menu, ToolMenu, Add, Check for updates..., check4updates
 Menu, ToolMenu, Add, Close SciTE, exitroutine
 
 ; Create group for our windows
@@ -308,6 +309,10 @@ ExitApp
 GuiContextMenu:
 ; Right click
 Menu, ToolMenu, Show
+return
+
+check4updates:
+Run, "%SciTEDir%\AutoHotkey.exe" "%SciTEDir%\tools\updater\SciTEUpdate.ahk"
 return
 
 exitroutine:

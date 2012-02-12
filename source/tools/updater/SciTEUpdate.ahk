@@ -13,6 +13,12 @@ SetWorkingDir, %A_ScriptDir%
 
 baseurl = http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3
 isPortable := FileExist("..\..\$PORTABLE")
+today := SubStr(A_Now, 1, 8)
+if !isPortable
+	LocalSciTEPath = %A_MyDocuments%\AutoHotkey\SciTE
+else
+	LocalSciTEPath = %A_ScriptDir%\..\..\user
+
 if 1 = /silent
 	isSilent := true
 if 1 = /doUpdate
@@ -24,6 +30,13 @@ if 1 = /doUpdate
 	curRev += 0
 	toFetch += 0
 	goto _doUpdate
+}
+
+if isSilent
+{
+	FileRead, lastUpdate, %LocalSciTEPath%\$LASTUPDATE
+	if (lastUpdate = today)
+		ExitApp
 }
 
 f = %A_Temp%\%A_TickCount%.txt
@@ -48,14 +61,16 @@ if curRev =
 
 if (curRev >= latestRev)
 {
+	FileDelete, %LocalSciTEPath%\$LASTUPDATE
+	FileAppend, %today%, %LocalSciTEPath%\$LASTUPDATE
 	if !isSilent
-		MsgBox, 64, SciTE4AutoHotkey Updater, SciTE4AutoHotkey is up to date (revision %curRev%).
+		MsgBox, 64, SciTE4AutoHotkey Updater, SciTE4AutoHotkey is up to date.
 	ExitApp
 }
 
 toFetch := latestRev - curRev
 
-MsgBox, 36, SciTE4AutoHotkey Updater, SciTE4AutoHotkey is out of date by %toFetch% revisions.`n`nDo you wish to perform an update?
+MsgBox, 36, SciTE4AutoHotkey Updater, There are %toFetch% update(s) available for SciTE4AutoHotkey.`n`nDo you wish to download and install them?
 IfMsgBox, No
 	ExitApp
 
@@ -70,8 +85,8 @@ if !isPortable && !A_IsAdmin
 
 _doUpdate:
 
-Gui, Add, Text, x12 y10 w390 h20 vMainLabel, Please wait whilst the update is in progress...
-Gui, Add, ListView, x12 y30 w390 h180 NoSortHdr NoSort -LV0x10 LV0x1, Revision|Progress|Title|Description
+Gui, Add, Text, x12 y10 w390 h20 vMainLabel, Please wait whilst updates are being processed...
+Gui, Add, ListView, x12 y30 w390 h180 NoSortHdr NoSort -LV0x10 LV0x1, #|Status|Title|Description
 Gui, Show, w411 h226, SciTE4AutoHotkey Updater
 Gui, +OwnDialogs
 
@@ -117,6 +132,10 @@ Loop, % toFetch
 		return
 	}
 }
+
+FileDelete, %LocalSciTEPath%\$LASTUPDATE
+FileAppend, %today%, %LocalSciTEPath%\$LASTUPDATE
+
 GuiControl,, MainLabel, You may now close this window and reopen SciTE.
 updDone := 1
 MsgBox, 64, SciTE4AutoHotkey Updater, SciTE4AutoHotkey was successfully updated!

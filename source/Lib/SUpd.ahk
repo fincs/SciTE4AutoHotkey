@@ -6,6 +6,7 @@
 ;
 
 #NoEnv
+#NoTrayIcon
 
 global SciTEDir
 

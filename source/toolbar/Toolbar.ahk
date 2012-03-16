@@ -34,6 +34,7 @@ ATM_DIRECTOR   := ATM_OFFSET+3
 if !A_IsCompiled
 	SetWorkingDir, %A_WorkingDir%\..
 SciTEDir := A_WorkingDir
+CurAhkExe := SciTEDir "\..\AutoHotkey.exe"
 
 /* No longer necessary: compiled with AutoHotkey_L Unicode (Win2000+)
 if A_OSType = WIN32_WINDOWS
@@ -200,6 +201,7 @@ Loop, Parse, ToolbarProps, `n, `r
 		ExitApp
 	}
 	varz4 := ParseCmdLine(varz4 = "" ? varz2 : varz4)
+	StringReplace, varz4, varz4, `",, All
 	curtool := Tools[ntools] := { Name: Trim(varz1), Path: Trim(varz2), Hotkey: Trim(varz3) }
 	IfInString, varz4, `,
 	{
@@ -211,9 +213,8 @@ Loop, Parse, ToolbarProps, `n, `r
 		curtool.IconNumber := 1
 	}
 	
-	_ToolButs .= curtool.Name "," i ",,autosize`n"
+	_ToolButs .= curtool.Name "," (i ++) ",,autosize`n"
 	IL_Add(_ToolIL, curtool.Picture, curtool.IconNumber)
-	i ++
 }
 
 ;  Get HWND of real SciTE toolbar. ~L
@@ -271,6 +272,7 @@ InitComInterface()
 
 ; Register the SciTE director
 Director_Init()
+CurAhkExe := CoI_ResolveProp("", "AutoHotkey")
 
 ; Initialize the macro recorder
 Macro_Init()
@@ -419,6 +421,8 @@ changeplatform:
 FileDelete, %LocalSciTEPath%\_platform.properties
 FileAppend, % platforms[curplatform], %LocalSciTEPath%\_platform.properties
 SendMessage, 1024+1, 0, 0,, ahk_id %scitehwnd%
+if DirectorReady
+	CurAhkExe := CoI_ResolveProp("", "AutoHotkey")
 return
 
 ; Function to run a tool
@@ -557,14 +561,14 @@ GetPath(txt)
 
 ParseCmdLine(cmdline)
 {
-	global _IconLib, curplatform, LocalSciTEPath, SciTEDir
+	global _IconLib, curplatform, LocalSciTEPath, SciTEDir, CurAhkExe
 	a := GetSciTEOpenedFile()
-
+	
 	StringReplace, cmdline, cmdline, `%FILENAME`%, % GetFilename(a), All
 	StringReplace, cmdline, cmdline, `%FILEPATH`%, % GetPath(a), All
 	StringReplace, cmdline, cmdline, `%FULLFILENAME`%, % a, All
 	StringReplace, cmdline, cmdline, `%LOCALAHK`%, "%SciTEDir%\AutoHotkey.exe", All
-	StringReplace, cmdline, cmdline, `%AUTOHOTKEY`%, "%SciTEDir%\..\AutoHotkey.exe", All
+	StringReplace, cmdline, cmdline, `%AUTOHOTKEY`%, "%CurAhkExe%", All
 	StringReplace, cmdline, cmdline, `%AUTOHOTKEYLA`%, "%SciTEDir%\..\AutoHotkey_L\AutoHotkey_La.exe", All
 	StringReplace, cmdline, cmdline, `%AUTOHOTKEYLW`%, "%SciTEDir%\..\AutoHotkey_L\AutoHotkey_Lw.exe", All
 	StringReplace, cmdline, cmdline, `%AUTOHOTKEYL64`%, "%SciTEDir%\..\AutoHotkey_L\AutoHotkey_L64.exe", All

@@ -217,19 +217,19 @@ CoI_SendDirectorMsg(this, msg)
 	return Director_Send(msg)
 }
 
+global CMsgRetDispTable := ComDispTable("Verb=_CoI_RetGetVerb, Value=_CoI_RetGetValue")
+
 CoI_SendDirectorMsgRet(this, msg)
 {
-	static ResDispTable := ComDispTable("Verb=_CoI_RetGetVerb, Value=_CoI_RetGetValue")
-	return ComDispatch(Director_Send(msg, true), ResDispTable)
+	return ComDispatch(Director_Send(msg, true), CMsgRetDispTable)
 }
 
 CoI_SendDirectorMsgRetArray(this, msg)
 {
-	static ResDispTable := ComDispTable("Verb=_CoI_RetGetVerb, Value=_CoI_RetGetValue")
 	obj := Director_Send(msg, true, true)
 	array := ComObjArray(VT_VARIANT:=12, (t := obj._MaxIndex()) ? t : 0), ComObjFlags(array, -1)
 	for each, msg in obj
-		array[each - 1] := ComDispatch(msg, ResDispTable)
+		array[each - 1] := ComDispatch(msg, CMsgRetDispTable)
 	return array
 }
 

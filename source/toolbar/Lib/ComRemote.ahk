@@ -8,7 +8,7 @@
 ComRemote(disp, clsid)
 {
 	static ACTIVEOBJECT_WEAK := 1
-	static _base := {Close: "_CR_Disconnect", __Delete: "_CR_Disconnect"}
+	static _base := { Close: Func("_CR_Disconnect"), __Delete: Func("_CR_Disconnect") }
 	if DllCall("oleaut32\RegisterActiveObject"
 	  , "ptr", pdisp := ComObjValue(disp)
 	  , "ptr", Str2GUID(clsid_bin, clsid)
@@ -22,7 +22,7 @@ ComRemote(disp, clsid)
 		return
 	}
 	
-	return {disp: disp, dwRegister: dwRegister, base: _base}
+	return { disp: disp, dwRegister: dwRegister, base: _base }
 }
 
 _CR_Disconnect(this)

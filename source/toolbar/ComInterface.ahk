@@ -37,6 +37,7 @@ SetPlatform
 SendDirectorMsg
 SendDirectorMsgRet
 SendDirectorMsgRetArray
+ResolveProp
 )
 
 CoI_Message(this, msg, wParam=0, lParam=0)
@@ -241,6 +242,17 @@ _CoI_RetGetVerb(this)
 _CoI_RetGetValue(this)
 {
 	return this.value
+}
+
+CoI_ResolveProp(this, propname)
+{
+	propVal := Director_Send("askproperty:" propname, true).value
+	if SubStr(propVal, 1, 11) != "stringinfo:"
+		return
+	propVal := SubStr(propVal, 12)
+	while RegExMatch(propVal, "O)\$\((.+?)\)", o)
+		propVal := SubStr(propVal, 1, o.Pos-1) CoI_ResolveProp(this, o.1) SubStr(propVal, o.Pos+o.Len)
+	return propVal
 }
 
 ;------------------------------------------------------------------------------

@@ -13,6 +13,7 @@ UninstallOldBetas(user="ask")
 	oldAHKL := inst
 	inst |= _RemoveDir(ahkdir "\SciTE_beta4")
 	inst |= _RemoveDir(ahkdir "\SciTE_beta5")
+	inst |= _RemoveDir(ahkdir "\SciTE_rc1")
 	if inst
 	{
 		if oldAHKL

@@ -10,14 +10,12 @@
 #NoEnv
 #NoTrayIcon
 #SingleInstance Ignore
-#Include HtmDlg.ahk
-#Include download.ahk
-#Include beta123uninst\Uninstall.ahk
 SetWorkingDir, %A_ScriptDir%
 Menu, Tray, NoStandard
 
 title = SciTE4AutoHotkey installation
 downloadurl = http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3/rc1_instdata.bin
+version = 3.0.00
 
 if A_IsCompiled
 {
@@ -47,15 +45,14 @@ dlgoptions := "DlgTopmost=1, DlgStyle=Border, HtmFocus=1, Buttons=&Install/&Clos
 if HtmDlg("file:///" A_Temp "\dialog.html#" GetSysColor(15), "", dlgoptions) - 1
 	ExitApp
 
-is64 := Util_Is64bitOS()
-tmpdir := A_Temp "\s4av3rc1" A_TickCount
+tmpdir := A_Temp "\tmp-s4ahk-v" version A_TickCount
 ahkdir := GetAutoHotkeyDir()
 if !ahkdir
 {
 	MsgBox, 16, %title%, Failed to find AutoHotkey folder!
 	ExitApp
 }
-instdir = %ahkdir%\SciTE_rc1
+instdir = %ahkdir%\SciTE
 IfExist, %instdir%
 	FileRemoveDir, %instdir%, 1
 ;~ {
@@ -63,11 +60,11 @@ IfExist, %instdir%
 	;~ ExitApp
 ;~ }
 
-IfNotExist, rc1_instdata.bin
+IfNotExist, s4ahk-instdata.bin
 {
 	Menu, Tray, Icon
 	TrayTip, SciTE4AutoHotkey Installer, Download in progress..., 5, 1
-	r := NiceDownloader(downloadurl, A_ScriptDir "\rc1_instdata.bin", "Downloading SciTE4AutoHotkey...")
+	r := NiceDownloader(downloadurl, A_ScriptDir "\s4ahk-instdata.bin", "Downloading SciTE4AutoHotkey...")
 	Menu, Tray, NoIcon
 	if !r
 	{
@@ -76,9 +73,9 @@ IfNotExist, rc1_instdata.bin
 	}
 }
 
-RunWait, %A_Temp%\7z.exe x "%A_ScriptDir%\rc1_instdata.bin" "-o%tmpdir%" -aoa
+RunWait, %A_Temp%\7z.exe x "%A_ScriptDir%\s4ahk-instdata.bin" "-o%tmpdir%" -aoa
 FileRead, ver, %tmpdir%\$INFO
-if ver != 3 rc1
+if (ver != version)
 {
 	MsgBox, 16, Title, Version mismatch, you are using an outdated installer.
 	ExitApp
@@ -98,7 +95,7 @@ UninstallOldBetas(0)
 FileCreateDir, %instdir%
 
 Progress, b m2 zh0, Copying files...
-FileCopyDir, % tmpdir "\$" (is64 ? "X64" : "X86"), %instdir%, 1
+FileCopyDir, % tmpdir "\$" (A_Is64bitOS ? "X64" : "X86"), %instdir%, 1
 ChkCopy()
 FileCopyDir, %tmpdir%\$MAIN, %instdir%, 1
 ChkCopy()
@@ -106,8 +103,8 @@ Progress, Off
 
 FileInstall, uninst.exe, %instdir%\uninst.exe, 1
 key = Software\Microsoft\Windows\CurrentVersion\Uninstall\SciTE4AutoHotkey
-RegWrite, REG_SZ, HKLM, %key%, DisplayName, SciTE4AutoHotkey v3.0.00 (Release Candidate)
-RegWrite, REG_SZ, HKLM, %key%, DisplayVersion, v3.0.00 (rc1)
+RegWrite, REG_SZ, HKLM, %key%, DisplayName, SciTE4AutoHotkey v%version%
+RegWrite, REG_SZ, HKLM, %key%, DisplayVersion, v%version%
 RegWrite, REG_SZ, HKLM, %key%, Publisher, fincs
 RegWrite, REG_SZ, HKLM, %key%, DisplayIcon, %instdir%\SciTE.exe
 RegWrite, REG_SZ, HKLM, %key%, URLInfoAbout, http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3/web/
@@ -159,31 +156,6 @@ GetWinVer()
 {
 	pack := DllCall("GetVersion", "uint") & 0xFFFF
 	return (pack & 0xFF) "." (pack >> 8)
-}
-
-GetAutoHotkeyDir()
-{
-	if A_AhkPath =
-	{
-		if !Util_Is64bitOS()
-			return
-		
-		VarSetCapacity(ahkDir, 1024*(!!A_IsUnicode+1))
-		; 0x80000002=HKLM, 0x101=KEY_QUERY_VALUE | KEY_WOW64_64KEY
-		if DllCall("advapi32\RegOpenKeyEx", "uint", 0x80000002, "str", "SOFTWARE\AutoHotkey", "uint", 0, "uint", 0x101, "ptr*", hKey)
-			return
-		
-		DllCall("advapi32\RegQueryValueEx", "ptr", hKey, "str", "InstallDir", "ptr", 0, "ptr", 0, "str", ahkDir, "uint*", VarSetCapacity(ahkDir))
-		DllCall("advapi32\RegCloseKey", "ptr", hKey)
-		return ahkDir
-	}
-	SplitPath, A_AhkPath,, ahkdir
-	return ahkdir
-}
-
-Util_Is64bitOS()
-{
-	return (A_PtrSize = 8) || DllCall("IsWow64Process", "ptr", DllCall("GetCurrentProcess"), "int*", isWow64) && isWow64
 }
 
 ChkFileInstall(name)

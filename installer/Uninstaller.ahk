@@ -10,7 +10,6 @@
 #NoEnv
 #NoTrayIcon
 #SingleInstance Ignore
-#Include beta123uninst\Uninstall.ahk
 SetWorkingDir, %A_ScriptDir%
 Menu, Tray, NoStandard
 
@@ -48,22 +47,3 @@ FileDelete, %A_DesktopCommon%\SciTE4AutoHotkey.lnk
 FileRemoveDir, %A_ProgramsCommon%\SciTE4AutoHotkey, 1
 MsgBox, 64, %title%, SciTE4AutoHotkey removed successfully!
 ExitApp
-
-GetWinVer()
-{
-	pack := DllCall("GetVersion", "uint")
-	return ((pack >> 16) "." (pack & 0xFFFF)) + 0.0
-}
-
-GetAutoHotkeyDir()
-{
-	if A_AhkPath =
-		return
-	SplitPath, A_AhkPath,, ahkdir
-	return ahkdir
-}
-
-Util_Is64bitOS()
-{
-	return (A_PtrSize = 8) || DllCall("IsWow64Process", "ptr", DllCall("GetCurrentProcess"), "int*", isWow64) && isWow64
-}

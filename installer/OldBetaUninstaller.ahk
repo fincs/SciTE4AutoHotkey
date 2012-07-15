@@ -10,7 +10,6 @@
 #NoEnv
 #NoTrayIcon
 #SingleInstance Ignore
-#Include Uninstall.ahk
 SetWorkingDir, %A_ScriptDir%
 Menu, Tray, NoStandard
 

@@ -11,33 +11,6 @@
 --     Automatic backups
 --     SciTEDebug.ahk DBGp debugger interface
 
--- ======================= --
--- AutoHotkey lexer styles --
--- ======================= --
-
-local SCLEX_AHK1           = 200
-local SCE_AHK_DEFAULT      =  0
-local SCE_AHK_COMMENTLINE  =  1
-local SCE_AHK_COMMENTBLOCK =  2
-local SCE_AHK_ESCAPE       =  3
-local SCE_AHK_SYNOPERATOR  =  4
-local SCE_AHK_EXPOPERATOR  =  5
-local SCE_AHK_STRING       =  6
-local SCE_AHK_NUMBER       =  7
-local SCE_AHK_IDENTIFIER   =  8
-local SCE_AHK_VARREF       =  9
-local SCE_AHK_LABEL        = 10
-local SCE_AHK_WORD_CF      = 11
-local SCE_AHK_WORD_CMD     = 12
-local SCE_AHK_WORD_FN      = 13
-local SCE_AHK_WORD_DIR     = 14
-local SCE_AHK_WORD_KB      = 15
-local SCE_AHK_WORD_VAR     = 16
-local SCE_AHK_WORD_SP      = 17
-local SCE_AHK_WORD_UD      = 18
-local SCE_AHK_VARREFKW     = 19
-local SCE_AHK_ERROR        = 20
-
 local prepared = false
 local savedbk = nil
 
@@ -596,11 +569,11 @@ end
 
 function SetMarkerColors()
 	editor:MarkerDefine(10, 0)  -- breakpoint
-	editor:MarkerSetBack(10, 0x0000FF)
+	editor.MarkerBack[10] = 0x0000FF
 	editor:MarkerDefine(11, 2)  -- current line arrow
-	editor:MarkerSetBack(11, 0xFFFF00)
+	editor.MarkerBack[11] = 0xFFFF00
 	editor:MarkerDefine(12, 22) -- current line highlighting
-	editor:MarkerSetBack(12, 0xFFFF00)
+	editor.MarkerBack[12] = 0xFFFF00
 end
 
 function ClearAllMarkers()

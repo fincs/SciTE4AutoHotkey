@@ -74,6 +74,7 @@ FileCopyDir , Source, Dest [, Flag]
 FileCreateDir , Path
 FileCreateShortcut , Target, C:\\My Shortcut.lnk [, WorkingDir, Args, Description, IconFile, ShortcutKey, IconNumber, RunState]
 FileDelete , FilePattern
+FileEncoding [, CPnnn|UTF-8/16[-RAW] ] \n[AutoHotkey_L] Sets the default encoding for FileRead, FileReadLine, Loop Read, FileAppend, and FileOpen.
 FileGetAttrib , OutputVar(RASHNDOCT) [, Filename]
 FileGetShortcut , LinkFile [, OutTarget, OutDir, OutArgs, OutDescription, OutIcon, OutIconNum, OutRunState]
 FileGetSize , OutputVar [, Filename, Units]
@@ -177,6 +178,7 @@ SetFormat , float|integer, TotalWidth.DecimalPlaces|hex|d
 SetKeyDelay [, Delay, PressDuration]
 SetMouseDelay , Delay
 SetNumLockState , On|Off|AlwaysOn|AlwaysOff
+SetRegView , RegView \n[AutoHotkey_L] Sets the default encoding for FileRead, FileReadLine, Loop Read, FileAppend, and FileOpen.
 SetScrollLockState , On|Off|AlwaysOn|AlwaysOff
 SetStoreCapslockMode , On|Off
 SetTimer , Label [, Period|On|Off]
@@ -316,8 +318,6 @@ WinExist (["WinTitle" , "WinText", "ExcludeTitle", "ExcludeText"])
 Trim (string [, omitchars = " `t"]) \n[AutoHotkey_L] Trims characters from the beginning and end of a string.
 LTrim (string [, omitchars = " `t"]) \n[AutoHotkey_L] Trims characters from the beginning of a string.
 RTrim (string [, omitchars = " `t"]) \n[AutoHotkey_L] Trims characters from the end of a string.
-
-FileEncoding [, CPnnn|UTF-8/16[-RAW] ] \n[AutoHotkey_L] Sets the default encoding for FileRead, FileReadLine, Loop Read, FileAppend, and FileOpen.
 
 FileOpen (file, mode[, encoding]) \n[AutoHotkey_L] Opens a file and returns a new file object.
 StrGet (address [, max][, encoding]) \n[AutoHotkey_L] Retrieves the null-terminated string at the specified address.
@@ -931,6 +931,7 @@ A_IPAddress1
 A_IPAddress2
 A_IPAddress3
 A_IPAddress4
+A_Is64bitOS
 A_IsAdmin
 A_IsCompiled
 A_IsCritical
@@ -983,6 +984,7 @@ A_ProgramFiles
 A_Programs
 A_ProgramsCommon
 A_PtrSize
+A_RegView
 A_ScreenHeight
 A_ScreenWidth
 A_ScriptDir

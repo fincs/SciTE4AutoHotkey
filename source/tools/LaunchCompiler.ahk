@@ -20,8 +20,8 @@ if v2
 	v2 = /bin "%v2%"
 
 compiler = ..\..\Compiler\Ahk2Exe.exe
-if v2 && FileExist("..\..\AutoHotkey_L\Compiler\Ahk2Exe.exe")
-	compiler = ..\..\AutoHotkey_L\Compiler\Ahk2Exe.exe
+;if v2 && FileExist("..\..\AutoHotkey_L\Compiler\Ahk2Exe.exe")
+;	compiler = ..\..\AutoHotkey_L\Compiler\Ahk2Exe.exe
 
 IfExist, ..\..\Compiler\Compile_AHK.exe
 	RunWait, ..\..\Compiler\Compile_AHK.exe "%1%"

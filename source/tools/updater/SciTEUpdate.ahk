@@ -42,16 +42,41 @@ if isSilent
 f = %A_Temp%\%A_TickCount%.txt
 if !isSilent
 	ToolTip, Fetching update info...
-URLDownloadToFile, %baseurl%/revision.txt, %f%
-ToolTip
-if !ErrorLevel
+try
 {
+	URLDownloadToFile, %baseurl%/version.txt, %f%
+	FileRead, latestVer, %f%
+	URLDownloadToFile, %baseurl%/revision.txt, %f%
 	FileRead, latestRev, %f%
-	FileDelete, %f%
-}else
+	if !isSilent
+		ToolTip
+}catch
 {
 	if !isSilent
+	{
+		ToolTip
 		MsgBox, 16, SciTE4AutoHotkey Updater, Can't connect to the Internet!
+	}
+	ExitApp
+}
+
+FileRead, curVer, ..\..\$VER
+if (curVer != latestVer)
+{
+	MsgBox, 36, SciTE4AutoHotkey Updater,
+	(LTrim
+	There is a new SciTE4AutoHotkey version.
+	
+	Current version:`t%curVer%
+	Latest version:`t%latestVer%
+	
+	Do you wish to download and install it? (a website will be opened)
+	Keep in mind that your current version is no longer supported and
+	you aren't able anymore to receive hotfixes and definition updates
+	until you upgrade to the latest version.
+	)
+	IfMsgBox, Yes
+		Run, http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3/web/
 	ExitApp
 }
 
@@ -70,7 +95,12 @@ if (curRev >= latestRev)
 
 toFetch := latestRev - curRev
 
-MsgBox, 36, SciTE4AutoHotkey Updater, There are %toFetch% update(s) available for SciTE4AutoHotkey.`n`nDo you wish to download and install them?
+MsgBox, 36, SciTE4AutoHotkey Updater,
+(
+There are %toFetch% update(s) available for SciTE4AutoHotkey.
+
+Do you wish to download and install them?
+)
 IfMsgBox, No
 	ExitApp
 

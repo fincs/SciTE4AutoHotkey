@@ -18,8 +18,6 @@
 SetWorkingDir, %A_ScriptDir%
 DetectHiddenWindows, On
 
-CurrentSciTEVersion = 3 rc1
-
 ; CLSID and APPID for this script: don't reuse, please!
 CLSID_SciTE4AHK := "{D7334085-22FB-416E-B398-B5038A5A0784}"
 APPID_SciTE4AHK := "SciTE4AHK.Application"
@@ -35,6 +33,8 @@ if !A_IsCompiled
 	SetWorkingDir, %A_WorkingDir%\..
 SciTEDir := A_WorkingDir
 CurAhkExe := SciTEDir "\..\AutoHotkey.exe"
+
+FileRead, CurrentSciTEVersion, %SciTEDir%\$VER
 
 /* No longer necessary: compiled with AutoHotkey_L Unicode (Win2000+)
 if A_OSType = WIN32_WINDOWS
@@ -93,13 +93,9 @@ FileEncoding, UTF-8
 FileRead, GlobalSettings, toolbar.properties
 FileRead, LocalSettings, %LocalPropsPath%
 FileRead, SciTEVersion, %LocalSciTEPath%\$VER
-if SciTEVersion = 3 beta3
-	gosub Update_3_beta3
-else if SciTEVersion = 3 beta4
-	gosub Update_3_beta4
-else if SciTEVersion = 3 beta5
-	gosub Update_3_beta5
-else if !IsPortable && (!FileExist(LocalPropsPath) || SciTEVersion != CurrentSciTEVersion)
+if SciTEVersion && (SciTEVersion != CurrentSciTEVersion)
+	gosub UpdateProfile
+if !IsPortable && (!FileExist(LocalPropsPath) || !SciTEVersion)
 {
 	;WinClose, ahk_class SciTEWindow
 	

@@ -4,19 +4,25 @@
 
 goto _aaa_skip
 
-Update_3_beta3:
-Update_3_beta4:
-gosub Update_common
-gosub Update_old_settings
-gosub Create_macro_folder
-gosub Create_extensions
-gosub Copy_new_styles
+UpdateProfile:
+StringReplace, lblname, SciTEVersion, %A_Space%, _, All
+lblname := "Update_" lblname
+if IsLabel(lblname)
+{
+	gosub Update_common
+	goto %lblname%
+}
+SciTEVersion := ""
 return
 
+Update_3_beta3:
+Update_3_beta4:
+gosub Update_old_settings
+gosub Create_macro_folder
 Update_3_beta5:
-gosub Update_common
 gosub Create_extensions
 gosub Copy_new_styles
+Update_3_rc1:
 return
 
 Update_common:

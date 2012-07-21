@@ -45,13 +45,7 @@ if 1 = /insert
 		Press OK to edit the toolbar properties file.
 		)
 		IfMsgBox, Yes
-		{
-			if !A_IsAdmin
-				DllCall("shell32\ShellExecute", "uint", 0, "str", "RunAs", "str", "notepad.exe" 
-					, "str", """" A_ScriptDir "\..\toolbar.properties""", "str", A_ScriptDir "\..", "int", 1)
-			else
-				Run, notepad.exe "%A_ScriptDir%\..\toolbar.properties"
-		}
+			Run, "%A_ScriptDir%\..\SciTE.exe" "%LocalSciTEPath%\UserToolbar.properties"
 		ExitApp
 	}
 	FileRead, text2insert, %sdir%\%2%.scriptlet
@@ -209,7 +203,7 @@ OpenInSciTE:
 GuiControlGet, fname2open,, MainListbox
 if fname2open =
 	return
-Run, %A_ScriptDir%\..\SciTE.exe "%sdir%\%fname2open%.scriptlet"
+Run, "%A_ScriptDir%\..\SciTE.exe" "%sdir%\%fname2open%.scriptlet"
 return
 
 ListboxUpdate:

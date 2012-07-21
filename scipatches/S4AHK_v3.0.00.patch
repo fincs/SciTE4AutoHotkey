@@ -1458,6 +1458,18 @@ diff --strip-trailing-cr -rupN 1/scintilla/lexers/LexAHK1.cxx 2/scintilla/lexers
 +};
 +
 +LexerModule lmAHK1(SCLEX_AHK1, ColouriseAHK1Doc, "ahk1", FoldAHK1Doc, ahkWordListDesc);
+diff --strip-trailing-cr -rupN 1/scintilla/src/CallTip.cxx 2/scintilla/src/CallTip.cxx
+--- 1/scintilla/src/CallTip.cxx	2011-10-27 00:24:14 +0200
++++ 2/scintilla/src/CallTip.cxx	2012-07-21 11:49:22 +0200
+@@ -307,7 +307,7 @@ void CallTip::SetHighlight(int start, in
+ 	// Avoid flashing by checking something has really changed
+ 	if ((start != startHighlight) || (end != endHighlight)) {
+ 		startHighlight = start;
+-		endHighlight = end;
++		endHighlight = (end > start) ? end : start;
+ 		if (wCallTip.Created()) {
+ 			wCallTip.InvalidateAll();
+ 		}
 diff --strip-trailing-cr -rupN 1/scintilla/src/Catalogue.cxx 2/scintilla/src/Catalogue.cxx
 --- 1/scintilla/src/Catalogue.cxx	2012-06-01 10:26:24 +0200
 +++ 2/scintilla/src/Catalogue.cxx	2012-07-15 20:51:21 +0200
@@ -2324,8 +2336,94 @@ diff --strip-trailing-cr -rupN 1/scite/src/SciTE.h 2/scite/src/SciTE.h
 +#define IDI_MAINICON 500
 diff --strip-trailing-cr -rupN 1/scite/src/SciTEBase.cxx 2/scite/src/SciTEBase.cxx
 --- 1/scite/src/SciTEBase.cxx	2012-07-13 05:36:58 +0200
-+++ 2/scite/src/SciTEBase.cxx	2012-07-15 20:51:39 +0200
-@@ -3994,7 +3994,7 @@ void SciTEBase::Notify(SCNotification *n
++++ 2/scite/src/SciTEBase.cxx	2012-07-21 12:13:58 +0200
+@@ -176,6 +176,7 @@ SciTEBase::SciTEBase(Extension *ext) : a
+ 	autoCompleteIgnoreCase = false;
+ 	callTipUseEscapes = false;
+ 	callTipIgnoreCase = false;
++	callTipSkipBareWords = false;
+ 	autoCCausedByOnlyOne = false;
+ 	startCalltipWord = 0;
+ 	currentCallTip = 0;
+@@ -1466,10 +1467,12 @@ void SciTEBase::Redraw() {
+ }
+ 
+ char *SciTEBase::GetNearestWords(const char *wordStart, size_t searchLen,
+-		const char *separators, bool ignoreCase /*=false*/, bool exactLen /*=false*/) {
++		const char *separators, bool ignoreCase /*=false*/, bool exactLen /*=false*/,
++		bool separatorIsRequired /*=false*/, bool eliminateDuplicateWords /*=false*/) {
+ 	char *words = 0;
+ 	while (!words && *separators) {
+-		words = apis.GetNearestWords(wordStart, searchLen, ignoreCase, *separators, exactLen);
++		words = apis.GetNearestWords(wordStart, searchLen, ignoreCase, *separators, exactLen,
++			separatorIsRequired, eliminateDuplicateWords);
+ 		separators++;
+ 	}
+ 	return words;
+@@ -1481,7 +1484,7 @@ void SciTEBase::FillFunctionDefinition(i
+ 	}
+ 	if (apis) {
+ 		char *words = GetNearestWords(currentCallTipWord.c_str(), currentCallTipWord.length(),
+-			calltipParametersStart.c_str(), callTipIgnoreCase, true);
++			calltipParametersStart.c_str(), callTipIgnoreCase, true, callTipSkipBareWords);
+ 		if (!words)
+ 			return;
+ 		// Counts how many call tips
+@@ -1495,7 +1498,7 @@ void SciTEBase::FillFunctionDefinition(i
+ 
+ 		// Should get current api definition
+ 		const char *word = apis.GetNearestWord(currentCallTipWord.c_str(), currentCallTipWord.length(),
+-		        callTipIgnoreCase, calltipWordCharacters, currentCallTip);
++		        callTipIgnoreCase, calltipWordCharacters, currentCallTip, callTipSkipBareWords);
+ 		if (word) {
+ 			functionDefinition = word;
+ 			if (maxCallTips > 1) {
+@@ -1598,14 +1601,14 @@ void SciTEBase::ContinueCallTip() {
+ 	int startHighlight = 0;
+ 	while (functionDefinition[startHighlight] && !calltipParametersStart.contains(functionDefinition[startHighlight]))
+ 		startHighlight++;
+-	if (calltipParametersStart.contains(functionDefinition[startHighlight]))
++	if (functionDefinition[startHighlight] && calltipParametersStart.contains(functionDefinition[startHighlight]))
+ 		startHighlight++;
+ 	while (functionDefinition[startHighlight] && commas > 0) {
+ 		if (calltipParametersSeparators.contains(functionDefinition[startHighlight]))
+ 			commas--;
+ 		// If it reached the end of the argument list it means that the user typed in more
+ 		// arguments than the ones listed in the calltip
+-		if (calltipParametersEnd.contains(functionDefinition[startHighlight]))
++		if (functionDefinition[startHighlight] && calltipParametersSeparators.contains(functionDefinition[startHighlight]))
+ 			commas = 0;
+ 		else
+ 			startHighlight++;
+@@ -1620,9 +1623,12 @@ void SciTEBase::ContinueCallTip() {
+ 		int unslashedStartHighlight = UnSlash(sUnslashed) - 1;
+ 		delete []sUnslashed;
+ 
+-		sUnslashed = StringDup(functionDefinition.substr(startHighlight, endHighlight - startHighlight + 1).c_str());
+-		int unslashedEndHighlight = unslashedStartHighlight + UnSlash(sUnslashed) - 1;
+-		delete []sUnslashed;
++		int unslashedEndHighlight = unslashedStartHighlight;
++		if (startHighlight < endHighlight) {
++			sUnslashed = StringDup(functionDefinition.substr(startHighlight, endHighlight - startHighlight + 1).c_str());
++			unslashedEndHighlight = unslashedStartHighlight + UnSlash(sUnslashed) - 1;
++			delete []sUnslashed;
++		}
+ 
+ 		startHighlight = unslashedStartHighlight;
+ 		endHighlight = unslashedEndHighlight;
+@@ -1673,9 +1679,10 @@ bool SciTEBase::StartAutoComplete() {
+ 	SString root = line.substr(startword, current - startword);
+ 	if (apis) {
+ 		char *words = GetNearestWords(root.c_str(), root.length(),
+-			calltipParametersStart.c_str(), autoCompleteIgnoreCase);
++			calltipParametersStart.c_str(), autoCompleteIgnoreCase,
++			false, false, true);
+ 		if (words) {
+-			EliminateDuplicateWords(words);
+ 			wEditor.Call(SCI_AUTOCSETSEPARATOR, ' ');
+ 			wEditor.CallString(SCI_AUTOCSHOW, root.length(), words);
+ 			delete []words;
+@@ -3994,7 +4001,7 @@ void SciTEBase::Notify(SCNotification *n
  
  	case SCN_MARGINCLICK: {
  			if (extender)
@@ -2334,6 +2432,181 @@ diff --strip-trailing-cr -rupN 1/scite/src/SciTEBase.cxx 2/scite/src/SciTEBase.c
  			if (!handled) {
  				if (notification->margin == 2) {
  					MarginClick(notification->position, notification->modifiers);
+diff --strip-trailing-cr -rupN 1/scite/src/SciTEBase.h 2/scite/src/SciTEBase.h
+--- 1/scite/src/SciTEBase.h	2012-07-13 05:36:58 +0200
++++ 2/scite/src/SciTEBase.h	2012-07-21 12:09:17 +0200
+@@ -484,6 +484,7 @@ protected:
+ 	SString calltipParametersEnd;
+ 	SString calltipParametersSeparators;
+ 	SString calltipEndDefinition;
++	bool callTipSkipBareWords;
+ 	SString autoCompleteStartCharacters;
+ 	SString autoCompleteFillUpCharacters;
+ 	SString wordCharacters;
+@@ -739,7 +740,8 @@ protected:
+ 	void GoMessage(int dir);
+ 	virtual bool StartCallTip();
+ 	char *GetNearestWords(const char *wordStart, size_t searchLen,
+-		const char *separators, bool ignoreCase=false, bool exactLen=false);
++		const char *separators, bool ignoreCase=false, bool exactLen=false,
++		bool separatorIsRequired=false, bool eliminateDuplicateWords=false);
+ 	virtual void FillFunctionDefinition(int pos = -1);
+ 	void ContinueCallTip();
+ 	virtual void EliminateDuplicateWords(char *words);
+diff --strip-trailing-cr -rupN 1/scite/src/SciTEProps.cxx 2/scite/src/SciTEProps.cxx
+--- 1/scite/src/SciTEProps.cxx	2012-07-13 05:36:59 +0200
++++ 2/scite/src/SciTEProps.cxx	2012-07-21 12:10:01 +0200
+@@ -1014,6 +1014,9 @@ void SciTEBase::ReadProperties() {
+ 
+ 	calltipEndDefinition = FindLanguageProperty("calltip.*.end.definition");
+ 
++	sval = FindLanguageProperty("calltip.*.skip.bare.words");
++	callTipSkipBareWords = sval == "1";
++
+ 	sprintf(key, "autocomplete.%s.start.characters", language.c_str());
+ 	autoCompleteStartCharacters = props.GetExpanded(key);
+ 	if (autoCompleteStartCharacters == "")
+diff --strip-trailing-cr -rupN 1/scite/src/StringList.cxx 2/scite/src/StringList.cxx
+--- 1/scite/src/StringList.cxx	2012-06-01 10:26:56 +0200
++++ 2/scite/src/StringList.cxx	2012-07-21 12:22:38 +0200
+@@ -199,7 +199,7 @@ bool StringList::InList(const char *s) {
+  * The length of the word to compare is passed too.
+  * Letter case can be ignored or preserved (default).
+  */
+-const char *StringList::GetNearestWord(const char *wordStart, size_t searchLen, bool ignoreCase /*= false*/, SString wordCharacters /*='/0' */, int wordIndex /*= -1 */) {
++const char *StringList::GetNearestWord(const char *wordStart, size_t searchLen, bool ignoreCase /*= false*/, SString wordCharacters /*='/0' */, int wordIndex /*= -1 */, bool skipBareWords /*= false*/) {
+ 	int start = 0; // lower bound of the api array block to search
+ 	int end = len - 1; // upper bound of the api array block to search
+ 	int pivot; // index of api array element just being compared
+@@ -233,6 +233,12 @@ const char *StringList::GetNearestWord(c
+ 				for (pivot = start; pivot <= end; pivot++) {
+ 					word = wordsNoCase[pivot];
+ 					if (!word[searchLen] || !wordCharacters.contains(word[searchLen])) {
++						if (skipBareWords) {
++							unsigned int i;
++							for (i = searchLen; (i < strlen(word)) && IsASpace(word[i]); i++);
++							if (!word[i])
++								continue;
++						}
+ 						if (wordIndex <= 0) // Checks if a specific index was requested
+ 							return word; // result must not be freed with free()
+ 						wordIndex--;
+@@ -271,6 +277,12 @@ const char *StringList::GetNearestWord(c
+ 				while (pivot <= end) {
+ 					word = words[pivot];
+ 					if (!word[searchLen] || !wordCharacters.contains(word[searchLen])) {
++						if (skipBareWords) {
++							unsigned int i;
++							for (i = searchLen; (i < strlen(word)) && IsASpace(word[i]); i++);
++							if (!word[i])
++								continue;
++						}
+ 						if (wordIndex <= 0) // Checks if a specific index was requested
+ 							return word; // result must not be freed with free()
+ 						wordIndex--;
+@@ -294,7 +306,7 @@ const char *StringList::GetNearestWord(c
+  * there may be extra spaces after the identifier that should not be
+  * counted in the length.
+  */
+-static unsigned int LengthWord(const char *word, char otherSeparator) {
++static unsigned int LengthWord(const char *word, char otherSeparator, bool separatorIsRequired=false) {
+ 	const char *endWord = 0;
+ 	// Find an otherSeparator
+ 	if (otherSeparator)
+@@ -302,9 +314,8 @@ static unsigned int LengthWord(const cha
+ 	// Find a '('. If that fails go to the end of the string.
+ 	if (!endWord)
+ 		endWord = strchr(word, '(');
+-	if (!endWord)
++	if (!endWord && !separatorIsRequired)
+ 		endWord = word + strlen(word);
+-	// Last case always succeeds so endWord != 0
+ 
+ 	// Drop any space characters.
+ 	if (endWord > word) {
+@@ -332,10 +343,13 @@ char *StringList::GetNearestWords(
+     size_t searchLen,
+     bool ignoreCase /*= false*/,
+     char otherSeparator /*= '\0'*/,
+-    bool exactLen /*=false*/) {
++    bool exactLen /*=false*/,
++	bool separatorIsRequired /*=false*/,
++	bool eliminateDuplicateWords /*=false*/) {
+ 	unsigned int wordlen; // length of the word part (before the '(' brace) of the api array element
+ 	SString wordsNear;
+ 	wordsNear.setsizegrowth(1000);
++	wordsNear += ' ';
+ 	int start = 0; // lower bound of the api array block to search
+ 	int end = len - 1; // upper bound of the api array block to search
+ 	int pivot; // index of api array element just being compared
+@@ -362,13 +376,22 @@ char *StringList::GetNearestWords(
+ 				while ((pivot <= end) &&
+ 					(0 == CompareNCaseInsensitive(wordStart,
+ 						wordsNoCase[pivot], searchLen))) {
+-					wordlen = LengthWord(wordsNoCase[pivot], otherSeparator) + 1;
++					wordlen = LengthWord(wordsNoCase[pivot], otherSeparator, separatorIsRequired) + 1;
+ 					++pivot;
+ 					if (exactLen && wordlen != LengthWord(wordStart, otherSeparator) + 1)
+ 						continue;
+-					wordsNear.append(wordsNoCase[pivot-1], wordlen, ' ');
++					if (eliminateDuplicateWords) {
++						SString searchWord;
++						searchWord += ' ';
++						searchWord.append(wordsNoCase[pivot-1], wordlen);
++						searchWord += ' ';
++						if (-1 != wordsNear.search(searchWord.c_str()))
++							continue;
++					}
++					wordsNear.append(wordsNoCase[pivot-1], wordlen);
++					wordsNear += ' ';
+ 				}
+-				return wordsNear.detach();
++				return wordsNear.substr(1, wordsNear.length() - 2).detach();
+ 			} else if (cond < 0) {
+ 				end = pivot - 1;
+ 			} else if (cond > 0) {
+@@ -394,13 +417,22 @@ char *StringList::GetNearestWords(
+ 				while ((pivot <= end) &&
+ 					(0 == strncmp(wordStart,
+ 						words[pivot], searchLen))) {
+-					wordlen = LengthWord(words[pivot], otherSeparator) + 1;
++					wordlen = LengthWord(words[pivot], otherSeparator, separatorIsRequired) + 1;
+ 					++pivot;
+ 					if (exactLen && wordlen != LengthWord(wordStart, otherSeparator) + 1)
+ 						continue;
+-					wordsNear.append(words[pivot-1], wordlen, ' ');
++					if (eliminateDuplicateWords) {
++						SString searchWord;
++						searchWord += ' ';
++						searchWord.append(words[pivot-1], wordlen);
++						searchWord += ' ';
++						if (-1 != wordsNear.search(searchWord.c_str()))
++							continue;
++					}
++					wordsNear.append(words[pivot-1], wordlen);
++					wordsNear += ' ';
+ 				}
+-				return wordsNear.detach();
++				return wordsNear.substr(1, wordsNear.length() - 2).detach();
+ 			} else if (cond < 0) {
+ 				end = pivot - 1;
+ 			} else if (cond > 0) {
+diff --strip-trailing-cr -rupN 1/scite/src/StringList.h 2/scite/src/StringList.h
+--- 1/scite/src/StringList.h	2011-11-15 09:47:56 +0100
++++ 2/scite/src/StringList.h	2012-07-21 12:16:41 +0200
+@@ -29,8 +29,10 @@ public:
+ 	bool InList(const char *s);
+ 	//bool InListAbbreviated(const char *s, const char marker);
+ 	const char *GetNearestWord(const char *wordStart, size_t searchLen,
+-		bool ignoreCase = false, SString wordCharacters="", int wordIndex = -1);
++		bool ignoreCase = false, SString wordCharacters="", int wordIndex = -1,
++		bool skipBareWords = false);
+ 	char *GetNearestWords(const char *wordStart, size_t searchLen,
+-		bool ignoreCase=false, char otherSeparator='\0', bool exactLen=false);
++		bool ignoreCase=false, char otherSeparator='\0', bool exactLen=false,
++		bool separatorIsRequired=false, bool eliminateDuplicateWords=false);
+ };
+ 
 diff --strip-trailing-cr -rupN 1/scite/win32/MessagePump.cxx 2/scite/win32/MessagePump.cxx
 --- 1/scite/win32/MessagePump.cxx	1970-01-01 01:00:00 +0100
 +++ 2/scite/win32/MessagePump.cxx	2011-12-23 18:16:36 +0100

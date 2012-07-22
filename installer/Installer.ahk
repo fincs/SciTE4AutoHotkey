@@ -14,7 +14,7 @@ SetWorkingDir, %A_ScriptDir%
 Menu, Tray, NoStandard
 
 title = SciTE4AutoHotkey installation
-downloadurl = http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3/rc1_instdata.bin
+downloadurl = http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3/s4ahk-instdata.bin
 version = 3.0.00
 
 if A_IsCompiled
@@ -74,7 +74,7 @@ IfNotExist, s4ahk-instdata.bin
 }
 
 RunWait, %A_Temp%\7z.exe x "%A_ScriptDir%\s4ahk-instdata.bin" "-o%tmpdir%" -aoa
-FileRead, ver, %tmpdir%\$INFO
+FileRead, ver, %tmpdir%\$VER
 if (ver != version)
 {
 	MsgBox, 16, Title, Version mismatch, you are using an outdated installer.

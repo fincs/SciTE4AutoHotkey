@@ -1,6 +1,8 @@
 
 GetWinVer()
 {
-	pack := DllCall("GetVersion", "uint")
-	return ((pack >> 16) "." (pack & 0xFFFF)) + 0.0
+	pack := DllCall("GetVersion", "uint") & 0xFFFF
+	pack := (pack & 0xFF) "." (pack >> 8)
+	pack += 0
+	return pack
 }

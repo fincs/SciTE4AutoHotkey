@@ -70,7 +70,7 @@ IfNotExist, s4ahk-instdata.bin
 }
 
 RunWait, %A_Temp%\7z.exe x "%A_ScriptDir%\s4ahk-instdata.bin" "-o%tmpdir%" -aoa
-FileRead, ver, %tmpdir%\$VER
+FileRead, ver, %tmpdir%\$MAIN\$VER
 if (ver != version)
 {
 	MsgBox, 16, Title, Version mismatch, you are using an outdated installer.

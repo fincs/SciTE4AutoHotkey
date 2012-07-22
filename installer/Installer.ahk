@@ -11,6 +11,7 @@
 #NoTrayIcon
 #SingleInstance Ignore
 SetWorkingDir, %A_ScriptDir%
+FileEncoding, UTF-8
 Menu, Tray, NoStandard
 
 title = SciTE4AutoHotkey installation
@@ -32,18 +33,13 @@ if A_IsCompiled
 	}
 }
 
-FileEncoding, UTF-8
-FileInstall, 7z.exe, %A_Temp%\7z.exe, 1
-ChkFileInstall("7z.exe")
-FileInstall, dialog.html, %A_Temp%\dialog.html, 1
-ChkFileInstall("dialog.html")
-FileInstall, banner.png, %A_Temp%\banner.png, 1
-ChkFileInstall("banner.png")
-
 dlgoptions := "DlgTopmost=1, DlgStyle=Border, HtmFocus=1, Buttons=&Install/&Close, HtmW=480, HtmH=360, BEsc=2"
 
-if HtmDlg("file:///" A_Temp "\dialog.html#" GetSysColor(15), "", dlgoptions) - 1
+if HtmDlg("res://" A_ScriptFullPath "/10/dialog.html#" GetSysColor(15), "", dlgoptions) - 1
 	ExitApp
+
+FileInstall, 7z.exe, %A_Temp%\7z.exe, 1
+ChkFileInstall("7z.exe")
 
 tmpdir := A_Temp "\tmp-s4ahk-v" version A_TickCount
 ahkdir := GetAutoHotkeyDir()
@@ -188,4 +184,10 @@ OptCopy(src, dest, fname)
 			return
 	}
 	FileCopy, %src%\%fname%, %dest%\%fname%, 1
+}
+
+__html_resources()
+{
+	FileInstall, dialog.html, _
+	FileInstall, banner.png, _
 }

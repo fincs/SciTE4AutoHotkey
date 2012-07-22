@@ -63,7 +63,8 @@ sScintillaClass     := "Scintilla" ;Class name of the Scintilla control. Exclude
 	Gui, Color, %cGUIBG%, %cControlBG%
 	Gui, Margin, %iMargin%, %iMargin%
 	Gui, Add, Edit, h20 w%iGUIWidth% vtxtSearch gtxtSearch_Event hwndhtxtsearch
-	Gui, Add, ListBox, Sort wp vlblList glblList_Event hwndhlblList +HScroll +256 ;LBS_NOINTEGRALHEIGHT
+	sortOpt := bSortEntries ? "Sort" : ""
+	Gui, Add, ListBox, %sortOpt% wp vlblList glblList_Event hwndhlblList +HScroll +256 ;LBS_NOINTEGRALHEIGHT
 	hGui := WinExist()
 	
 	;Get the height of a listbox item

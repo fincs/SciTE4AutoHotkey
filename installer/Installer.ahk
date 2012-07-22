@@ -48,13 +48,6 @@ if !ahkdir
 	MsgBox, 16, %title%, Failed to find AutoHotkey folder!
 	ExitApp
 }
-instdir = %ahkdir%\SciTE
-IfExist, %instdir%
-	FileRemoveDir, %instdir%, 1
-;~ {
-	;~ MsgBox, 16, %title%, This version of SciTE4AutoHotkey is already installed!
-	;~ ExitApp
-;~ }
 
 IfNotExist, s4ahk-instdata.bin
 {
@@ -87,6 +80,10 @@ UninstallOldBetas(0)
 		;~ ; Delete the profile
 		;~ WipeProfile(profile)
 ;~ }
+
+instdir = %ahkdir%\SciTE
+IfExist, %instdir%
+	FileRemoveDir, %instdir%, 1
 
 FileCreateDir, %instdir%
 

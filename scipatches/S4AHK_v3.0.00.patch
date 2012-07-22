@@ -88,7 +88,7 @@ diff --strip-trailing-cr -rupN 1/scintilla/Scintilla.vcxproj 2/scintilla/Scintil
 +    <UseDebugLibraries>false</UseDebugLibraries>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
-+    <PlatformToolset>v110</PlatformToolset>
++    <PlatformToolset>Windows7.1SDK</PlatformToolset>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
 +    <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -133,6 +133,7 @@ diff --strip-trailing-cr -rupN 1/scintilla/Scintilla.vcxproj 2/scintilla/Scintil
 +    <OutDir>$(SolutionDir)bin\x86\</OutDir>
 +    <IntDir>$(SolutionDir)obj\x86\Scintilla\</IntDir>
 +    <TargetName>SciLexer</TargetName>
++    <ExecutablePath>$(VCInstallDir)..\Common7\IDE;$(ExecutablePath)</ExecutablePath>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
 +    <LinkIncremental>false</LinkIncremental>
@@ -1559,7 +1560,7 @@ diff --strip-trailing-cr -rupN 1/scite/SciTE.vcxproj 2/scite/SciTE.vcxproj
 +    <UseDebugLibraries>false</UseDebugLibraries>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
-+    <PlatformToolset>v110</PlatformToolset>
++    <PlatformToolset>Windows7.1SDK</PlatformToolset>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
@@ -1607,6 +1608,7 @@ diff --strip-trailing-cr -rupN 1/scite/SciTE.vcxproj 2/scite/SciTE.vcxproj
 +    </PostBuildEventUseInBuild>
 +    <GenerateManifest>false</GenerateManifest>
 +    <EmbedManifest>false</EmbedManifest>
++    <ExecutablePath>$(VCInstallDir)..\Common7\IDE;$(ExecutablePath)</ExecutablePath>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
 +    <LinkIncremental>false</LinkIncremental>

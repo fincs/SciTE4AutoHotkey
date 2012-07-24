@@ -18,10 +18,14 @@ Progress, m2 b zh0, Preparing SciTE4AutoHotkey to run for the first time...
 FileCreateDir, %A_MyDocuments%\AutoHotkey
 FileCreateDir, %A_MyDocuments%\AutoHotkey\Lib
 IfExist, %A_MyDocuments%\AutoHotkey\SciTE
-	FileMoveDir, %A_MyDocuments%\AutoHotkey\SciTE, %A_MyDocuments%\AutoHotkey\SciTE%A_TickCount%
+{
+	FileMoveDir, %A_MyDocuments%\AutoHotkey\SciTE, %A_MyDocuments%\AutoHotkey\SciTE%A_TickCount%, R
+	if ErrorLevel
+		ExitApp
+}
 
 FileCreateDir, %A_MyDocuments%\AutoHotkey\SciTE
-FileCopyDir, %A_ScriptDir%\..\newuser, %A_MyDocuments%\AutoHotkey\SciTE, 1
+FileCopyDir, %A_ScriptDir%\..\newuser, %A_MyDocuments%\AutoHotkey\SciTE
 
 ; Mainly to avoid an annoying flashing window:
 Sleep, 1000

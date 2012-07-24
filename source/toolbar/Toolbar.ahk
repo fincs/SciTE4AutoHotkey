@@ -101,6 +101,7 @@ if !IsPortable && (!FileExist(LocalPropsPath) || !SciTEVersion)
 	
 	; Create the SciTE user folder of this user
 	RunWait, "%SciTEDir%\AutoHotkey.exe" "%SciTEDir%\tools\NewUser.ahk"
+	FileDelete, %LocalSciTEPath%\$VER
 	FileAppend, %CurrentSciTEVersion%, %LocalSciTEPath%\$VER
 
 	; Reload properties & reload user toolbar settings

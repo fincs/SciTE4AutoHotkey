@@ -20,6 +20,7 @@ SciTEDir
 
 ; Files
 GetCurrentFile & CurrentFile = CoI_GetCurrentFile
+OpenFile
 DebugFile
 GetTabs & Tabs = CoI_GetTabs
 SwitchToTab
@@ -195,21 +196,21 @@ CoI_GetVersion(this)
 	return CurrentSciTEVersion
 }
 
-CoI_DebugFile(this, file)
+CoI_OpenFile(this, file)
 {
-	global SciTEDir, scitehwnd
-	IfNotExist, % file
+	global scitehwnd
+	
+	WinActivate, ahk_id %scitehwnd%
+	
+	if CoI_GetCurrentFile(this) = file
 		return
 	
-	if CoI_GetCurrentFile(this) != file
-	{
-		ToolTip, Opening file...
-		Run, "%SciTEDir%\SciTE.exe" "%file%"
-		WinWait, %file% ahk_id %scitehwnd%
-		ToolTip
-		Sleep, 100
-	}
-	
+	Director_Send("open:" CEscape(file))
+}
+
+CoI_DebugFile(this, file)
+{
+	CoI_OpenFile(this, file)
 	Cmd_Debug()
 }
 

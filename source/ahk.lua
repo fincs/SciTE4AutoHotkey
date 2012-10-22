@@ -211,6 +211,11 @@ function DBGp_Stop()
 	pumpmsgstr(4112, 3, "stop")
 end
 
+function DBGp_Pause()
+	if not prepared then return end
+	pumpmsgstr(4112, 3, "pause")
+end
+
 function DBGp_StepInto()
 	if not prepared then return end
 	pumpmsgstr(4112, 3, "stepinto")

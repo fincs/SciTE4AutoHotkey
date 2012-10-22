@@ -27,6 +27,7 @@ ATM_STARTDEBUG := ATM_OFFSET+0
 ATM_STOPDEBUG  := ATM_OFFSET+1
 ATM_RELOAD     := ATM_OFFSET+2
 ATM_DIRECTOR   := ATM_OFFSET+3
+ATM_DRUNTOGGLE := ATM_OFFSET+4
 
 ; Uncompiled toolbar support
 if !A_IsCompiled
@@ -43,8 +44,6 @@ if A_OSType = WIN32_WINDOWS
 	ExitApp
 }
 */
-
-MAXTOOLS = 50
 
 ; Check if the properties file exists
 IfNotExist, toolbar.properties
@@ -127,7 +126,7 @@ if platforms[curplatform] != temp
 	gosub changeplatform
 
 ; Load the tools
-ntools = 12
+ntools = 13
 _ToolButs =
 (LTrim Join`n
 -
@@ -135,6 +134,7 @@ Set current platform,1,,autosize
 -
 Run script (F5),2,,autosize
 Debug script (F7),3,,autosize
+Pause script (F5),10,hidden,autosize
 Stop script,4,hidden,autosize
 Run current line of code (F10),5,hidden,autosize
 Run until next line of code (F11),6,hidden,autosize
@@ -144,8 +144,8 @@ Variable list,9,hidden,autosize
 ---
 
 )
-_ToolIL := IL_Create(MAXTOOLS)
-_IconLib := SciTEDir "\toolicon.icl"
+_ToolIL := IL_Create()
+_IconLib = toolicon.icl
 
 Tools := []
 
@@ -159,16 +159,18 @@ IL_Add(_ToolIL, _IconLib, 5)
 IL_Add(_ToolIL, _IconLib, 6)
 IL_Add(_ToolIL, _IconLib, 7)
 IL_Add(_ToolIL, _IconLib, 8)
+IL_Add(_ToolIL, _IconLib, 19)
 Tools[2]  := { Path: "?switch" }
 Tools[4]  := { Path: "?run" }
 Tools[5]  := { Path: "?debug" }
-Tools[6]  := { Path: "?stop" }
-Tools[7]  := { Path: "?stepinto" }
-Tools[8]  := { Path: "?stepover" }
-Tools[9]  := { Path: "?stepout" }
-Tools[10] := { Path: "?stacktrace" }
-Tools[11] := { Path: "?varlist" }
-i := 10
+Tools[6]  := { Path: "?pause" }
+Tools[7]  := { Path: "?stop" }
+Tools[8]  := { Path: "?stepinto" }
+Tools[9]  := { Path: "?stepover" }
+Tools[10]  := { Path: "?stepout" }
+Tools[11] := { Path: "?stacktrace" }
+Tools[12] := { Path: "?varlist" }
+i := 11
 
 Loop, Parse, ToolbarProps, `n, `r
 {
@@ -189,8 +191,6 @@ Loop, Parse, ToolbarProps, `n, `r
 	}else if !RegExMatch(curline, "^=(.*?)\x7C(.*?)(?:\x7C(.*?)(?:\x7C(.*?))?)?$", varz)
 		|| varz1 = ""
 		continue
-	else if (MAXTOOLS+2) = ntools
-		break
 	ntools ++
 	IfInString, varz1, `,
 	{
@@ -230,6 +230,7 @@ WinActivate, ahk_id %scitehwnd%
 OnMessage(ATM_STARTDEBUG, "Msg_StartDebug")
 OnMessage(ATM_STOPDEBUG, "Msg_StopDebug")
 OnMessage(ATM_RELOAD, "Msg_Reload")
+OnMessage(ATM_DRUNTOGGLE, "Msg_DebugRunToggle")
 hToolbar := Toolbar_Add(hwndgui, "OnToolbar", "FLAT TOOLTIPS", _ToolIL)
 Toolbar_Insert(hToolbar, _ToolButs)
 Toolbar_SetMaxTextRows(hToolbar, 0)
@@ -447,68 +448,77 @@ Cmd_Run()
 	if !dbg_active
 		PostMessage, 0x111, 303, 0,, ahk_id %scitehwnd%
 	else
-		SendMessage, 0x111, 1127, 0,, ahk_id %scitehwnd%
+		PostMessage, 0x111, 1127, 0,, ahk_id %scitehwnd%
+}
+
+Cmd_Pause()
+{
+	global
+	PostMessage, 0x111, 1136, 0,, ahk_id %scitehwnd%
 }
 
 Cmd_Stop()
 {
 	global
-	SendMessage, 0x111, 1128, 0,, ahk_id %scitehwnd%
+	PostMessage, 0x111, 1128, 0,, ahk_id %scitehwnd%
 }
 
 Cmd_Debug()
 {
 	global
-	;PostMessage, 0x111, 1106, 0,, ahk_id %scitehwnd%
 	PostMessage, 0x111, 302, 0,, ahk_id %scitehwnd%
 }
 
 Cmd_StepInto()
 {
 	global
-	SendMessage, 0x111, 1129, 0,, ahk_id %scitehwnd%
+	PostMessage, 0x111, 1129, 0,, ahk_id %scitehwnd%
 }
 
 Cmd_StepOver()
 {
 	global
-	SendMessage, 0x111, 1130, 0,, ahk_id %scitehwnd%
+	PostMessage, 0x111, 1130, 0,, ahk_id %scitehwnd%
 }
 
 Cmd_StepOut()
 {
 	global
-	SendMessage, 0x111, 1131, 0,, ahk_id %scitehwnd%
+	PostMessage, 0x111, 1131, 0,, ahk_id %scitehwnd%
 }
 
 Cmd_Stacktrace()
 {
 	global
-	SendMessage, 0x111, 1132, 0,, ahk_id %scitehwnd%
+	PostMessage, 0x111, 1132, 0,, ahk_id %scitehwnd%
 }
 
 Cmd_Varlist()
 {
 	global
-	SendMessage, 0x111, 1133, 0,, ahk_id %scitehwnd%
+	PostMessage, 0x111, 1133, 0,, ahk_id %scitehwnd%
 }
 
 Msg_StartDebug(a,b,msg)
 {
 	global
+	Toolbar_SetButton(hToolbar, 4, "-hidden")
 	Toolbar_SetButton(hToolbar, 5, "hidden")
-	Toolbar_SetButton(hToolbar, 6, "-hidden")
+	Toolbar_SetButton(hToolbar, 6, "hidden")
 	Toolbar_SetButton(hToolbar, 7, "-hidden")
 	Toolbar_SetButton(hToolbar, 8, "-hidden")
 	Toolbar_SetButton(hToolbar, 9, "-hidden")
 	Toolbar_SetButton(hToolbar, 10, "-hidden")
 	Toolbar_SetButton(hToolbar, 11, "-hidden")
+	Toolbar_SetButton(hToolbar, 12, "-hidden")
 	dbg_active := true
+	dbg_runshown := true
 }
 
 Msg_StopDebug()
 {
 	global
+	Toolbar_SetButton(hToolbar, 4, "-hidden")
 	Toolbar_SetButton(hToolbar, 5, "-hidden")
 	Toolbar_SetButton(hToolbar, 6, "hidden")
 	Toolbar_SetButton(hToolbar, 7, "hidden")
@@ -516,7 +526,25 @@ Msg_StopDebug()
 	Toolbar_SetButton(hToolbar, 9, "hidden")
 	Toolbar_SetButton(hToolbar, 10, "hidden")
 	Toolbar_SetButton(hToolbar, 11, "hidden")
+	Toolbar_SetButton(hToolbar, 12, "hidden")
 	dbg_active := false
+}
+
+Msg_DebugRunToggle()
+{
+	global
+	if !dbg_active
+		return
+	dbg_runshown := !dbg_runshown
+	if dbg_runshown
+	{
+		Toolbar_SetButton(hToolbar, 4, "-hidden")
+		Toolbar_SetButton(hToolbar, 6, "hidden")
+	}else
+	{
+		Toolbar_SetButton(hToolbar, 4, "hidden")
+		Toolbar_SetButton(hToolbar, 6, "-hidden")
+	}
 }
 
 Msg_Reload()

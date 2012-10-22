@@ -1,13 +1,10 @@
-﻿;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; SciTE4AutoHotkey v3 Script Debugger ;
-; 1.2 - by fincs                      ;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; SciTE4AutoHotkey Script Debugger
+;     v3.0.01 - by fincs
+;
 
 #SingleInstance Ignore
 #NoTrayIcon
-#Include %A_ScriptDir%\SciControl.ahk
-#Include %A_ScriptDir%\DBGp.ahk
-;#Include %A_ScriptDir%\ObjHibernation.ahk
 SetBatchLines, -1
 SetWorkingDir, %A_ScriptDir%
 DetectHiddenWindows, On
@@ -16,6 +13,8 @@ ADM_SCITE := 0x1010
 ATM_OFFSET := 0x1000
 ATM_STARTDEBUG := ATM_OFFSET+0
 ATM_STOPDEBUG  := ATM_OFFSET+1
+ATM_DRUNTOGGLE := ATM_OFFSET+4
+SciControl_InitConstants()
 
 if A_IsCompiled
 {
@@ -36,69 +35,74 @@ IfWinNotExist, ahk_class SciTEWindow
 	ExitApp
 }
 
-AhkExecutable = %1%
-IfNotExist, %AhkExecutable%
+if 1 = /attach
+	bIsAttach := true
+else
 {
-	MsgBox, 16, SciTE4AutoHotkey Debugger, AutoHotkey executable doesn't exist!
-	ExitApp
-}
+	AhkExecutable = %1%
+	IfNotExist, %AhkExecutable%
+	{
+		MsgBox, 16, SciTE4AutoHotkey Debugger, AutoHotkey executable doesn't exist!
+		ExitApp
+	}
 
-Loop, %AhkExecutable%
-{
-	AhkExecutable := A_LoopFileLongPath
-	break
-}
+	Loop, %AhkExecutable%
+	{
+		AhkExecutable := A_LoopFileLongPath
+		break
+	}
 
-Loop, 1
-{
-	; Sanity checks
-	
-	FileGetVersion, vert, %AhkExecutable%
-	if !vert
-		goto _error
-	
-	StringSplit, vert, vert, .
-	vert := vert4 | (vert3 << 8) | (vert2 << 16) | (vert1 << 24)
-	
-	AhkExeMachine := GetExeMachine(AhkExecutable)
-	if !AhkExeMachine
-		goto _error
-	
-	if (AhkExeMachine != 0x014C) && (AhkExeMachine != 0x8664)
-		goto _error
-	
-	if !(VersionInfoSize := DllCall("version\GetFileVersionInfoSize", "str", AhkExecutable, "uint*", null, "uint"))
-		goto _error
-	
-	VarSetCapacity(VersionInfo, VersionInfoSize)
-	if !DllCall("version\GetFileVersionInfo", "str", AhkExecutable, "uint", 0, "uint", VersionInfoSize, "ptr", &VersionInfo)
-		goto _error
-	
-	if !DllCall("version\VerQueryValue", "ptr", &VersionInfo, "str", "\VarFileInfo\Translation", "ptr*", lpTranslate, "uint*", cbTranslate)
-		goto _error
-	
-	SetFormat, IntegerFast, H
-	wLanguage := NumGet(lpTranslate+0, "UShort")
-	wCodePage := NumGet(lpTranslate+2, "UShort")
-	id := SubStr("0000" SubStr(wLanguage, 3), -3, 4) SubStr("0000" SubStr(wCodePage, 3), -3, 4)
-	SetFormat, IntegerFast, D
-	
-	if !DllCall("version\VerQueryValue", "ptr", &VersionInfo, "str", "\StringFileInfo\" id "\ProductName", "ptr*", pField, "uint*", cbField)
-		goto _error
-	
-	; if product name = AutoHotkey_L then allow
-	; else if version <= v1.0.48.05  then block
-	if StrGet(pField, cbField) != "AutoHotkey_L" && vert <= 0x01003005
-		goto _error
-	
-	break
-	_error:
-	MsgBox, 16, SciTE4AutoHotkey Debugger, (%A_LastError%) You must use AutoHotkey_L for debugging!`n%a%
-	ExitApp
+	Loop, 1
+	{
+		; Sanity checks
+		
+		FileGetVersion, vert, %AhkExecutable%
+		if !vert
+			goto _error
+		
+		StringSplit, vert, vert, .
+		vert := vert4 | (vert3 << 8) | (vert2 << 16) | (vert1 << 24)
+		
+		AhkExeMachine := GetExeMachine(AhkExecutable)
+		if !AhkExeMachine
+			goto _error
+		
+		if (AhkExeMachine != 0x014C) && (AhkExeMachine != 0x8664)
+			goto _error
+		
+		if !(VersionInfoSize := DllCall("version\GetFileVersionInfoSize", "str", AhkExecutable, "uint*", null, "uint"))
+			goto _error
+		
+		VarSetCapacity(VersionInfo, VersionInfoSize)
+		if !DllCall("version\GetFileVersionInfo", "str", AhkExecutable, "uint", 0, "uint", VersionInfoSize, "ptr", &VersionInfo)
+			goto _error
+		
+		if !DllCall("version\VerQueryValue", "ptr", &VersionInfo, "str", "\VarFileInfo\Translation", "ptr*", lpTranslate, "uint*", cbTranslate)
+			goto _error
+		
+		SetFormat, IntegerFast, H
+		wLanguage := NumGet(lpTranslate+0, "UShort")
+		wCodePage := NumGet(lpTranslate+2, "UShort")
+		id := SubStr("0000" SubStr(wLanguage, 3), -3, 4) SubStr("0000" SubStr(wCodePage, 3), -3, 4)
+		SetFormat, IntegerFast, D
+		
+		if !DllCall("version\VerQueryValue", "ptr", &VersionInfo, "str", "\StringFileInfo\" id "\ProductName", "ptr*", pField, "uint*", cbField)
+			goto _error
+		
+		; Check it is actually an AutoHotkey executable
+		if !InStr(StrGet(pField, cbField), "AutoHotkey")
+			goto _error
+		
+		; Check if it's a legacy version (i.e. prior to v1.1)
+		if vert < 0x01010000
+			goto _error
+		
+		break
+		_error:
+		MsgBox, 16, SciTE4AutoHotkey Debugger, Debugging is not supported in legacy versions of AutoHotkey (prior to v1.1).
+		ExitApp
+	}
 }
-
-IsAttach = %2%
-IsAttach := IsAttach = "/attach"
 
 ; Get the HWND of SciTE and its Scintilla control
 scitehwnd := WinExist("")
@@ -113,12 +117,9 @@ if !oSciTE
 }
 
 ; Get the script to debug
-szFilename := oSciTE.CurrentFile
-IfInString, szFilename, ?
-{
-	MsgBox, 16, SciTE4AutoHotkey Debugger, A Unicode build of AutoHotkey_L is necessary!
+szFilename := !bIsAttach ? oSciTE.CurrentFile : SelectAttachScript(AttachWin, Dbg_PID)
+if szFilename =
 	ExitApp
-}
 
 ; Avoid the mistake of trying to debug the debugger (lol :P)
 if (szFilename = A_ScriptFullPath)
@@ -135,34 +136,31 @@ if toolbarhwnd =
 	ExitApp
 }
 
-; Check for the existence of the script
-if IsAttach && !(AttachWin := WinExist(szFileName " ahk_class AutoHotkey"))
-{
-	MsgBox, 16, SciTE4AutoHotkey Debugger, Can't find running script! The debugger will exit.
-	ExitApp
-}
-
 OnExit, GuiClose ; activate an OnExit trap
 Gui, Show, Hide, SciTEDebugStub ; create a dummy GUI that SciTE will speak to
 
 ; Run SciTE
 WinActivate, ahk_id %scitehwnd%
 Hotkey, ^!z, CancelSciTE
-Progress, m2 b zh0, Waiting for SciTE to connect...`nPress Ctrl-Alt-Z to cancel
+ToolTip, Waiting for SciTE to connect...`nPress Ctrl-Alt-Z to cancel
 SciTEConnected := false
 OnMessage(ADM_SCITE, "SciTEMsgHandler")
 SciTE_Connect()
 Hotkey, ^!z, Off
 
-if (AhkExeMachine = 0x8664)
-	DbgBitIndicator := " (64-bit)"
-else if Util_Is64bitOS()
-	DbgBitIndicator := " (32-bit)"
+if !bIsAttach
+{
+	if (AhkExeMachine = 0x8664)
+		DbgBitIndicator := " (64-bit)"
+	else if Util_Is64bitOS()
+		DbgBitIndicator := " (32-bit)"
+}else
+	DbgBitIndicator := "" ;" (JIT)"
 
 DbgTitle := " - Debugging" DbgBitIndicator
 
-; Run AutoHotkey_L and wait for it to connect
-Progress, m2 b zh0, Waiting for AutoHotkey_L to connect...
+; Run AutoHotkey and wait for it to connect
+ToolTip, Waiting for AutoHotkey to connect...
 
 ; Initialize variables
 Dbg_OnBreak := true
@@ -174,49 +172,44 @@ Dbg_WaitClose := false
 Dbg_StackTraceWin := false
 Dbg_VarWin := false
 Dbg_StreamWin := false
-Dbg_BkList := Object() ; TODO: load breakpoints from file
+Dbg_BkList := []
+
 ; Set the DBGp event handlers
 DBGp_OnBegin("OnDebuggerConnection")
 DBGp_OnBreak("OnDebuggerBreak")
 DBGp_OnStream("OnDebuggerStream")
 DBGp_OnEnd("OnDebuggerDisconnection")
-; Now really run AutoHotkey_L and wait for it to connect
+
+; Now really run AutoHotkey and wait for it to connect
 Dbg_Socket := DBGp_StartListening() ; start listening
 SplitPath, szFilename,, szDir
 
-IfNotExist, %AhkExecutable%
-{
-	MsgBox, 16, SciTE4AutoHotkey Debugger, Can't find AutoHotkey_L executable!
-	ExitApp
-}
-
-if !IsAttach
-	Run, "%AhkExecutable%" /Debug "%szFilename%", %szDir%,, Dbg_PID ; run AutoHotkey_L and store its process ID
+if !bIsAttach
+	Run, "%AhkExecutable%" /Debug "%szFilename%", %szDir%,, Dbg_PID ; run AutoHotkey and store its process ID
 else
 {
 	; Set the Last Found Window
 	WinWait, ahk_id %AttachWin%
-	; Get PID of the AutoHotkey_L window
+	; Get PID of the AutoHotkey window
 	WinGet, Dbg_PID, PID
-	; Tell AutoHotkey_L to debug
+	; Tell AutoHotkey to debug
 	PostMessage, DllCall("RegisterWindowMessage", "str", "AHK_ATTACH_DEBUGGER")
 }
-while (Dbg_AHKLExists := Util_ProcessExist(Dbg_PID)) && Dbg_Session = "" ; wait for AutoHotkey_L to connect or exit
+
+while (Dbg_AHKExists := Util_ProcessExist(Dbg_PID)) && Dbg_Session = "" ; wait for AutoHotkey to connect or exit
 	Sleep, 100 ; avoid smashing the CPU
 DBGp_StopListening(Dbg_Socket) ; stop listening
 
-if IsAttach
+if bIsAttach
 {
 	Dbg_GetStack()
 	SciTE_UpdateCurLineOfCode()
 }
 
-if !Dbg_AHKLExists
+if !Dbg_AHKExists
 {
 	Dbg_ExitByDisconnect := true ; tell our message handler to just return true without attempting to exit
 	SciTE_Disconnect()
-	;while !Dbg_WaitClose ; wait until we process that command
-	;	Sleep, 100 ; avoid smashing the CPU
 	OnMessage(ADM_SCITE, "") ; disable the SciTE message handler
 	OnExit ; disable the OnExit trap
 	ExitApp ; exit
@@ -225,7 +218,7 @@ if !Dbg_AHKLExists
 if Dbg_Lang != AutoHotkey
 {
 	; Oops, wrong language, we've got to exit again
-	Progress, Off
+	ToolTip
 	MsgBox, 16, SciTE4AutoHotkey Debugger, Invalid language: %Dbg_Lang%.
 
 	Dbg_ExitByDisconnect := true ; tell our message handler to just return true without attempting to exit
@@ -236,7 +229,8 @@ if Dbg_Lang != AutoHotkey
 }
 
 ; Show the splash
-SetTimer, ReadyToDebugSplash, -1
+ToolTip, Ready to debug!
+SetTimer, RemoveTooltip, -250
 
 ; Reset saved breakpoints
 PostMessage, 0x111, 1135, 0,, ahk_id %scitehwnd%
@@ -249,7 +243,7 @@ while !Dbg_IsClosing ; while the debugger is active
 	{
 		if !Dbg_ExitByDisconnect
 			DBGp_CloseDebugger(true) ; force closing
-		break ; get off the loop
+		break
 	}
 	if !Util_ProcessExist(Dbg_PID)
 	{
@@ -265,18 +259,84 @@ if Dbg_ExitByGuiClose ; we've got to tell SciTE that we are leaving
 }
 OnMessage(ADM_SCITE, "") ; disable the SciTE message handler
 OnExit ; disable the OnExit trap
-;Hibernate(Dbg_BkList, szFilename ".dbk")
 ExitApp
 
 CancelSciTE:
 OnExit
 ExitApp
 
-ReadyToDebugSplash:
-; Just a lil' splash
-Progress, m2 b zh0, Ready to debug
-Sleep, 250 ; sleep 1/4 of a second
-Progress, Off
+RemoveTooltip:
+ToolTip
+return
+
+SelectAttachScript(ByRef outwin, ByRef outpid)
+{
+	oldTM := A_TitleMatchMode, oldHW := A_DetectHiddenWindows
+	SetTitleMatchMode, 2
+	DetectHiddenWindows, On
+	
+	WinGet, w, List, - AutoHotkey ahk_class AutoHotkey,, %A_ScriptFullPath%
+	
+	Gui, +LabelAttGui +ToolWindow +AlwaysOnTop
+	Gui, Add, ListView, x0 y0 w640 h240 +NoSortHdr -LV0x10 gAttGuiSelect, HWND|Name
+	
+	global oSciTE
+	SciTEPath := oSciTE.SciTEDir
+	
+	i := 0
+	Loop, % w
+	{
+		hwnd := w%A_Index%
+		WinGetTitle, ov, ahk_id %hwnd%
+		if InStr(ov, SciTEPath) ; Do not allow debugging SciTE4AutoHotkey itself
+			continue
+		if !RegExMatch(ov, "v([0-9.]+)(-\S+)?$", q) ; Make sure it has a correctly-formed version number
+			continue
+		if q1 < 1.1.00.00 ; Make sure it is NOT a legacy AutoHotkey version
+			continue
+		LV_Add("", hwnd, ov)
+		i ++
+	}
+	
+	if i = 0
+	{
+		MsgBox, 48, SciTE4AutoHotkey Debugger, There are no currently running debuggable AutoHotkey scripts!
+		return ""
+	}
+	
+	LV_ModifyCol(1, "AutoHdr")
+	LV_ModifyCol(2, "AutoHdr")
+	
+	Gui, Show, w640 h240, Select running script to debug
+	
+	global attSelection, attWin
+	while !attSelection
+		Sleep, 100
+	
+	if attSelection = -1
+		filename := "", outwin := "", outpid := ""
+	else
+	{
+		LV_GetText(filename, attSelection, 2)
+		LV_GetText(outwin, attSelection, 1)
+		WinGet, outpid, PID, ahk_id %outwin%
+	}
+	
+	Gui, Destroy
+	
+	DetectHiddenWindows, %oldTM%
+	SetTitleMatchMode, %oldTM%
+	return filename
+}
+
+AttGuiClose:
+attSelection := -1
+return
+
+AttGuiSelect:
+if A_GuiEvent != DoubleClick
+	return
+attSelection := A_EventInfo
 return
 
 ; ====================
@@ -284,6 +344,11 @@ return
 ; ====================
 
 F5::
+if Dbg_OnBreak
+	goto cmd_run
+else
+	goto cmd_pause
+
 cmd_run:
 if !Dbg_OnBreak
 	return
@@ -291,9 +356,41 @@ SciTE_DeleteCurLineMarkers()
 DBGp_CmdRun(Dbg_Session)
 return
 
+cmd_pause:
+if !bIsAsync
+{
+	MsgBox, 48, SciTE4AutoHotkey Debugger, Script pausing is not supported in this AutoHotkey version!
+	return
+}
+
+; We want to send AutoHotkey a break command.
+; It must be sent asynchronously because we want to discard its
+; response as fast as possible, otherwise OnBreak misbehaves due
+; to the use of synchronous commands.
+Dbg_Session.Send("break", "", Func("DummyCallback"))
+return
+
+DummyCallback(session, ByRef response)
+{
+}
+
 cmd_stop:
-; Let the OnExit function take care of this
-ExitApp
+if bIsAttach
+{
+	MsgBox, 35, SciTE4AutoHotkey Debugger, Do you wish to stop the script (YES) or just stop debugging (NO)?
+	IfMsgBox, Cancel
+		return
+	IfMsgBox, No
+	{
+		Dbg_Session.property_set("-n A_DebuggerName --")
+		Dbg_Session.detach()
+		return
+	}
+}
+
+; Let the OnExit handler take care of this
+OnExit
+goto GuiClose
 
 F10::
 cmd_stepinto:
@@ -320,14 +417,19 @@ DBGp_CmdStepOut(Dbg_Session)
 return
 
 cmd_stacktrace:
-;if !Dbg_OnBreak || !Dbg_HasStarted || Dbg_StackTraceWin
-if !Dbg_OnBreak || Dbg_StackTraceWin
+if Dbg_StackTraceWin
 	return
+if !Dbg_OnBreak
+{
+	if !bIsAsync
+		return
+	Dbg_GetStack()
+}
 ST_Create()
 return
 
 cmd_varlist:
-if !Dbg_OnBreak || Dbg_VarWin
+if Dbg_VarWin || (!Dbg_OnBreak && !bIsAsync)
 	return
 VL_Create()
 return
@@ -339,7 +441,7 @@ return
 SciTEMsgHandler(wParam, lParam, msg, hwnd)
 {
 	Critical
-	global scintillahwnd, SciTEConnected, Dbg_ExitByDisconnect, Dbg_Session, Dbg_IsClosing, Dbg_WaitClose, Dbg_OnBreak
+	global scintillahwnd, SciTEConnected, Dbg_ExitByDisconnect, Dbg_Session, Dbg_IsClosing, Dbg_WaitClose, Dbg_OnBreak, bIsAsync, bInBkProcess
 	
 	; This code used to be a big if/else if block. I've changed it to this pseudo-switch structure.
 	if IsLabel("_wP" wParam)
@@ -352,7 +454,7 @@ _wP0: ; SciTE handshake
 	return true
 
 _wP1: ; Breakpoint setting
-	if !Dbg_OnBreak
+	if !bIsAsync && !Dbg_OnBreak
 		return true
 	
 	lParam ++ ; from 0-based to 1-based, that's what DBGp uses
@@ -361,34 +463,39 @@ _wP1: ; Breakpoint setting
 	bk := Util_GetBk(uri, lParam)
 	if bk
 	{
-		DBGp(Dbg_Session, "breakpoint_remove", "-d " bk.id)
+		Dbg_Session.breakpoint_remove("-d " bk.id)
 		SciTE_BPSymbolRemove(lParam)
 		Util_RemoveBk(uri, lParam)
 	}else
 	{
-		DBGp(Dbg_Session, "breakpoint_set", "-t line -n " lParam " -f " file, Dbg_Response)
-		IfInString, Dbg_Response, <error ; Check if AutoHotkey_L actually inserted the breakpoint.
+		bInBkProcess := true
+		Dbg_Session.breakpoint_set("-t line -n " lParam " -f " file, Dbg_Response)
+		IfInString, Dbg_Response, <error ; Check if AutoHotkey actually inserted the breakpoint.
+		{
+			bInBkProcess := false
 			return false ; Let SciTE handle this situation...
+		}
 		dom := loadXML(Dbg_Response)
 		bkID := dom.selectSingleNode("/response/@id").text
-		DBGp(Dbg_Session, "breakpoint_get", "-d " bkID, Dbg_Response)
+		Dbg_Session.breakpoint_get("-d " bkID, Dbg_Response)
 		dom := loadXML(Dbg_Response)
 		lParam := dom.selectSingleNode("/response/breakpoint[@id=" bkID "]/@lineno").text
 		SciTE_BPSymbol(lParam)
 		Util_AddBkToList(uri, lParam, bkID)
+		bInBkProcess := false
 	}
 	
 	return true
 
 _wP2: ; Variable inspection
-	if !Dbg_OnBreak
+	if !bIsAsync && !Dbg_OnBreak
 	{
 		MsgBox, 48, SciTE4AutoHotkey Debugger, You can't inspect a variable whilst the script is running!
 		return false
 	}
 	
 	Dbg_VarName := Trim(StrGet(lParam, "UTF-8"), " `t`r`n=")
-	DBGp(Dbg_Session, "property_get", "-n " Dbg_VarName, Dbg_Response)
+	Dbg_Session.property_get("-n " Dbg_VarName, Dbg_Response)
 	dom := loadXML(Dbg_Response)
 	
 	Dbg_NewVarName := dom.selectSingleNode("/response/property/@name").text
@@ -408,19 +515,21 @@ _wP2: ; Variable inspection
 	return true
 
 _wP3: ; Command
-	; Command
 	p := "cmd_" StrGet(lParam, "UTF-8")
 	if IsLabel(p)
 		gosub %p%
 	return true
 
 _wP4: ; Hovering
+	if !bIsAsync && !Dbg_OnBreak
+		return true
+	
 	Dbg_VarName := Trim(SubStr(StrGet(lParam, "UTF-8"), 2), " `t`r`n")
 	if Dbg_VarName =
 		ToolTip
 	else
 	{
-		DBGp(Dbg_Session, "property_get", "-m 200 -n " Dbg_VarName, Dbg_Response)
+		Dbg_Session.property_get("-m 200 -n " Dbg_VarName, Dbg_Response)
 		dom := loadXML(Dbg_Response)
 		check := dom.selectSingleNode("/response/property/@name").text
 		if check = (invalid)
@@ -439,7 +548,8 @@ _wP4: ; Hovering
 
 _wP255: ; Disconnect
 	if !Dbg_ExitByDisconnect
-	{ ; this code is executed if the debugger is still present
+	{
+		; This code is executed if the debugger is still present
 		rc := DBGp_CloseDebugger()
 		if !rc ; cancel the deattach if we are in run mode
 			return false ; tell SciTE to not unload the debugging features
@@ -476,23 +586,25 @@ ExitApp ; exit
 ; DBGp_CloseDebugger() - used to close the debugger
 DBGp_CloseDebugger(force=0)
 {
-	Global
-	if !force && !Dbg_OnBreak
+	global
+	if !bIsAsync && !force && !Dbg_OnBreak
 	{
 		MsgBox, 52, SciTE4AutoHotkey Debugger, The script is running. Stopping it would mean loss of data. Proceed?
 		IfMsgBox, No
 			return 0 ; fail
 	}
 	DBGp_OnEnd("") ; disable the DBGp OnEnd handler
-	if Dbg_OnBreak
-	{ ; if we're on a break we don't need to force the debugger to terminate
-		DBGp(Dbg_Session, "stop")
-		DBGp_CloseSession(Dbg_Session)
+	if bIsAsync || Dbg_OnBreak
+	{
+		; If we're on a break or the debugger is async we don't need to force the debugger to terminate
+		Dbg_Session.stop()
+		Dbg_Session.Close()
 	}else ; nope, we're not on a break, kill the process
 	{
-		DBGp_CloseSession(Dbg_Session)
+		Dbg_Session.Close()
 		Process, Close, %Dbg_PID%
 	}
+	Dbg_Session := ""
 	return 1 ; success
 }
 
@@ -503,11 +615,17 @@ DBGp_CloseDebugger(force=0)
 SciTE_Connect()
 {
 	global
-	SendMessage, 0x111, 1124, 0,, ahk_id %scitehwnd% ; call the "Debug with AutoHotkey_L" command
+	SendMessage, 0x111, 1124, 0,, ahk_id %scitehwnd% ; call the internal "Debug with AutoHotkey" command
 	while !SciTEConnected ; wait for SciTE to connect
 		Sleep, 100 ; sleep a delay to avoid smashing the CPU
 	SendMessage, ATM_STARTDEBUG, 0, 0,, ahk_id %toolbarhwnd% ; Enable the debugging buttons in the toolbar
 	SetTimer, SciTEDebugTitle, On
+}
+
+SciTE_ToggleRunButton()
+{
+	global
+	SendMessage, ATM_DRUNTOGGLE, 0, 0,, ahk_id %toolbarhwnd%
 }
 
 SciTE_Disconnect()
@@ -529,6 +647,7 @@ SciTE_Disconnect()
 
 SciTEDebugTitle:
 ListLines, Off
+Critical, 10000
 if !_waiting
 {
 	WinGetTitle, SciTETitle, ahk_id %scitehwnd%
@@ -542,30 +661,45 @@ return
 ; | DBGp Event Handlers |
 ; =======================
 
-; OnDebuggerConnection() - fired when we receive a connection
+; OnDebuggerConnection() - fired when we receive a connection.
 OnDebuggerConnection(session, init)
 {
 	global
+	local response, dom
+	if bIsAttach
+		szFilename := session.File
 	Dbg_Session := session ; store the session ID in a global variable
 	dom := loadXML(init)
 	Dbg_Lang := dom.selectSingleNode("/init/@language").text
-	DBGp(session, "property_set", "-n A_DebuggerName -- " DBGp_Base64UTF8Encode("SciTE4AutoHotkey"))
-	DBGp(session, "feature_set", "-n max_children -v 100")
-	DBGp(session, "feature_set", "-n max_data -v " (Dbg_MemLimit := 128*1024)) ; Requested by Lexikos
-	DBGp(session, "feature_set", "-n max_depth -v 32")
-	DBGp(session, "stdout", "-c 2")
-	DBGp(session, "stderr", "-c 2")
+	session.property_set("-n A_DebuggerName -- " DBGp_Base64UTF8Encode("SciTE4AutoHotkey"))
+	session.feature_set("-n max_children -v 100")
+	session.feature_set("-n max_data -v " (Dbg_MemLimit := 128*1024)) ; Requested by Lexikos
+	session.feature_set("-n max_depth -v 32")
+	session.stdout("-c 2")
+	session.stderr("-c 2")
+	session.feature_get("-n supports_async", response)
+	bIsAsync := !!InStr(response, ">1<")
 	; Really nothing more to do
 }
 
-; OnDebuggerBreak() - fired when we receive an asyncronous response from the debugger - most of the time a break response.
+; OnDebuggerBreak() - fired when we receive an asynchronous response from the debugger (including break responses).
 OnDebuggerBreak(session, ByRef response)
 {
-	global Dbg_OnBreak, Dbg_Stack, Dbg_LocalContext, Dbg_GlobalContext, Dbg_VarWin
+	global Dbg_OnBreak, Dbg_Stack, Dbg_LocalContext, Dbg_GlobalContext, Dbg_VarWin, bInBkProcess, _tempResponse
+	if bInBkProcess
+	{
+		; A breakpoint was hit while the script running and the SciTE OnMessage thread is
+		; still running. In order to avoid crashing, we must delay this function's processing
+		; until the OnMessage thread is finished.
+		_tempResponse := response
+		SetTimer, TryHandlingBreakAgain, -100
+		return
+	}
 	dom := loadXML(response) ; load the XML document that the variable response is
 	status := dom.selectSingleNode("/response/@status").text ; get the status
 	if status = break
 	{ ; this is a break response
+		SciTE_ToggleRunButton()
 		Dbg_OnBreak := true ; set the Dbg_OnBreak variable
 		; Get info about the script currently running
 		Dbg_GetStack()
@@ -574,6 +708,10 @@ OnDebuggerBreak(session, ByRef response)
 		VL_Update()
 	}
 }
+
+TryHandlingBreakAgain:
+OnDebuggerBreak(Dbg_Session, _tempResponse)
+return
 
 ; OnDebuggerStream() - fired when we receive a stream packet.
 OnDebuggerStream(session, ByRef stream)
@@ -584,10 +722,10 @@ OnDebuggerStream(session, ByRef stream)
 	SP_Output(type, data)
 }
 
-; OnDebuggerDisconnection() - fired when the debugger disconnects
+; OnDebuggerDisconnection() - fired when the debugger disconnects.
 OnDebuggerDisconnection(session)
 {
-	Global
+	global
 	Critical
 
 	Dbg_ExitByDisconnect := true ; tell our message handler to just return true without attempting to exit
@@ -604,11 +742,12 @@ OnDebuggerDisconnection(session)
 
 DBGp_CmdRun(a)
 {
-	Global
+	global
 	ErrorLevel = 0
 	Dbg_OnBreak := false
 	Dbg_HasStarted := true
-	DBGp(a, "run")
+	a.run()
+	SciTE_ToggleRunButton()
 	VE_Close()
 	OE_Close()
 	ST_Clear()
@@ -616,11 +755,12 @@ DBGp_CmdRun(a)
 
 DBGp_CmdStepInto(a)
 {
-	Global
+	global
 	ErrorLevel = 0
 	Dbg_OnBreak := false
 	Dbg_HasStarted := true
-	DBGp(a, "step_into")
+	a.step_into()
+	SciTE_ToggleRunButton()
 	VE_Close()
 	OE_Close()
 	ST_Clear()
@@ -628,11 +768,12 @@ DBGp_CmdStepInto(a)
 
 DBGp_CmdStepOver(a)
 {
-	Global
+	global
 	ErrorLevel = 0
 	Dbg_OnBreak := false
 	Dbg_HasStarted := true
-	DBGp(a, "step_over")
+	a.step_over()
+	SciTE_ToggleRunButton()
 	VE_Close()
 	OE_Close()
 	ST_Clear()
@@ -640,11 +781,12 @@ DBGp_CmdStepOver(a)
 
 DBGp_CmdStepOut(a)
 {
-	Global
+	global
 	ErrorLevel = 0
 	Dbg_OnBreak := false
 	Dbg_HasStarted := true
-	DBGp(a, "step_out")
+	a.step_out()
+	SciTE_ToggleRunButton()
 	VE_Close()
 	OE_Close()
 	ST_Clear()
@@ -656,7 +798,7 @@ DBGp_CmdStepOut(a)
 
 ST_Create()
 {
-	Global
+	global
 	
 	ST_Destroy()
 	Dbg_StackTraceWin := true
@@ -668,7 +810,7 @@ ST_Create()
 
 ST_Clear()
 {
-	Global
+	global
 	
 	if !Dbg_StackTraceWin
 		return
@@ -679,22 +821,18 @@ ST_Clear()
 
 ST_Update()
 {
-	Global
+	global
 	if !Dbg_StackTraceWin
 		return
-	; These are useless, assigning a new object to a var frees the previous one
-	;~ aStackWhere=
-	;~ aStackFile=
-	;~ aStackLine=
 	aStackWhere := Util_UnpackNodes(Dbg_Stack.selectNodes("/response/stack/@where"))
 	aStackFile  := Util_UnpackNodes(Dbg_Stack.selectNodes("/response/stack/@filename"))
 	aStackLine  := Util_UnpackNodes(Dbg_Stack.selectNodes("/response/stack/@lineno"))
-	Loop, % aStackFile._MaxIndex()
+	Loop, % aStackFile.MaxIndex()
 		aStackFile[A_Index] := DBGp_DecodeFileURI(aStackFile[A_Index])
 	
 	Gui 2:Default
 	LV_Delete()
-	Loop, % aStackWhere._MaxIndex()
+	Loop, % aStackWhere.MaxIndex()
 		LV_Add("", ST_ShortName(aStackFile[A_Index]), aStackLine[A_Index], aStackWhere[A_Index])
 	LV_ModifyCol(1, "AutoHdr")
 	LV_ModifyCol(2, "AutoHdr")
@@ -735,10 +873,10 @@ return
 
 Dbg_GetStack()
 {
-	Global
-	if !Dbg_OnBreak
+	global
+	if !Dbg_OnBreak && !bIsAsync
 		return
-	DBGp(Dbg_Session, "stack_get", "", Dbg_Stack := "")
+	Dbg_Session.stack_get("", Dbg_Stack := "")
 	Dbg_Stack := loadXML(Dbg_Stack)
 }
 
@@ -748,8 +886,8 @@ Dbg_GetStack()
 
 VE_Create(name, ByRef cont, readonly=0)
 {
-	Global
-	Local VE_LF, VE_CRLF
+	global
+	local VE_LF, VE_CRLF
 	
 	VE_Contents=
 	if readonly
@@ -798,7 +936,7 @@ Gui, Submit
 VE_Close()
 if VE_LineEnd = 2
 	StringReplace, VE_Contents, VE_Contents, `n, `r`n, All
-DBGp(Dbg_Session, "property_set", "-n " VE_VarName " -- " (VE_C2 := DBGp_Base64UTF8Encode(VE_Contents)))
+Dbg_Session.property_set("-n " VE_VarName " -- " (VE_C2 := DBGp_Base64UTF8Encode(VE_Contents)))
 VarSetCapacity(VE_Contents, 0)
 VL_Update()
 if InStr(VE_VarName, ".") || InStr("VE_VarName", "[")
@@ -832,7 +970,7 @@ return
 
 VL_Create()
 {
-	Global
+	global
 	
 	VL_Destroy()
 	Dbg_VarWin := true
@@ -844,7 +982,7 @@ VL_Create()
 
 VL_Update()
 {
-	Global
+	global
 	if !Dbg_VarWin
 		return
 	; read
@@ -852,8 +990,8 @@ VL_Update()
 	Dbg_GetContexts()
 	VL_Local := Util_UnpackNodes(Dbg_LocalContext.selectNodes("/response/property/@name"))
 	VL_Global := Util_UnpackNodes(Dbg_GlobalContext.selectNodes("/response/property/@name"))
-	VL_NVars := VL_Local._MaxIndex() + VL_Global._MaxIndex()
-	; Requested by Lexikos:
+	VL_NVars := VL_Local.MaxIndex() + VL_Global.MaxIndex()
+	; The removal of the following was requested by Lexikos:
 	;~ if VL_NVars > 100
 	;~ {
 		;~ MsgBox, 36, SciTE4AutoHotkey Debugger, There are %VL_NVars% variables.`nUpdating the variable list window may take some time. Continue?
@@ -865,9 +1003,9 @@ VL_Update()
 	; update
 	Gui 4:Default
 	LV_Delete()
-	Loop, % VL_Local._MaxIndex()
+	Loop, % VL_Local.MaxIndex()
 		LV_Add("", "Local", VL_Local[A_Index], VL_LocalCont[A_Index])
-	Loop, % VL_Global._MaxIndex()
+	Loop, % VL_Global.MaxIndex()
 		LV_Add("", "Global", VL_Global[A_Index], VL_GlobalCont[A_Index])
 	ToolTip
 }
@@ -883,13 +1021,13 @@ VL_ShortCont(a)
 
 VL_Destroy()
 {
-	Global
+	global
 	Gui 4:Destroy
 	Dbg_VarWin := false
 }
 
 VL_Inspect:
-if !Dbg_OnBreak
+if !bIsAsync && !Dbg_OnBreak
 {
 	MsgBox, 48, SciTE4AutoHotkey Debugger, You can't inspect a variable while the script is running!
 	return
@@ -899,7 +1037,7 @@ if A_GuiEvent != DoubleClick
 LV_GetText(VL_Scope, A_EventInfo, 1)
 VL_Scope := VL_Scope != "Local"
 LV_GetText(VL_VarName, A_EventInfo, 2)
-DBGp(Dbg_Session, "property_get", "-c " VL_Scope " -n " VL_VarName, Dbg_Response)
+Dbg_Session.property_get("-c " VL_Scope " -n " VL_VarName, Dbg_Response)
 dom := loadXML(Dbg_Response)
 
 if dom.selectSingleNode("/response/property/@type").text != "Object"
@@ -921,14 +1059,14 @@ return
 
 Dbg_GetContexts()
 {
-	Global
+	global
 	
-	if !Dbg_OnBreak
+	if !bIsAsync && !Dbg_OnBreak
 		return
-	DBGp(Dbg_Session, "feature_set", "-n max_data -v 65")
-	DBGp(Dbg_Session, "context_get", "-c 0", Dbg_LocalContext)
-	DBGp(Dbg_Session, "context_get", "-c 1", Dbg_GlobalContext)
-	DBGp(Dbg_Session, "feature_set", "-n max_data -v " Dbg_MemLimit) ; Requested by Lexikos
+	Dbg_Session.feature_set("-n max_data -v 65")
+	Dbg_Session.context_get("-c 0", Dbg_LocalContext)
+	Dbg_Session.context_get("-c 1", Dbg_GlobalContext)
+	Dbg_Session.feature_set("-n max_data -v " Dbg_MemLimit) ; Requested by Lexikos
 	Dbg_LocalContext  := loadXML(Dbg_LocalContext)
 	Dbg_GlobalContext := loadXML(Dbg_GlobalContext)
 }
@@ -976,9 +1114,9 @@ return
 
 OE_Create(ByRef objdom)
 {
-	Global
+	global
 	local root
-	OE_Data := Object()
+	OE_Data := {}
 
 	Gui 6:Destroy
 	Gui 6:Default
@@ -998,7 +1136,7 @@ OE_Update(ByRef cont)
 
 OE_Add(nodes, tnode)
 {
-	Global OE_Data
+	global OE_Data
 	Loop, % nodes.length
 	{
 		node := nodes.item[A_Index-1]
@@ -1015,7 +1153,7 @@ OE_Preview(node)
 
 OE_Close()
 {
-	Global OE_Data
+	global OE_Data
 	Gui 6:Destroy
 	OE_Data := ""
 }
@@ -1045,18 +1183,25 @@ return
 
 SciTE_UpdateCurLineOfCode()
 {
-	global Dbg_Stack
+	global Dbg_Stack, szFilename
 	
 	cLine := Dbg_Stack.selectSingleNode("/response/stack[1]/@lineno").text
 	cFNameURI := Dbg_Stack.selectSingleNode("/response/stack[1]/@filename").text
 	cFName := DBGp_DecodeFileURI(cFNameURI)
+	
+	if cLine =
+	{
+		SciTE_EnsureFileIsOpen(szFilename)
+		return
+	}
+	
 	SciTE_EnsureFileIsOpen(cFName)
 	SciTE_SetCurrentLine(cLine)
 }
 
 SciTE_RedrawLine(hwnd, line)
 {
-	Global
+	global
 	
 	IfWinNotActive, ahk_id %scitehwnd%
 		WinActivate
@@ -1067,51 +1212,20 @@ SciTE_RedrawLine(hwnd, line)
 
 SciTE_EnsureFileIsOpen(fname)
 {
-	global _waiting, oSciTE
+	global oSciTE
 	if SciTE_GetFile() != fname
-	{
-		; Check if the file is already opened in another tab
-		tabs := oSciTE.Tabs.Array
-		Loop, % tabs.MaxIndex() + 1
-			if tabs[A_Index - 1] = fname
-			{
-				needtab := A_Index - 1
-				break
-			}
-		if needtab
-			oSciTE.SwitchToTab(needtab)
-		else
-			; Open the file
-			Run, "%A_ScriptDir%\..\SciTE.exe" "%fname%"
-		
-		; Wait for SciTE...
-		t := A_TitleMatchMode
-		SetTitleMatchMode, RegEx
-		_waiting := true
-		WinWait, % "^" Util_EscapeRegEx(fname) " [-*] SciTE4AutoHotkey"
-		_waiting := false
-		SetTitleMatchMode, %t%
-	}
+		oSciTE.OpenFile(fname)
 }
 
 SciTE_GetFile()
-{
-	global scitehwnd
-	
-	WinGetTitle, scititle, ahk_id %scitehwnd%
-	if !RegExMatch(scititle, "^(.+) [-*] SciTE4AutoHotkey", o)
-		return
-	
-	return Trim(o1)
-	
-	;global oSciTE
-	
-	;return oSciTE.CurrentFile
+{	
+	global oSciTE
+	return oSciTE.CurrentFile
 }
 
 SciTE_SetCurrentLine(line, mode=1) ; show the current line markers in SciTE
 {
-	Global
+	global
 	line--
 	if mode
 	{
@@ -1127,7 +1241,7 @@ SciTE_SetCurrentLine(line, mode=1) ; show the current line markers in SciTE
 
 SciTE_DeleteCurLineMarkers() ; delete the current line markers in SciTE
 {
-	Global
+	global
 	line--
 	; Delete current markers
 	DllCall("SendMessage", "ptr", scintillahwnd, "uint", SCI_MARKERDELETEALL, "int", 11, "int", 0)
@@ -1136,7 +1250,7 @@ SciTE_DeleteCurLineMarkers() ; delete the current line markers in SciTE
 
 SciTE_BPSymbol(line) ; show the current line markers in SciTE
 {
-	Global
+	global
 	line--
 	; Add markers
 	DllCall("SendMessage", "ptr", scintillahwnd, "uint", SCI_MARKERADD, "int", line, "int", 10)
@@ -1144,7 +1258,7 @@ SciTE_BPSymbol(line) ; show the current line markers in SciTE
 
 SciTE_BPSymbolRemove(line) ; show the current line markers in SciTE
 {
-	Global
+	global
 	line--
 	; Add markers
 	DllCall("SendMessage", "ptr", scintillahwnd, "uint", SCI_MARKERDELETE, "int", line, "int", 10)
@@ -1161,18 +1275,18 @@ Util_Is64bitOS()
 
 Util_UnpackNodes(nodes)
 {
-	o := Object()
+	o := []
 	Loop, % nodes.length
-		o._Insert(nodes.item[A_Index-1].text)
+		o.Insert(nodes.item[A_Index-1].text)
 	return o
 }
 
 Util_UnpackContNodes(nodes)
 {
-	o := Object()
+	o := []
 	Loop, % nodes.length
 		node := nodes.item[A_Index-1]
-		,o._Insert(node.attributes.getNamedItem("type").text != "object" ? VL_ShortCont(DBGp_Base64UTF8Decode(node.text)) : "(Object)")
+		,o.Insert(node.attributes.getNamedItem("type").text != "object" ? VL_ShortCont(DBGp_Base64UTF8Decode(node.text)) : "(Object)")
 	return o
 }
 
@@ -1197,8 +1311,6 @@ Util_AddBkToList(uri, line, id, cond="")
 {
 	global Dbg_BkList
 	Dbg_BkList[uri, line] := { id: id, cond: cond }
-	;IsObject(Dbg_BkList[uri]) ? "" : (Dbg_BkList[uri] := Object())
-	;,Dbg_BkList[uri][line] := cond
 }
 
 Util_GetBk(uri, line)
@@ -1210,7 +1322,7 @@ Util_GetBk(uri, line)
 Util_RemoveBk(uri, line)
 {
 	global Dbg_BkList
-	Dbg_BkList[uri]._Remove(line)
+	Dbg_BkList[uri].Remove(line)
 }
 
 loadXML(ByRef data)

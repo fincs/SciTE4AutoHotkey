@@ -1,4 +1,7 @@
-﻿;Auto-genererated by an AHK script
+;Auto-genererated by an AHK script
+SciControl_InitConstants()
+{
+global
 SCI_START = 2000
 SCI_OPTIONAL_START = 3000
 SCI_LEXER_START = 4000
@@ -712,3 +715,4 @@ SCN_AUTOCSELECTION = 2022
 SCN_INDICATORCLICK = 2023
 SCN_INDICATORRELEASE = 2024
 SCN_AUTOCCANCELLED = 2025
+}

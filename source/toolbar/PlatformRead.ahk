@@ -48,8 +48,8 @@ Util_EnumPlatforms(ByRef file)
 
 Util_Dereference(str)
 {
-	global SciTEDir
-	StringReplace, str, str, `%AhkDir`%, %SciTEDir%\.., All
+	global AhkDir
+	StringReplace, str, str, `%AhkDir`%, %AhkDir%, All
 	StringReplace, str, str, ```%, `%, All
 	return str
 }

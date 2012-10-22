@@ -1,8 +1,6 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; AutoHotkey Toolbar for SciTE4AutoHotkey ;
-; Version 3.5                             ;
-; by fincs                                ;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; SciTE4AutoHotkey Toolbar
+;     v3.0.01 - by fincs
 ;
 ;TillaGoto.iIncludeMode = 0x10111111
 
@@ -29,21 +27,19 @@ ATM_RELOAD     := ATM_OFFSET+2
 ATM_DIRECTOR   := ATM_OFFSET+3
 ATM_DRUNTOGGLE := ATM_OFFSET+4
 
-; Uncompiled toolbar support
-if !A_IsCompiled
-	SetWorkingDir, %A_WorkingDir%\..
+if !A_IsAdmin
+	runasverb := "*RunAs "
+
+SetWorkingDir, %A_ScriptDir%\..
 SciTEDir := A_WorkingDir
-CurAhkExe := SciTEDir "\..\AutoHotkey.exe"
+CurAhkExe := SciTEDir "\..\AutoHotkey.exe" ; Fallback AutoHotkey binary
 
-FileRead, CurrentSciTEVersion, %SciTEDir%\$VER
-
-/* No longer necessary: compiled with AutoHotkey_L Unicode (Win2000+)
-if A_OSType = WIN32_WINDOWS
+FileRead, CurrentSciTEVersion, $VER
+if CurrentSciTEVersion =
 {
-	MsgBox, 16, AutoHotkey Toolbar for SciTE, This executable can only be run under Windows 2000+.
+	MsgBox, 16, SciTE4AutoHotkey Toolbar, Invalid SciTE4AutoHotkey version!
 	ExitApp
 }
-*/
 
 ; Check if the properties file exists
 IfNotExist, toolbar.properties
@@ -79,7 +75,7 @@ filesmenu := DllCall("GetSubMenu", "ptr", scitemenu, "int", 7, "ptr")
 ; Get the HWND of its Scintilla control
 ControlGet, scintillahwnd, Hwnd,, Scintilla1
 
-IsPortable := FileExist(SciTEDir "\$PORTABLE")
+IsPortable := FileExist("$PORTABLE")
 if !IsPortable
 	LocalSciTEPath = %A_MyDocuments%\AutoHotkey\SciTE
 else
@@ -96,10 +92,8 @@ if SciTEVersion && (SciTEVersion != CurrentSciTEVersion)
 	gosub UpdateProfile
 if !IsPortable && (!FileExist(LocalPropsPath) || !SciTEVersion)
 {
-	;WinClose, ahk_class SciTEWindow
-	
-	; Create the SciTE user folder of this user
-	RunWait, "%SciTEDir%\AutoHotkey.exe" "%SciTEDir%\tools\NewUser.ahk"
+	; Create the SciTE user folder
+	RunWait, "%A_AhkPath%" "%SciTEDir%\tools\NewUser.ahk"
 	FileDelete, %LocalSciTEPath%\$VER
 	FileAppend, %CurrentSciTEVersion%, %LocalSciTEPath%\$VER
 
@@ -110,20 +104,6 @@ if !IsPortable && (!FileExist(LocalPropsPath) || !SciTEVersion)
 }
 
 ToolbarProps := GlobalSettings "`n" LocalSettings
-
-platforms := Util_ParsePlatforms("platforms.properties", platlist)
-IfExist, %LocalSciTEPath%\_platform.properties
-{
-	FileReadLine, ov, %LocalSciTEPath%\_platform.properties, 2
-	curplatform := SubStr(ov, 14)
-}else
-	curplatform = Default
-
-Util_PopulatePlatformsMenu()
-
-FileRead, temp, %LocalSciTEPath%\_platform.properties
-if platforms[curplatform] != temp
-	gosub changeplatform
 
 ; Load the tools
 ntools = 13
@@ -250,7 +230,6 @@ Menu, ToolMenu, Add, Reload toolbar, reloadtoolbar
 Menu, ToolMenu, Add, Reload toolbar (with autorun), reloadtoolbarautorun
 Menu, ToolMenu, Add
 Menu, ToolMenu, Add, Check for updates..., check4updates
-Menu, ToolMenu, Add, Close SciTE, exitroutine
 
 ; Create group for our windows
 GroupAdd, SciTE4AutoHotkey, ahk_id %scitehwnd%
@@ -270,26 +249,52 @@ InitComInterface()
 
 ; Register the SciTE director
 Director_Init()
-CurAhkExe := CoI_ResolveProp("", "AutoHotkey")
+
+; Retrieve the default AutoHotkey directory
+AhkDir := DirectorReady ? CoI_ResolveProp("", "AutoHotkeyDir") : (SciTEDir "\..")
+if DirectorReady && !IsPortable
+{
+	; Auto-detect the AutoHotkey directory from registry
+	temp := Util_GetAhkPath()
+	if temp
+	{
+		CoI_SendDirectorMsg("", "property:AutoHotkeyDir=" CEscape(temp))
+		AhkDir := temp
+	}
+}
 
 ; Initialize the macro recorder
 Macro_Init()
 
-; Check for SciTE every 10 ms
-; This must still be done as SciTE sometimes doesn't send the closing message
-SetTimer, check4scite, 10
+; Initialize the platforms
+platforms := Util_ParsePlatforms("platforms.properties", platlist)
+IfExist, %LocalSciTEPath%\_platform.properties
+{
+	FileReadLine, ov, %LocalSciTEPath%\_platform.properties, 2
+	curplatform := SubStr(ov, 14)
+}else
+	curplatform = Default
+
+Util_PopulatePlatformsMenu()
+
+FileRead, temp, %LocalSciTEPath%\_platform.properties
+if platforms[curplatform] != temp
+	gosub changeplatform
+
+if DirectorReady
+	CurAhkExe := CoI_ResolveProp("", "AutoHotkey")
 
 ; Run the autorun script
 var1 = %1%
 var2 = %2%
 if (var1 != "/NoAutorun" && var2 != "/NoAutorun")
-	Run, "%SciTEDir%\AutoHotkey.exe" "%SciTEDir%\Autorun.ahk"
+	Run, "%A_AhkPath%" "%SciTEDir%\Autorun.ahk"
 
 if FirstTime
 {
-	Director_Send("open:" CEscape(A_ScriptDir "\..\TestSuite.ahk"))
+	Director_Send("open:" CEscape(SciTEDir "\TestSuite.ahk"))
 	MsgBox, 64, SciTE4AutoHotkey, Welcome to SciTE4AutoHotkey!
-	Run, "%SciTEDir%\AutoHotkey.exe" "%SciTEDir%\tools\PropEdit.ahk"
+	Run, "%A_AhkPath%" "%SciTEDir%\tools\PropEdit.ahk"
 }
 return
 
@@ -312,7 +317,7 @@ Menu, ToolMenu, Show
 return
 
 check4updates:
-Run, "%SciTEDir%\AutoHotkey.exe" "%SciTEDir%\tools\updater\SciTEUpdate.ahk"
+Run, "%A_AhkPath%" "%SciTEDir%\tools\updater\SciTEUpdate.ahk"
 return
 
 exitroutine:
@@ -341,27 +346,15 @@ Run, SciTE.exe "%LocalSciTEPath%\UserLuaScript.lua"
 return
 
 editglobalprops:
-if !A_IsAdmin
-	DllCall("shell32\ShellExecute", "uint", 0, "str", "RunAs", "str", "notepad.exe" 
-		, "str", """" SciTEDir "\toolbar.properties""", "str", SciTEDir, "int", 1)
-else
-	Run, notepad.exe "%SciTEDir%\toolbar.properties"
-goto exitroutine
+Run, %runasverb%SciTE.exe "%SciTEDir%\toolbar.properties"
+return
 
 editglobalautorun:
-if !A_IsAdmin
-	DllCall("shell32\ShellExecute", "uint", 0, "str", "RunAs", "str", "SciTE.exe" 
-		, "str", """" SciTEDir "\Autorun.ahk""", "str", SciTEDir, "int", 1)
-else
-	Run, SciTE.exe "%SciTEDir%\Autorun.ahk"
+Run, %runasverb%SciTE.exe "%SciTEDir%\Autorun.ahk"
 return
 
 editplatforms:
-if !A_IsAdmin
-	DllCall("shell32\ShellExecute", "uint", 0, "str", "RunAs", "str", "SciTE.exe" 
-		, "str", """" SciTEDir "\platforms.properties""", "str", SciTEDir, "int", 1)
-else
-	Run, SciTE.exe "%SciTEDir%\platforms.properties"
+Run, %runasverb%SciTE.exe "%SciTEDir%\platforms.properties"
 return
 
 reloadplatforms:
@@ -383,21 +376,16 @@ return
 check4scite:
 ; Close the application if the user has closed SciTE
 IfWinNotExist, ahk_id %scitehwnd%
-	gosub, exitroutine
-return
-
-/*
-SciTE_OnClosed(filename)
 {
-	; Workaround: SciTE sometimes doesn't send the closing message
-	SetTimer, check4scite, -10
+	SetTimer, check4scite, Off
+	gosub, exitroutine
 }
-*/
+return
 
 SciTE_OnClosing()
 {
 	Critical
-	SetTimer, check4scite, -10
+	SetTimer, check4scite, 10
 }
 
 ; Hotkey handler
@@ -549,7 +537,6 @@ Msg_DebugRunToggle()
 
 Msg_Reload()
 {
-	;Run, "%A_ScriptFullPath%" /restart /NoAutorun
 	Run, "%A_AhkPath%" /restart "%A_ScriptFullPath%" /NoAutorun
 }
 
@@ -569,7 +556,6 @@ GetSciTEOpenedFile()
 		}else
 			return o1
 	}
-	;return Director_Send("askfilename:", true).value
 }
 
 GetFilename(txt)
@@ -592,11 +578,8 @@ ParseCmdLine(cmdline)
 	StringReplace, cmdline, cmdline, `%FILENAME`%, % GetFilename(a), All
 	StringReplace, cmdline, cmdline, `%FILEPATH`%, % GetPath(a), All
 	StringReplace, cmdline, cmdline, `%FULLFILENAME`%, % a, All
-	StringReplace, cmdline, cmdline, `%LOCALAHK`%, "%SciTEDir%\AutoHotkey.exe", All
+	StringReplace, cmdline, cmdline, `%LOCALAHK`%, "%A_AhkPath%", All
 	StringReplace, cmdline, cmdline, `%AUTOHOTKEY`%, "%CurAhkExe%", All
-	StringReplace, cmdline, cmdline, `%AUTOHOTKEYLA`%, "%SciTEDir%\..\AutoHotkey_L\AutoHotkey_La.exe", All
-	StringReplace, cmdline, cmdline, `%AUTOHOTKEYLW`%, "%SciTEDir%\..\AutoHotkey_L\AutoHotkey_Lw.exe", All
-	StringReplace, cmdline, cmdline, `%AUTOHOTKEYL64`%, "%SciTEDir%\..\AutoHotkey_L\AutoHotkey_L64.exe", All
 	StringReplace, cmdline, cmdline, `%ICONRES`%, %_IconLib%, All
 	StringReplace, cmdline, cmdline, `%SCITEDIR`%, % SciTEDir, All
 	StringReplace, cmdline, cmdline, `%USERDIR`%, % LocalSciTEPath, All
@@ -617,15 +600,22 @@ Util_PopulatePlatformsMenu()
 	}
 }
 
-Util_Is64bitWindows()
+Util_GetAhkPath()
 {
-	DllCall("IsWow64Process", "ptr", DllCall("GetCurrentProcess", "ptr"), "uint*", retval)
-	return ErrorLevel ? 0 : retval
+	RegRead, ov, HKLM, SOFTWARE\AutoHotkey, InstallDir
+	if !ov && A_Is64bitOS
+	{
+		q := A_RegView
+		SetRegView, 64
+		RegRead, ov, HKLM, SOFTWARE\AutoHotkey, InstallDir
+		SetRegView, %q%
+	}
+	return ov
 }
 
 Util_Is64bitProcess(pid)
 {
-	if !Util_Is64bitWindows()
+	if !A_Is64bitOS
 		return 0
 	
 	proc := DllCall("OpenProcess", "uint", 0x0400, "uint", 0, "uint", pid, "ptr")

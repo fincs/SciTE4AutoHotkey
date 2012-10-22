@@ -296,13 +296,24 @@ function isLoopLineAllowBraces(line)
 	return isLoopLine(line) or string.find(line, "^%s*"..loopPat.."%s*{%s*$") ~= nil
 end
 
+-- Minor annoyance: this way of doing ELSE detection makes the following
+-- appear as an one-line indent statement:
+-- else {commandWhichDoesNotInvolveIndention}
+--
+-- Examples:
+-- else MsgBox
+-- else var := value
+--
+-- Those cases seem rare enough not to attempt to fix them, the alternative
+-- would be breaking "else if" indentation.
+
 function isElseLine(line)
-	return string.find(line, "^%s*"..elsePat.."%s*$") ~= nil
-		or string.find(line, "^%s*}%s*"..elsePat.."%s*$") ~= nil
+	return string.find(line, "^%s*"..elsePat.."%s*") ~= nil
+		or isElseWithClosingBrace(line)
 end
 
 function isElseWithClosingBrace(line)
-	return string.find(line, "^%s*}%s*"..elsePat.."%s*$") ~= nil
+	return string.find(line, "^%s*}%s*"..elsePat.."%s*") ~= nil
 end
 
 function isElseLineAllowBraces(line)

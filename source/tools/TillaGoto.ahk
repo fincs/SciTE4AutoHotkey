@@ -6,29 +6,75 @@
 	http://www.autohotkey.com/forum/viewtopic.php?t=41575
 */
 
-/*! SciTE4AutoHotkey version - Optimized for it
+/*! SciTE4AutoHotkey version - Many, MANY changes in order to make it well-behaved
 */
 
-;______________________________________
-;CONFIGURATION
+; Get SciTE object
+oSciTE := GetSciTEInstance()
+if !oSciTE
+{
+	MsgBox, 16, TillaGoto, Cannot find SciTE!
+	ExitApp
+}
 
-;Window matching configuration (preconfigured for SciTE4AutoHotkey)
+; Get SciTE window handle
+oSciTE_hwnd := oSciTE.SciTEHandle
 
-sActiveWindow       := "\.ahk (-|\*) SciTE4AutoHotkey" ;Regular expression which
-								;should match the window of the editor containing the Scintilla control. It will
-								;determine when TillaGoto should be monitoring hotkeys.
-sMustExist          := "ahk_class SciTEWindow" ;Needed if bQuitWithEditor is True. This regex
-								;will make TillaGoto quit if a matching window does not exist. It is currently set
-								;to match the editors' classes, but it may be set to match anything else.
-sPathMatching       := "(\*( )?)?\K.*(?= (-|\*) SciTE4AutoHotkey)" ;Regular expression which should match
-								;the path of the currently edited file from the window title.
-sScintillaClass     := "Scintilla" ;Class name of the Scintilla control. Exclude instance number.
+; Read TillaGoto settings using SciTE's property system
+bTrayIcon        := oSciTE.ResolveProp("tillagoto.show.tray.icon") + 0
+iGUIWidth        := oSciTE.ResolveProp("tillagoto.gui.width") + 0
+iGUIHeight       := oSciTE.ResolveProp("tillagoto.gui.height") + 0
+iMargin          := oSciTE.ResolveProp("tillagoto.gui.margin") + 0
+iTransparency    := oSciTE.ResolveProp("tillagoto.gui.transparency") + 0
+bPosLeft         := oSciTE.ResolveProp("tillagoto.gui.posleft") + 0
+bWideView        := oSciTE.ResolveProp("tillagoto.gui.wide.view") + 0
+iAlignFilenames  := oSciTE.ResolveProp("tillagoto.gui.align.filenames") + 0
+cGUIBG           := oSciTE.ResolveProp("tillagoto.gui.bgcolor")
+cControlBG       := oSciTE.ResolveProp("tillagoto.gui.controlbgcolor")
+cControlFG       := oSciTE.ResolveProp("tillagoto.gui.controlfgcolor")
+iControlFontSize := oSciTE.ResolveProp("tillagoto.gui.font.size") + 0
+fControlFont     := oSciTE.ResolveProp("tillagoto.gui.font")
+bSortEntries     := oSciTE.ResolveProp("tillagoto.gui.sort.entries") + 0
+uSummonGUI       := oSciTE.ResolveProp("tillagoto.hk.summon.gui")
+uGoBack          := oSciTE.ResolveProp("tillagoto.hk.go.back")
+uGoForward       := oSciTE.ResolveProp("tillagoto.hk.go.forward")
+uGotoDef         := oSciTE.ResolveProp("tillagoto.hk.goto.def")
+bFilterComments  := oSciTE.ResolveProp("tillagoto.filter.comments") + 0
+bQuickMode       := oSciTE.ResolveProp("tillagoto.quick.mode") + 0
+bQuitWithEditor  := oSciTE.ResolveProp("tillagoto.quit.with.editor") + 0
+bMatchEverywhere := oSciTE.ResolveProp("tillagoto.match.everywhere") + 0
+bUseMButton      := oSciTE.ResolveProp("tillagoto.use.mbutton") + 0
+iCancelWait      := oSciTE.ResolveProp("tillagoto.cancel.timeout") + 0
+iIncludeMode     := oSciTE.ResolveProp("tillagoto.include.mode") + 0
+bCacheFiles      := oSciTE.ResolveProp("tillagoto.cache.files") + 0
+bDirectives      := oSciTE.ResolveProp("tillagoto.directives") + 0
 
-#include %A_ScriptDir%\..\tillagoto.properties
+_AhkScriptIsActive()
+{
+	return _SciTEIsActive() ;&& SubStr(_GetSciTEFile(), -3) = ".ahk"
+}
 
-;______________________________________
-;DO NOT CHANGE ANYTHING BELOW THIS LINE
-	
+_GetSciTEHandle()
+{
+	global oSciTE_hwnd
+	return oSciTE_hwnd
+}
+
+_GetSciTEFile()
+{
+	global oSciTE
+	return oSciTE.CurrentFile
+}
+
+_SciTEIsActive()
+{
+	global oSciTE
+	return WinActive("ahk_id " _GetSciTEHandle())
+}
+
+; Necessary for the conditional hotkey/hotstring expression to be registered
+#if _AhkScriptIsActive()
+
 	;Keep backup values
 	bFilterCommentsOrig := bFilterComments
 	iIncludeModeOrig := iIncludeMode
@@ -89,7 +135,7 @@ sScintillaClass     := "Scintilla" ;Class name of the Scintilla control. Exclude
 		Goto SummonGUI ;Go straight to summoning the GUI
 	
 	;Register main hotkeys
-	Hotkey, IfWinActive, %sActiveWindow%
+	Hotkey, If, _AhkScriptIsActive()
 	Hotkey, %uSummonGUI%, SummonGUI
 	Hotkey, %uGotoDef%,   GotoDefinition
 	Hotkey, %uGoBack%,    PreviousView
@@ -101,7 +147,7 @@ sScintillaClass     := "Scintilla" ;Class name of the Scintilla control. Exclude
 	If bQuitWithEditor {
 		Loop {
 			Sleep, 1000 ;Check if we need to quit
-			If Not WinExist(sMustExist)
+			If Not WinExist("ahk_id " _GetSciTEHandle())
 				ExitApp
 		}
 	}
@@ -125,10 +171,9 @@ SummonGUI:
 	If Not WinActive("ahk_id " hGui) {
 		
 		;Check if editor is valid
-		hEditor := WinActive(sActiveWindow)
-		If hEditor
-			sEditorPath := GetProcessPath(hEditor)
-		Else Return ;We were summoned from a foreign active window
+		hEditor := _SciTEIsActive()
+		If !hEditor
+			Return ;We were summoned from a foreign active window
 	}
 	
 	;Check if we're already showing
@@ -196,13 +241,12 @@ SummonGUI:
 	ControlGetFocus, cSci, ahk_id %hEditor%
 	
 	;Check if it fits the class name
-	If InStr(cSci, sScintillaClass)
+	If InStr(cSci, "Scintilla")
 		ControlGet, hSci, Hwnd,, %cSci%, ahk_id %hEditor%
 	Else Return
 	
 	;Get the filename
-	WinGetTitle, t, ahk_id %hEditor%
-	RegExMatch(t, sPathMatching, sScriptPath)
+	sScriptPath := _GetSciTEFile()
 	
 	Gosub, AnalyseScript
 	
@@ -274,7 +318,7 @@ SummonGUI:
 	iY += sY + 2
 	
 	;Make sure we should still show the GUI
-	If (hEditor <> WinActive(sActiveWindow))
+	If !_SciTEIsActive()
 		Return
 	
 	Gui, Show, w0 h0
@@ -311,8 +355,7 @@ GuiEscape:
 Return
 
 CheckFocus:
-	WinGetTitle, t, ahk_id %hEditor%
-	RegExMatch(t, sPathMatching, t)
+	t := _GetSciTEFile()
 	If Not WinActive("ahk_id " hGui) And Not WinActive("ahk_id " hEditor) Or (t <> sScriptPath) {
 		SetTimer, CheckFocus, Off
 		Gosub, GuiEscape
@@ -406,47 +449,18 @@ SelectItem:
 Return
 
 LaunchFile(sFilePath, iLine) {
-	Global sEditorPath, sPathMatching, cSci
+	Global cSci, oSciTE
 	
-	;Check if we even have a path to the editor
-	If Not sEditorPath
-		Return
+	;Open the file in SciTE
+	oSciTE.OpenFile(sFilePath)
 	
-	;It's external. Check if it's Notepad++, Notepad2, or SciTE
-	If RegExMatch(sEditorPath, "i)scite\.exe$")
-		t := """-open:%f"""
-	Else If RegExMatch(sEditorPath, "i)notepad(\+\+|2)\.exe$")
-		t := """%f"""
+	;Get handle to Scintilla control
+	ControlGet, hSci, Hwnd,, %cSci%, A
 	
-	;Check if backslash is necessary (for SciTE)
-	If RegExMatch(sEditorPath, "i)scite\.exe$")
-		StringReplace u, sFilePath, \, \\, All
-	Else u := sFilePath
-	
-	;Set the path into the 
-	StringReplace t, t, `%f, %u%
-	
-	;Shell it and get out
-	Run "%sEditorPath%" %t%
-	
-	;Wait for the new path (and make sure we're not somehow caught in the loop)
-	While (t <> sFilePath) And (A_Index < 50) {
-		WinGetActiveTitle, t
-		RegExMatch(t, sPathMatching, t)
-		Sleep, 50
-	}
-	
-	;Check if detected the newly opened script
-	If (t = sFilePath) {
-	
-		;Get handle to Scintilla control
-		ControlGet, hSci, Hwnd,, %cSci%, A
-		
-		;Make the target line appear on top
-		SendMessage, 2370, 0, 0,, ahk_id %hSci%
-		SendMessage, 2024, iLine + ErrorLevel - 1, 0,, ahk_id %hSci%
-		SendMessage, 2024, iLine - 1, 0,, ahk_id %hSci%
-	}
+	;Make the target line appear on top
+	SendMessage, 2370, 0, 0,, ahk_id %hSci%
+	SendMessage, 2024, iLine + ErrorLevel - 1, 0,, ahk_id %hSci%
+	SendMessage, 2024, iLine - 1, 0,, ahk_id %hSci%
 }
 
 CheckLabelMatch(sHaystack, iPos) {
@@ -532,7 +546,7 @@ GUIInteract(wParam, lParam, msg, hwnd) {
 		bMUp   := flags & 0x0020
 		
 		;Check for line history
-		If (flags & 0x0400) And GetKeyState("Shift", "P") And WinActive(sActiveWindow) {
+		If (flags & 0x0400) And GetKeyState("Shift", "P") And _SciTEIsActive() {
 			iWheelTurns := HID_GetInputInfo(lParam, (14 + PtrSize() * 2) | 0x1100)
 			If (iWheelTurns <> -1) {    ;Check for error
 				iWheelTurns := Round(iWheelTurns / 120)
@@ -552,9 +566,9 @@ GUIInteract(wParam, lParam, msg, hwnd) {
 		If bMDown And bShowing {
 			SetTimer, GuiEscape, -%iCancelWait%
 			bIgnoreMUp := True
-		} Else If bMDown And Not WinActive(sActiveWindow)
+		} Else If bMDown And Not _SciTEIsActive()
 			bIgnoreMUp := True ;So that we don't launch if the press started somewhere else
-		Else If bMUp And bUseMButton And (Not bIgnoreMUp Or bShowing) And WinActive(sActiveWindow) {
+		Else If bMUp And bUseMButton And (Not bIgnoreMUp Or bShowing) And _SciTEIsActive() {
 			
 			;Cancel timer
 			SetTimer, GuiEscape, Off
@@ -563,7 +577,7 @@ GUIInteract(wParam, lParam, msg, hwnd) {
 			MouseGetPos, clickX, clickY,, sControl
 			
 			;Make sure the click was made inside the Scintilla control
-			If Not InStr(sControl, sScintillaClass)
+			If Not InStr(sControl, "Scintilla")
 				Return 0
 			
 			;Prep data for check click
@@ -723,7 +737,7 @@ AnalyseScript:
 		;Get path of running AutoHotkey
 		; <fincs-edit> Use actual AutoHotkey build instead of internal one
 		IfNotInString, sScriptDir, % SubStr(A_ScriptDir, 1, InStr(A_ScriptDir, "\", false, 0)-1)
-			UsedAhkPath := A_ScriptDir "\..\..\AutoHotkey.exe"
+			UsedAhkPath := oSciTE.ResolveProp("AutoHotkey")
 		else
 			UsedAhkPath := A_AhkPath
 		StringLeft, sLibPattern, UsedAhkPath, InStr(UsedAhkPath, "\", False, 0)
@@ -2098,23 +2112,22 @@ ShowLine(line) {
 LineHistory(bForward, iRecordMode = 0) {
 	Static
 	Local t
-	Global sScriptPath, sPathMatching, hEditor, hSci, bShowing
+	Global sScriptPath, hEditor, hSci, bShowing
 	
 	;If we're not showing, we need to find out what script we're on
 	If Not bShowing {
 		
-		If Not (hEditor := WinActive(sActiveWindow))
+		If Not (hEditor := _SciTEIsActive())
 			Return
 		
 		;Get Scintilla control handle
 		ControlGetFocus, cSci, ahk_id %hEditor%
-		If InStr(cSci, sScintillaClass)
+		If InStr(cSci, "Scintilla")
 			ControlGet, hSci, Hwnd,, %cSci%, ahk_id %hEditor%
 		Else Return
 		
 		;Get the filename
-		WinGetTitle, t, ahk_id %hEditor%
-		RegExMatch(t, sPathMatching, sScriptPath)
+		sScriptPath := _GetSciTEFile()
 	}
 	
 	;Match file
@@ -2304,22 +2317,6 @@ PtrSize() {
 
 Ptr() {
 	Return A_PtrSize ? "Ptr" : "UInt"
-}
-
-;Based on Laszlo's code (which in turn is based on Shimanov's code)
-;Modified and adapted by fincs & TheGood
-;http://www.autohotkey.com/forum/viewtopic.php?p=70690#70690
-GetProcessPath(hwnd) {
-	WinGet, PID, PID, ahk_id %hwnd%
-	hProc := DllCall("OpenProcess", "UInt", 0x0410, "Int", 0, "UInt", PID)
-	VarSetCapacity(sPath, n := A_IsUnicode ? 520 : 260)
-	If (DllCall("GetVersion") & 0xFF >= 6) ;Check for Vista
-		DllCall("QueryFullProcessImageName", "UInt", hProc, "UInt", 0, "Str", sPath, "UIntP", n)
-	Else ;The call below will not work if we're running in 32-bit and the target process is 64-bit
-		 ;This could only happen on Windows XP x64 Edition
-		DllCall("psapi.dll\GetModuleFileNameEx", "UInt", hProc, "UInt", 0, "Str", sPath, "UInt", n)
-	DllCall("CloseHandle", "UInt", hProc)
-	Return sPath
 }
 
 ;EmptyMem() by heresy

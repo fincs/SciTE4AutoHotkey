@@ -58,26 +58,18 @@ function OnChar(curChar)
 		if not isInTable(ignoreStyles, curStyle) then
 			AutoIndent_OnClosingBrace()
 		end
-	elseif curChar == "." then
-		return CancelAutoComplete()
 	else
 		local curStyle = editor.StyleAt[editor.CurrentPos-2]
 		local pos = editor:WordStartPosition(editor.CurrentPos)
 		
 		-- Disable AutoComplete on comment/string/error/etc.
 		if isInTable(ignoreStyles, curStyle) then
-			-- Allow autocompletion of built-in variables in standard (%-delimited) mode
-			if curStyle == SCE_AHK_ERROR and
-				editor.CharAt[pos-1] == 37 and
-				not isInTable(ignoreStyles, editor.StyleAt[pos-1]) then
+			-- ... but allow it in variable %dereferences% (which are set to 'error'
+			-- when they are typed because of the missing closing percent sign.
+			if curStyle == SCE_AHK_ERROR and editor.CharAt[pos-1] == 37
+			  and not isInTable(ignoreStyles, editor.StyleAt[pos-1]) then
 				return false
-			else return CancelAutoComplete()
 			end
-		end
-		
-		-- Disable AutoComplete for words that start with underscore if it's not an object call
-		-- _ and .
-		if editor.CharAt[pos] == 95 and editor.CharAt[pos-1] ~= 46 then
 			return CancelAutoComplete()
 		end
 	end

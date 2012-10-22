@@ -6,8 +6,8 @@
 #HotkeyInterval Value
 #HotkeyModifierTimeout milliseconds
 #Hotstring NewOptions
-#If [expression] \n[AutoHotkey_L] Makes subsequent hotkeys and hotstrings only function when the specified expression is true.
-#IfTimeout timeout \n[AutoHotkey_L] Sets the maximum time that may be spent evaluating a single #If expression.
+#If [expression] \nMakes subsequent hotkeys and hotstrings only function when the specified expression is true.
+#IfTimeout timeout \nSets the maximum time that may be spent evaluating a single #If expression.
 #IfWinActive [, WinTitle, WinText] \nMakes subsequent hotkeys and hotstrings only function when the specified window is active.
 #IfWinExist [, WinTitle, WinText] \nMakes subsequent hotkeys and hotstrings only function when the specified window exists.
 #IfWinNotActive [, WinTitle, WinText] \nMakes subsequent hotkeys and hotstrings only function when the specified window is not active.
@@ -24,20 +24,20 @@
 #MaxThreads Value
 #MaxThreadsBuffer On|Off
 #MaxThreadsPerHotkey Value
-#MenuMaskKey keyname \n[AutoHotkey_L] Changes which key is used to mask Win or Alt keyup events.
+#MenuMaskKey keyname \nChanges which key is used to mask Win or Alt keyup events.
 #NoEnv
 #NoTrayIcon
 #Persistent
 #SingleInstance [force|ignore|off]
 #UseHook [On|Off]
-#Warn [WarningType, WarningMode] \n[AutoHotkey_L] Enables or disables warnings for selected load-time or run-time conditions that may be indicative of developer errors.
+#Warn [WarningType, WarningMode] \nEnables or disables warnings for selected load-time or run-time conditions that may be indicative of developer errors.
 #WinActivateForce
 AutoTrim , On|Off
 BlockInput , On|Off|Send|Mouse|SendAndMouse|Default|MouseMove|MouseMoveOff
 break
 Click
 ClipWait [, SecondsToWait, 1]
-catch [, OutputVar]\n[AutoHotkey_L]
+catch [, OutputVar]
 continue
 Control , Cmd [, Value, Control, WinTitle, WinText, ExcludeTitle, ExcludeText]
 ControlClick [, Control-or-Pos, WinTitle, WinText, WhichButton, ClickCount, Options, ExcludeTitle, ExcludeText]
@@ -74,7 +74,7 @@ FileCopyDir , Source, Dest [, Flag]
 FileCreateDir , Path
 FileCreateShortcut , Target, C:\\My Shortcut.lnk [, WorkingDir, Args, Description, IconFile, ShortcutKey, IconNumber, RunState]
 FileDelete , FilePattern
-FileEncoding [, CPnnn|UTF-8/16[-RAW] ] \n[AutoHotkey_L] Sets the default encoding for FileRead, FileReadLine, Loop Read, FileAppend, and FileOpen.
+FileEncoding [, CPnnn|UTF-8/16[-RAW] ] \nSets the default encoding for FileRead, FileReadLine, Loop Read, FileAppend, and FileOpen.
 FileGetAttrib , OutputVar(RASHNDOCT) [, Filename]
 FileGetShortcut , LinkFile [, OutTarget, OutDir, OutArgs, OutDescription, OutIcon, OutIconNum, OutRunState]
 FileGetSize , OutputVar [, Filename, Units]
@@ -92,7 +92,7 @@ FileSelectFile , OutputVar [, Options, RootDir[\\DefaultFilename], Prompt, Filte
 FileSelectFolder , OutputVar [, *StartingFolder, Options, Prompt]
 FileSetAttrib , Attributes(+-^RASHNOT) [, FilePattern, OperateOnFolders?, Recurse?]
 FileSetTime [, YYYYMMDDHH24MISS, FilePattern, WhichTime (M|C|A), OperateOnFolders?, Recurse?]
-for key [,val] in obj \n[AutoHotkey_L]
+for key [,val] in obj
 FormatTime , OutputVar [, YYYYMMDDHH24MISS, Format]
 GetKeyState , OutputVar, WhichKey [, Mode (P|T)]
 gosub , Label\nJumps to the specified label and continues execution until Return is encountered.
@@ -128,8 +128,8 @@ IfWinNotActive [, WinTitle, WinText, ExcludeTitle, ExcludeText]
 IfWinNotExist [, WinTitle, WinText, ExcludeTitle, ExcludeText]
 ImageSearch , OutputVarX, OutputVarY, X1, Y1, X2, Y2, ImageFile
 IniDelete , Filename, Section [, Key]
-IniRead , OutputVar, Filename [, Section, Key, Default]\n(The Section and Key parameters are only optional on AutoHotkey_L)
-IniWrite , Value, Filename, Section [, Key]\n(The Key parameter is only optional on AutoHotkey_L)
+IniRead , OutputVar, Filename [, Section, Key, Default]
+IniWrite , Value, Filename, Section [, Key]
 Input [, OutputVar, Options, EndKeys, MatchList]
 InputBox , OutputVar [, Title, Prompt, HIDE, Width, Height, X, Y, Font, Timeout, Default]
 KeyHistory
@@ -178,7 +178,7 @@ SetFormat , float|integer, TotalWidth.DecimalPlaces|hex|d
 SetKeyDelay [, Delay, PressDuration]
 SetMouseDelay , Delay
 SetNumLockState , On|Off|AlwaysOn|AlwaysOff
-SetRegView , RegView \n[AutoHotkey_L] Sets the default encoding for FileRead, FileReadLine, Loop Read, FileAppend, and FileOpen.
+SetRegView , RegView \nSets the default encoding for FileRead, FileReadLine, Loop Read, FileAppend, and FileOpen.
 SetScrollLockState , On|Off|AlwaysOn|AlwaysOff
 SetStoreCapslockMode , On|Off
 SetTimer , Label [, Period|On|Off]
@@ -215,12 +215,12 @@ StringUpper , OutputVar, InputVar [, T]
 Suspend [, On|Off|Toggle|Permit]
 SysGet , OutputVar, Sub-command [, Param3]
 Thread , Setting, P2 [, P3]
-throw , Expression\n[AutoHotkey_L]
+throw , Expression
 ToolTip [, Text, X, Y, WhichToolTip]
 Transform , OutputVar, Cmd, Value1 [, Value2]
 TrayTip [, Title, Text, Seconds, Options]
-try \n[AutoHotkey_L]
-until Expression \n[AutoHotkey_L]
+try
+until Expression
 URLDownloadToFile , URL, Filename
 while Expression
 WinActivate [, WinTitle, WinText, ExcludeTitle, ExcludeText]
@@ -259,7 +259,7 @@ Ceil (Number)
 Chr (Number)
 Cos (Number)
 DllCall ("[DllFile\\]Function" [, Type1, Arg1, Type2, Arg2, ..., "Cdecl ReturnType"])
-Exception (message [, what, extra]) \n[AutoHotkey_L]
+Exception (message [, what, extra])
 Exp (Number)
 FileExist ("FilePattern")
 Floor (Number)
@@ -267,7 +267,7 @@ GetKeyState (KeyName [, "P" or "T"])
 IL_Add (ImageListID, Filename [, IconNumber, ResizeNonIcon?])
 IL_Create ([InitialCount, GrowCount, LargeIcons?])
 IL_Destroy (ImageListID)
-InStr (Haystack, Needle [, CaseSensitive?, StartingPos, Occurrence])\n(The Occurrence parameter only exists in AutoHotkey_L)
+InStr (Haystack, Needle [, CaseSensitive?, StartingPos, Occurrence])
 IsFunc (FunctionName)
 IsLabel (LabelName)
 Ln (Number)
@@ -284,8 +284,8 @@ LV_Modify (RowNumber, Options [, NewCol1, NewCol2, ...])
 LV_ModifyCol ([ColumnNumber, Options, ColumnTitle])
 LV_SetImageList (ImageListID [, 0|1|2])
 Mod (Dividend, Divisor)
-NumGet (VarOrAddress [, Offset = 0] [, Type = "UPtr"])\n(When Type is specified the Offset parameter is only optional in AutoHotkey_L)
-NumPut (Number, VarOrAddress [, Offset = 0] [, Type = "UPtr"])\n(When Type is specified the Offset parameter is only optional in AutoHotkey_L)
+NumGet (VarOrAddress [, Offset = 0] [, Type = "UPtr"])
+NumPut (Number, VarOrAddress [, Offset = 0] [, Type = "UPtr"])
 OnMessage (MsgNumber [, "FunctionName"])
 RegExMatch (Haystack, NeedleRegEx [, UnquotedOutputVar = "", StartingPos = 1])
 RegExReplace (Haystack, NeedleRegEx [, Replacement = "", OutputVarCount = "", Limit = -1, StartingPos = 1])
@@ -315,83 +315,70 @@ VarSetCapacity (Var [, RequestedCapacity, FillByte])
 WinActive (["WinTitle", "WinText", "ExcludeTitle", "ExcludeText"])
 WinExist (["WinTitle" , "WinText", "ExcludeTitle", "ExcludeText"])
 
-Trim (string [, omitchars = " `t"]) \n[AutoHotkey_L] Trims characters from the beginning and end of a string.
-LTrim (string [, omitchars = " `t"]) \n[AutoHotkey_L] Trims characters from the beginning of a string.
-RTrim (string [, omitchars = " `t"]) \n[AutoHotkey_L] Trims characters from the end of a string.
+Trim (string [, omitchars = " `t"]) \nTrims characters from the beginning and end of a string.
+LTrim (string [, omitchars = " `t"]) \nTrims characters from the beginning of a string.
+RTrim (string [, omitchars = " `t"]) \nTrims characters from the end of a string.
 
-FileOpen (file, mode[, encoding]) \n[AutoHotkey_L] Opens a file and returns a new file object.
-StrGet (address [, max][, encoding]) \n[AutoHotkey_L] Retrieves the null-terminated string at the specified address.
-StrPut (string [, encoding]) \n[AutoHotkey_L] Retrieves the amount of characters (not bytes) that a string copy requires.
-StrPut (string, address [, max][, encoding]) \n[AutoHotkey_L] Copies a string to the specified location.
+FileOpen (file, mode[, encoding]) \nOpens a file and returns a new file object.
+StrGet (address [, max][, encoding]) \nRetrieves the null-terminated string at the specified address.
+StrPut (string [, encoding]) \nRetrieves the amount of characters (not bytes) that a string copy requires.
+StrPut (string, address [, max][, encoding]) \nCopies a string to the specified location.
 
-GetKeyName (key) \n[AutoHotkey_L]
-GetKeyVK (key) \n[AutoHotkey_L]
-GetKeySC (key) \n[AutoHotkey_L]
-IsByRef (var) \n[AutoHotkey_L]
+GetKeyName (key)
+GetKeyVK (key)
+GetKeySC (key)
+IsByRef (var)
 
-Object ([key, value, [key2, value2...]]) \n[AutoHotkey_L] Creates a scriptable object which is also an associative array.
-Object (obj) \n[AutoHotkey_L] Retrieves an interface pointer from an object reference or vice versa.
-Array ([values...]) \n[AutoHotkey_L] Creates an array.
-IsObject (param) \n[AutoHotkey_L] Tests if the parameter is an object.
-ObjInsert (obj, index, values...) \n[AutoHotkey_L]
-ObjInsert (obj, value) \n[AutoHotkey_L]
-ObjInsert (obj, key, value) \n[AutoHotkey_L]
-_Insert (index, values...) \n[AutoHotkey_L] ??
-_Insert (value) \n[AutoHotkey_L]
-_Insert (key, value) \n[AutoHotkey_L]
-ObjRemove (obj, key) \n[AutoHotkey_L]
-ObjRemove (obj, first, last) \n[AutoHotkey_L]
-ObjRemove (obj, intkey, "") \n[AutoHotkey_L]
-_Remove (key) \n[AutoHotkey_L]
-_Remove (first, last) \n[AutoHotkey_L]
-_Remove (intkey, "") \n[AutoHotkey_L]
-ObjMinIndex (obj) \n[AutoHotkey_L]
-_MinIndex () \n[AutoHotkey_L]
-ObjMaxIndex (obj) \n[AutoHotkey_L]
-_MaxIndex () \n[AutoHotkey_L]
-ObjSetCapacity (obj, maxitems) \n[AutoHotkey_L]
-ObjSetCapacity (obj, key, bytesize) \n[AutoHotkey_L]
-_SetCapacity (maxitems) \n[AutoHotkey_L]
-_SetCapacity (key, bytesize) \n[AutoHotkey_L]
-ObjGetCapacity (obj[, key]) \n[AutoHotkey_L]
-_GetCapacity ([key]) \n[AutoHotkey_L]
-ObjGetAddress (obj, key) \n[AutoHotkey_L]
-_GetAddress (key) \n[AutoHotkey_L]
-ObjNewEnum (obj) \n[AutoHotkey_L]
-_NewEnum () \n[AutoHotkey_L]
-ObjAddRef (address) \n[AutoHotkey_L]
-ObjRelease (address) \n[AutoHotkey_L]
-ObjHasKey (obj, key) \n[AutoHotkey_L]
-_HasKey (key) \n[AutoHotkey_L]
-ObjClone (obj) \n[AutoHotkey_L]
-_Clone () \n[AutoHotkey_L]
+Object ([key, value, [key2, value2...]]) \nCreates a scriptable object which is also an associative array.
+Object (obj) \nRetrieves an interface pointer from an object reference or vice versa.
+Array ([values...]) \nCreates an array.
+IsObject (param) \nTests if the parameter is an object.
+ObjInsert (obj, index, values...)
+ObjInsert (obj, value)
+ObjInsert (obj, key, value)
+ObjRemove (obj, key)
+ObjRemove (obj, first, last)
+ObjRemove (obj, intkey, "")
+ObjMinIndex (obj)
+ObjMaxIndex (obj)
+ObjSetCapacity (obj, maxitems)
+ObjSetCapacity (obj, key, bytesize)
+ObjGetCapacity (obj[, key])
+ObjGetAddress (obj, key)
+ObjNewEnum (obj)
+ObjAddRef (address)
+ObjRelease (address)
+ObjHasKey (obj, key)
+ObjClone (obj)
 
-__Get ([params...]) \n[AutoHotkey_L]
-__Set ([params...,] value) \n[AutoHotkey_L]
-__Call ([params...]) \n[AutoHotkey_L]
-__Delete () \n[AutoHotkey_L]
-__New ([params...]) \n[AutoHotkey v1.1+]
+__Get ([params...])
+__Set ([params...,] value)
+__Call ([params...])
+__Delete ()
+__New ([params...])
 
-class ClassName [extends ClassName] \n[AutoHotkey v1.1+]
+_NewEnum () \nObject method which returns an enumerator object, required by the for command.
+
+class ClassName [extends ClassName]
 new
 extends
 
-ComObjCreate (ProgIdOrCLSID [, IID]) \n[AutoHotkey_L] Creates a COM object.
-ComObjGet (name) \n[AutoHotkey_L] Returns a reference to an object provided by a COM component.
-ComObjConnect (obj [, funcPrefixOrObj])  \n[AutoHotkey_L] Listens to events from a ComObject (omit the 2nd parameter to stop listening).
+ComObjCreate (ProgIdOrCLSID [, IID]) \nCreates a COM object.
+ComObjGet (name) \nReturns a reference to an object provided by a COM component.
+ComObjConnect (obj [, funcPrefixOrObj])  \nListens to events from a ComObject (omit the 2nd parameter to stop listening).
 ComObjError ([Enable])\nEnables or disables notification of COM errors. If Enable is omitted, the current setting is returned.
-ComObjActive (ProgIdOrCLSID) \n[AutoHotkey_L] Retrieves a running object that has been registered with OLE.
-ComObjEnwrap (pdisp) \n[AutoHotkey_L] Wraps a raw IDispatch pointer in a usable object.
-ComObjUnwrap (obj) \n[AutoHotkey_L] Unwraps a raw IDispatch pointer in a usable object.
-ComObjParameter (vt, val [, flags]) \n[AutoHotkey_L] Packs type and value information in a single parameter.
-ComObjType (obj [, "Name"/"IID"]) \n[AutoHotkey_L] Retrieves type information for a COM object.
-ComObjValue (obj) \n[AutoHotkey_L] Retrieves the raw 64-bit signed integer stored in a ComObject wrapper.
-ComObjMissing () \n[AutoHotkey_L] Creates an object for use in place of an optional parameter's default value when calling a COM object.
-ComObjArray (VarType, Count1 [, Count2, ... Count8]) \n[AutoHotkey_L] Creates a SAFEARRAY for use with COM.
-ComObjQuery (ComObject [, SID], IID) \n[AutoHotkey_L] Queries a COM object for an interface or service.
-ComObjFlags (ComObject [, NewFlags, Mask]) \n[AutoHotkey_L] Retrieves or changes flags which control a COM wrapper object's behaviour.
+ComObjActive (ProgIdOrCLSID) \nRetrieves a running object that has been registered with OLE.
+ComObjEnwrap (pdisp) \nWraps a raw IDispatch pointer in a usable object.
+ComObjUnwrap (obj) \nUnwraps a raw IDispatch pointer in a usable object.
+ComObjParameter (vt, val [, flags]) \nPacks type and value information in a single parameter.
+ComObjType (obj [, "Name"/"IID"]) \nRetrieves type information for a COM object.
+ComObjValue (obj) \nRetrieves the raw 64-bit signed integer stored in a ComObject wrapper.
+ComObjMissing () \nCreates an object for use in place of an optional parameter's default value when calling a COM object.
+ComObjArray (VarType, Count1 [, Count2, ... Count8]) \nCreates a SAFEARRAY for use with COM.
+ComObjQuery (ComObject [, SID], IID) \nQueries a COM object for an interface or service.
+ComObjFlags (ComObject [, NewFlags, Mask]) \nRetrieves or changes flags which control a COM wrapper object's behaviour.
 
-Func (funcname) \n[AutoHotkey v1.1+]
+Func (funcname)
 
 Shift
 LShift
@@ -648,7 +635,6 @@ Status
 static
 global
 local
-var
 ByRef
 
 Seconds

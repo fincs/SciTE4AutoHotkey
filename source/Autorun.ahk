@@ -15,7 +15,21 @@ else
 
 UserAutorun = %LocalSciTEPath%\Autorun.ahk
 
-Run, "%A_AhkPath%" tools\updater\SciTEUpdate.ahk /silent
-Run, "%A_AhkPath%" tools\TillaGoto.ahk
+oSciTE := GetSciTEInstance()
+if !oSciTE
+{
+	MsgBox, 16, SciTE4AutoHotkey, Cannot find SciTE!
+	return
+}
+
+bUpdatesEnabled := oSciTE.ResolveProp("automatic.updates") + 0
+bTillaGotoEnabled := oSciTE.ResolveProp("tillagoto.enable") + 0
+
+if bUpdatesEnabled
+	Run, "%A_AhkPath%" tools\updater\SciTEUpdate.ahk /silent
+
+if bTillaGotoEnabled
+	Run, "%A_AhkPath%" tools\TillaGoto.ahk
+
 IfExist, %UserAutorun%
 	Run, "%A_AhkPath%" "%UserAutorun%"

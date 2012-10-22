@@ -10,8 +10,10 @@
 #NoEnv
 SetWorkingDir, %A_ScriptDir%
 
-SplitPath, A_AhkPath,, A_AhkDir
-A_AhkDir := RegExReplace(A_AhkDir, "\\[^\\]+?$", "")
+oSciTE := ComObjActive("SciTE4AHK.Application")
+SciTEDir := oSciTE.SciTEDir
+A_AhkBin := oSciTE.ResolveProp("AutoHotkey")
+SplitPath, A_AhkBin,, A_AhkDir
 
 MsgBox, 36, SciTE Diagnostics Utility,
 (
@@ -28,12 +30,10 @@ Continue?
 IfMsgBox, No
 	ExitApp
 
-oSciTE := ComObjActive("SciTE4AHK.Application")
 
-SciTEDir := oSciTE.SciTEDir
 
-diagtext := "SciTE Diagnostic Info`n=====================`n`nSciTE dir: " SciTEDir "`nDefault AHK version: "
-. GetAhkVer(SciTEDir "\..\AutoHotkey.exe") "`nCurrent platform: " oSciTE.ActivePlatform "`n`n"
+diagtext := "SciTE Diagnostic Info`n=====================`n`nSciTE dir: " SciTEDir
+. "`nAutoHotkey build: " GetAhkVer(A_AhkBin) "`nCurrent platform: " oSciTE.ActivePlatform "`n`n"
 
 RunWait, %comspec% /c tree /F /A "%A_AhkDir%" >> "%A_Temp%\Diag.txt",, Hide
 FileEncoding, % "CP" DllCall("GetOEMCP", "UInt")

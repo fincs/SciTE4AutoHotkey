@@ -76,7 +76,7 @@ if (curVer != latestVer)
 	until you upgrade to the latest version.
 	)
 	IfMsgBox, Yes
-		Run, http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3/web/
+		Run, %baseurl%/web/
 	ExitApp
 }
 
@@ -108,8 +108,7 @@ CloseSciTE()
 
 if !isPortable && !A_IsAdmin
 {
-	DllCall("shell32\ShellExecute", "uint", 0, "str", "RunAs", "str", A_AhkPath
-		, "str", """" A_ScriptFullPath """ /doUpdate " curRev " " toFetch, "str", A_WorkingDir, "int", 1)
+	Run, *RunAs "%A_AhkPath%" "%A_ScriptFullPath%" /doUpdate %curRev% %toFetch%
 	ExitApp
 }
 

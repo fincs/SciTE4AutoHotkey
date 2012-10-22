@@ -1,10 +1,6 @@
 ;
-; File encoding:  UTF-8
-; Platform:  Windows XP/Vista/7
-; Author:    A.N.Other <myemail@nowhere.com>
-;
-; Script description:
-;	Template script
+; SciTE4AutoHotkey Settings Editor
+;     v3.0.01 - by fincs
 ;
 
 #NoEnv

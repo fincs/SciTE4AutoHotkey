@@ -19,11 +19,11 @@ v2 = %2%
 if v2
 	v2 = /bin "%v2%"
 
-compiler = ..\..\Compiler\Ahk2Exe.exe
-;if v2 && FileExist("..\..\AutoHotkey_L\Compiler\Ahk2Exe.exe")
-;	compiler = ..\..\AutoHotkey_L\Compiler\Ahk2Exe.exe
+ahkDir := GetSciTEInstance().ResolveProp("AutoHotkeyDir")
 
-IfExist, ..\..\Compiler\Compile_AHK.exe
-	RunWait, ..\..\Compiler\Compile_AHK.exe "%1%"
+compiler = %ahkDir%\Compiler\Ahk2Exe.exe
+
+IfExist, %ahkDir%\Compiler\Compile_AHK.exe
+	RunWait, "%ahkDir%\Compiler\Compile_AHK.exe" "%1%"
 else
-	RunWait, %compiler% /in "%1%" %v2%
+	RunWait, "%compiler%" /in "%1%" %v2%

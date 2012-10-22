@@ -5,6 +5,13 @@ DetectHiddenWindows, On
 FileEncoding, UTF-8
 Menu, Tray, Icon, %A_ScriptDir%\..\toolicon.icl, 11
 
+scite := GetSciTEInstance()
+if !scite
+{
+	MsgBox, 16, Scriptlet Utility, SciTE COM object not found!
+	ExitApp
+}
+
 IsPortable := FileExist(A_ScriptDir "\..\$PORTABLE")
 if !IsPortable
 	LocalSciTEPath = %A_MyDocuments%\AutoHotkey\SciTE
@@ -55,19 +62,12 @@ if 1 = /insert
 
 if 1 = /addScriptlet
 {
-	scite := GetSciTEInstance()
-	if !scite
-	{
-		MsgBox, 16, Scriptlet Utility, SciTE COM object not found!
-		ExitApp
-	}
 	defaultScriptlet := scite.Selection
 	if defaultScriptlet =
 	{
 		MsgBox, 16, Scriptlet Utility, Nothing is selected!
 		ExitApp
 	}
-	scite := ""
 	gosub AddBut ; that does it all
 	if !_RC
 		ExitApp ; Maybe the user has cancelled the action.
@@ -93,7 +93,6 @@ Gui, Show, w478 h270, Scriptlet Utility
 selectQ =
 defaultScriptlet =
 gosub ListboxUpdate
-;SetTimer, CheckSciTEExists, 10
 return
 
 GuiClose:
@@ -203,7 +202,7 @@ OpenInSciTE:
 GuiControlGet, fname2open,, MainListbox
 if fname2open =
 	return
-Run, "%A_ScriptDir%\..\SciTE.exe" "%sdir%\%fname2open%.scriptlet"
+scite.OpenFile(sdir "\" fname2open ".scriptlet")
 return
 
 ListboxUpdate:
@@ -219,13 +218,6 @@ Loop, %sdir%\*.scriptlet
 }
 GuiControl,, MainListbox, % te
 return
-
-/*
-CheckSciTEExists:
-IfWinNotExist, ahk_id %scitehwnd%
-	ExitApp
-return
-*/
 
 ValidateFilename(fn){
 	StringReplace, fn, fn, \, _, All

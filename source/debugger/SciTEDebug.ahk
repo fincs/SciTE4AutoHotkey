@@ -457,36 +457,11 @@ _wP1: ; Breakpoint setting
 	if !bIsAsync && !Dbg_OnBreak
 		return true
 	
-	lParam ++ ; from 0-based to 1-based, that's what DBGp uses
-	
-	uri := DBGp_EncodeFileURI(file := SciTE_GetFile())
-	bk := Util_GetBk(uri, lParam)
-	if bk
-	{
-		Dbg_Session.breakpoint_remove("-d " bk.id)
-		SciTE_BPSymbolRemove(lParam)
-		Util_RemoveBk(uri, lParam)
-	}else
-	{
-		bInBkProcess := true
-		Dbg_Session.breakpoint_set("-t line -n " lParam " -f " file, Dbg_Response)
-		IfInString, Dbg_Response, <error ; Check if AutoHotkey actually inserted the breakpoint.
-		{
-			bInBkProcess := false
-			return false ; Let SciTE handle this situation...
-		}
-		dom := loadXML(Dbg_Response)
-		bkID := dom.selectSingleNode("/response/@id").text
-		Dbg_Session.breakpoint_get("-d " bkID, Dbg_Response)
-		dom := loadXML(Dbg_Response)
-		lParam := dom.selectSingleNode("/response/breakpoint[@id=" bkID "]/@lineno").text
-		SciTE_BPSymbol(lParam)
-		Util_AddBkToList(uri, lParam, bkID)
-		bInBkProcess := false
-	}
-	
+	; We need to launch the breakpoint setting code due to usage of COM
+	global _temp := lParam + 1 ; convert line number from 0-based to 1-based
+	SetTimer, SetBreakpointHelper, -10
 	return true
-
+	
 _wP2: ; Variable inspection
 	if !bIsAsync && !Dbg_OnBreak
 	{
@@ -558,6 +533,41 @@ _wP255: ; Disconnect
 	Dbg_WaitClose := true ; the main thread can finish waiting now
 	Sleep, 10
 	return true
+}
+
+SetBreakpointHelper:
+SetBreakpoint(_temp)
+return
+
+SetBreakpoint(lParam)
+{
+	global Dbg_Session, bInBkProcess
+	
+	uri := DBGp_EncodeFileURI(file := SciTE_GetFile())
+	bk := Util_GetBk(uri, lParam)
+	if bk
+	{
+		Dbg_Session.breakpoint_remove("-d " bk.id)
+		SciTE_BPSymbolRemove(lParam)
+		Util_RemoveBk(uri, lParam)
+	}else
+	{
+		bInBkProcess := true
+		Dbg_Session.breakpoint_set("-t line -n " lParam " -f " file, Dbg_Response)
+		IfInString, Dbg_Response, <error ; Check if AutoHotkey actually inserted the breakpoint.
+		{
+			bInBkProcess := false
+			return
+		}
+		dom := loadXML(Dbg_Response)
+		bkID := dom.selectSingleNode("/response/@id").text
+		Dbg_Session.breakpoint_get("-d " bkID, Dbg_Response)
+		dom := loadXML(Dbg_Response)
+		lParam := dom.selectSingleNode("/response/breakpoint[@id=" bkID "]/@lineno").text
+		SciTE_BPSymbol(lParam)
+		Util_AddBkToList(uri, lParam, bkID)
+		bInBkProcess := false
+	}
 }
 
 ; ================

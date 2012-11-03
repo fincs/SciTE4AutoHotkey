@@ -1,28 +1,22 @@
 
 UninstallOldBetas(user="ask")
 {
-	ahkdir := GetAutoHotkeyDir()
-	if !ahkdir
-	{
-		MsgBox, 16, Uninstaller, Failed to find AutoHotkey folder!
-		ExitApp
-	}
-	inst := RemoveDir(ahkdir "\SciTE_beta1")
-	inst |= RemoveDir(ahkdir "\SciTE_beta2")
-	inst |= RemoveDir(ahkdir "\SciTE_beta3")
+	inst := RemoveDir(ahkPath "\SciTE_beta1")
+	inst |= RemoveDir(ahkPath "\SciTE_beta2")
+	inst |= RemoveDir(ahkPath "\SciTE_beta3")
 	oldAHKL := inst
-	inst |= RemoveDir(ahkdir "\SciTE_beta4")
-	inst |= RemoveDir(ahkdir "\SciTE_beta5")
-	inst |= RemoveDir(ahkdir "\SciTE_rc1")
+	inst |= RemoveDir(ahkPath "\SciTE_beta4")
+	inst |= RemoveDir(ahkPath "\SciTE_beta5")
+	inst |= RemoveDir(ahkPath "\SciTE_rc1")
 	if inst
 	{
 		if oldAHKL
 		{
-			FileDelete, %ahkdir%\AutoHotkey_La.exe
-			FileDelete, %ahkdir%\AutoHotkey_Lw.exe
-			FileDelete, %ahkdir%\AutoHotkey_L64.exe
-			FileDelete, %ahkdir%\AutoHotkey_L.chm
-			FileDelete, %ahkdir%\AutoHotkey_L.chw
+			FileDelete, %ahkPath%\AutoHotkey_La.exe
+			FileDelete, %ahkPath%\AutoHotkey_Lw.exe
+			FileDelete, %ahkPath%\AutoHotkey_L64.exe
+			FileDelete, %ahkPath%\AutoHotkey_L.chm
+			FileDelete, %ahkPath%\AutoHotkey_L.chw
 		}
 		RegDelete, HKCR, AutoHotkeyScript\Shell\EditSciTEBeta
 		profile = %A_MyDocuments%\AutoHotkey\SciTE
@@ -30,7 +24,7 @@ UninstallOldBetas(user="ask")
 		{
 			if user = ask
 			{
-				MsgBox, 52, Uninstaller, Do you want to remove the user profile?
+				MsgBox, 52, %uititle%, Do you want to remove the user profile?
 				IfMsgBox, Yes
 					user := true
 				else

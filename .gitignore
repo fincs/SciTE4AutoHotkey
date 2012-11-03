@@ -4,5 +4,9 @@
 *.bak
 *.db
 *.bin
+*.sfx
+*.bat
 *~
 /source/tools/GenDocs/
+/installer/$SETUP
+/installer/$DATA/

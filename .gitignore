@@ -5,3 +5,4 @@
 *.db
 *.bin
 *~
+/source/tools/GenDocs/

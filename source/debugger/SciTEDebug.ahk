@@ -2,6 +2,7 @@
 ; SciTE4AutoHotkey Script Debugger
 ;     v3.0.01 - by fincs
 ;
+;TillaGoto.iIncludeMode = 0x10111111
 
 #SingleInstance Ignore
 #NoTrayIcon
@@ -28,10 +29,11 @@ if 0 = 0
 	ExitApp
 }
 
-; Check if SciTE is running 
-IfWinNotExist, ahk_class SciTEWindow
+; Get the COM SciTE object
+oSciTE := GetSciTEInstance()
+if !oSciTE
 {
-	MsgBox, 16, SciTE4AutoHotkey Debugger, Can't find a SciTE window!
+	MsgBox, 16, SciTE4AutoHotkey Debugger, SciTE must be running!
 	ExitApp
 }
 
@@ -42,7 +44,7 @@ else
 	AhkExecutable = %1%
 	IfNotExist, %AhkExecutable%
 	{
-		MsgBox, 16, SciTE4AutoHotkey Debugger, AutoHotkey executable doesn't exist!
+		MsgBox, 16, SciTE4AutoHotkey Debugger, The AutoHotkey executable doesn't exist!
 		ExitApp
 	}
 
@@ -51,80 +53,38 @@ else
 		AhkExecutable := A_LoopFileLongPath
 		break
 	}
-
-	Loop, 1
+	
+	ahkType := AHKType(AhkExecutable)
+	
+	if ahkType = FAIL
 	{
-		; Sanity checks
-		
-		FileGetVersion, vert, %AhkExecutable%
-		if !vert
-			goto _error
-		
-		StringSplit, vert, vert, .
-		vert := vert4 | (vert3 << 8) | (vert2 << 16) | (vert1 << 24)
-		
-		AhkExeMachine := GetExeMachine(AhkExecutable)
-		if !AhkExeMachine
-			goto _error
-		
-		if (AhkExeMachine != 0x014C) && (AhkExeMachine != 0x8664)
-			goto _error
-		
-		if !(VersionInfoSize := DllCall("version\GetFileVersionInfoSize", "str", AhkExecutable, "uint*", null, "uint"))
-			goto _error
-		
-		VarSetCapacity(VersionInfo, VersionInfoSize)
-		if !DllCall("version\GetFileVersionInfo", "str", AhkExecutable, "uint", 0, "uint", VersionInfoSize, "ptr", &VersionInfo)
-			goto _error
-		
-		if !DllCall("version\VerQueryValue", "ptr", &VersionInfo, "str", "\VarFileInfo\Translation", "ptr*", lpTranslate, "uint*", cbTranslate)
-			goto _error
-		
-		SetFormat, IntegerFast, H
-		wLanguage := NumGet(lpTranslate+0, "UShort")
-		wCodePage := NumGet(lpTranslate+2, "UShort")
-		id := SubStr("0000" SubStr(wLanguage, 3), -3, 4) SubStr("0000" SubStr(wCodePage, 3), -3, 4)
-		SetFormat, IntegerFast, D
-		
-		if !DllCall("version\VerQueryValue", "ptr", &VersionInfo, "str", "\StringFileInfo\" id "\ProductName", "ptr*", pField, "uint*", cbField)
-			goto _error
-		
-		; Check it is actually an AutoHotkey executable
-		if !InStr(StrGet(pField, cbField), "AutoHotkey")
-			goto _error
-		
-		; Check if it's a legacy version (i.e. prior to v1.1)
-		if vert < 0x01010000
-			goto _error
-		
-		break
-		_error:
+		MsgBox, 16, SciTE4AutoHotkey Debugger, Invalid AutoHotkey executable!
+		ExitApp
+	}
+	
+	if ahkType = Legacy
+	{
 		MsgBox, 16, SciTE4AutoHotkey Debugger, Debugging is not supported in legacy versions of AutoHotkey (prior to v1.1).
 		ExitApp
 	}
 }
 
 ; Get the HWND of SciTE and its Scintilla control
-scitehwnd := WinExist("")
+scitehwnd := oSciTE.SciTEHandle
 ControlGet, scintillahwnd, Hwnd,, Scintilla1, ahk_id %scitehwnd%
 
-; Get the COM SciTE object
-oSciTE := GetSciTEInstance()
-if !oSciTE
-{
-	MsgBox, 16, SciTE4AutoHotkey Debugger, Can't find SciTE COM object!
-	ExitApp
-}
+; Get the SciTE path
+SciTEPath := oSciTE.SciTEDir
 
 ; Get the script to debug
 szFilename := !bIsAttach ? oSciTE.CurrentFile : SelectAttachScript(AttachWin, Dbg_PID)
 if szFilename =
 	ExitApp
 
-; Avoid the mistake of trying to debug the debugger (lol :P)
-if (szFilename = A_ScriptFullPath)
+; Do not allow debugging any script inside SciTE's toolbar and debugger folders
+if InStr(szFilename, SciTEPath "\debugger\") || InStr(szFilename, SciTEPath "\toolbar\")
 {
-	MsgBox, 48, SciTE4AutoHotkey Debugger, You can't debug the debugger or else bad things will happen :P
+	MsgBox, 48, SciTE4AutoHotkey Debugger, It is not supported to debug SciTE4AutoHotkey's debugger and toolbar scripts.
 	ExitApp
 }
 
@@ -148,16 +108,7 @@ OnMessage(ADM_SCITE, "SciTEMsgHandler")
 SciTE_Connect()
 Hotkey, ^!z, Off
 
-if !bIsAttach
-{
-	if (AhkExeMachine = 0x8664)
-		DbgBitIndicator := " (64-bit)"
-	else if Util_Is64bitOS()
-		DbgBitIndicator := " (32-bit)"
-}else
-	DbgBitIndicator := "" ;" (JIT)"
-
-DbgTitle := " - Debugging" DbgBitIndicator
+DbgTitle := " [Debugging]"
 
 ; Run AutoHotkey and wait for it to connect
 ToolTip, Waiting for AutoHotkey to connect...
@@ -271,6 +222,8 @@ return
 
 SelectAttachScript(ByRef outwin, ByRef outpid)
 {
+	global SciTEPath
+	
 	oldTM := A_TitleMatchMode, oldHW := A_DetectHiddenWindows
 	SetTitleMatchMode, 2
 	DetectHiddenWindows, On
@@ -279,9 +232,6 @@ SelectAttachScript(ByRef outwin, ByRef outpid)
 	
 	Gui, +LabelAttGui +ToolWindow +AlwaysOnTop
 	Gui, Add, ListView, x0 y0 w640 h240 +NoSortHdr -LV0x10 gAttGuiSelect, HWND|Name
-	
-	global oSciTE
-	SciTEPath := oSciTE.SciTEDir
 	
 	i := 0
 	Loop, % w
@@ -1222,9 +1172,11 @@ SciTE_RedrawLine(hwnd, line)
 
 SciTE_EnsureFileIsOpen(fname)
 {
-	global oSciTE
+	global oSciTE, scitehwnd
 	if SciTE_GetFile() != fname
 		oSciTE.OpenFile(fname)
+	IfWinNotActive, ahk_id %scitehwnd%
+		WinActivate, ahk_id %scitehwnd%
 }
 
 SciTE_GetFile()
@@ -1277,11 +1229,6 @@ SciTE_BPSymbolRemove(line) ; show the current line markers in SciTE
 ; ===========
 ; | Sandbox |
 ; ===========
-
-Util_Is64bitOS()
-{
-	return (A_PtrSize = 8) || (DllCall("IsWow64Process", "ptr", DllCall("GetCurrentProcess"), "int*", isWow64) && isWow64)
-}
 
 Util_UnpackNodes(nodes)
 {

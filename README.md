@@ -13,7 +13,7 @@ SciTE4AutoHotkey is a SciTE-based AutoHotkey script editor. It offers:
 * AutoIndent
 * AutoHotkey help integration
 * Abbreviations
-* AutoHotkey_L debugging support
+* Debugging support
 * Tools for AutoHotkey scripting
 * A toolbar that enables easy access to the tools
 * Some AutoHotkey scripting facilities
@@ -30,9 +30,8 @@ In order to do so, follow the instructions in the *scipatches* folder. When done
 
 Afterwards, download the current portable build in order to get some files from it:
 
-* SciTE_beta5/tools/GenDocs/hha.dll and hha.exe -> source/tools/GenDocs/
-* SciTE_beta5/tools/Rebranded/\*.\* -> source/tools/Rebranded/
+* SciTE/tools/Rebranded/\*.\* -> source/tools/Rebranded/
 
 You must also build the [documentation](https://github.com/fincs/SciTE4AHK-Docs) and place it in the source folder.
 
-The latest AutoHotkey_L Unicode binary (v1.1.08.00 at the time of writing) also needs to be placed in the source folder.
+The latest AutoHotkey Unicode binary (v1.1.09.00 at the time of writing) also needs to be placed in the source folder.

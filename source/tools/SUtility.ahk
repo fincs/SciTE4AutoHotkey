@@ -52,7 +52,7 @@ if 1 = /insert
 		Press OK to edit the toolbar properties file.
 		)
 		IfMsgBox, Yes
-			Run, "%A_ScriptDir%\..\SciTE.exe" "%LocalSciTEPath%\UserToolbar.properties"
+			scite.OpenFile(LocalSciTEPath "\UserToolbar.properties")
 		ExitApp
 	}
 	FileRead, text2insert, %sdir%\%2%.scriptlet
@@ -165,14 +165,7 @@ if selected =
 	return
 
 FileAppend, `n=Scriptlet: %selected%|`%LOCALAHK`% tools\SUtility.ahk /insert "%selected%"||`%ICONRES`%`,12, %LocalSciTEPath%\UserToolbar.properties
-scite := GetSciTEInstance()
-if !scite
-{
-	MsgBox, 16, Scriptlet Utility, SciTE COM object not found!
-	ExitApp
-}
 scite.Message(0x1000+2)
-scite := ""
 return
 
 InsertBut:
@@ -181,14 +174,7 @@ InsertDirect:
 if text2insert =
 	return
 WinActivate, ahk_id %scitehwnd%
-scite := GetSciTEInstance()
-if !scite
-{
-	MsgBox, 16, Scriptlet Utility, Undefined error: the toolbar is not running?
-	ExitApp
-}
 scite.InsertText(text2insert)
-scite := ""
 return
 
 SaveBut:

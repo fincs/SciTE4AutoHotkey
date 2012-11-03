@@ -61,7 +61,7 @@ try
 }
 
 FileRead, curVer, ..\..\$VER
-if (curVer != latestVer)
+if (curVer < latestVer)
 {
 	MsgBox, 36, SciTE4AutoHotkey Updater,
 	(LTrim

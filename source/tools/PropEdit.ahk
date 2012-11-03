@@ -185,23 +185,3 @@ GetItem(ByRef list, id, delim="|")
 		if (A_Index = id)
 			return A_LoopField
 }
-
-Util_Is64bitWindows()
-{
-	DllCall("IsWow64Process", "ptr", DllCall("GetCurrentProcess", "ptr"), "uint*", retval)
-	if ErrorLevel
-		return 0
-	else
-		return retval
-}
-
-Util_Is64bitProcess(pid)
-{
-	if !Util_Is64bitWindows()
-		return 0
-	
-	proc := DllCall("OpenProcess", "uint", 0x0400, "uint", 0, "uint", pid, "ptr")
-	DllCall("IsWow64Process", "ptr", proc, "uint*", retval)
-	DllCall("CloseHandle", "ptr", proc)
-	return retval ? 0 : 1
-}

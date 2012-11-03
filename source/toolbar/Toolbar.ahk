@@ -290,9 +290,12 @@ var2 = %2%
 if (var1 != "/NoAutorun" && var2 != "/NoAutorun")
 	Run, "%A_AhkPath%" "%SciTEDir%\Autorun.ahk"
 
+; Safety SciTE window existance timer
+SetTimer, check4scite, 1000
+
 if FirstTime
 {
-	Director_Send("open:" CEscape(SciTEDir "\TestSuite.ahk"))
+	CoI_OpenFile("", SciTEDir "\TestSuite.ahk")
 	MsgBox, 64, SciTE4AutoHotkey, Welcome to SciTE4AutoHotkey!
 	Run, "%A_AhkPath%" "%SciTEDir%\tools\PropEdit.ahk"
 }
@@ -301,7 +304,7 @@ return
 ; Toolbar event handler
 OnToolbar(hToolbar, pEvent, pTxt, pPos, pId)
 {
-	Global
+	global
 	Critical
 
 	if pEvent = click

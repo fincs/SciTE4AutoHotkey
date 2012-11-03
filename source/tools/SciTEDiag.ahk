@@ -13,7 +13,7 @@ SetWorkingDir, %A_ScriptDir%
 oSciTE := ComObjActive("SciTE4AHK.Application")
 SciTEDir := oSciTE.SciTEDir
 A_AhkBin := oSciTE.ResolveProp("AutoHotkey")
-SplitPath, A_AhkBin,, A_AhkDir
+A_AhkDir := oSciTE.ResolveProp("AutoHotkeyDir")
 
 MsgBox, 36, SciTE Diagnostics Utility,
 (
@@ -29,8 +29,6 @@ Continue?
 
 IfMsgBox, No
 	ExitApp
-
-
 
 diagtext := "SciTE Diagnostic Info`n=====================`n`nSciTE dir: " SciTEDir
 . "`nAutoHotkey build: " GetAhkVer(A_AhkBin) "`nCurrent platform: " oSciTE.ActivePlatform "`n`n"

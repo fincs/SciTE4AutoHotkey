@@ -23,6 +23,7 @@ Update_3_beta5:
 gosub Create_extensions
 gosub Copy_new_styles
 Update_3_rc1:
+Update_3.0.00:
 return
 
 Update_common:

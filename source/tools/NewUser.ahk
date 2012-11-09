@@ -24,7 +24,6 @@ IfExist, %A_MyDocuments%\AutoHotkey\SciTE
 		ExitApp
 }
 
-FileCreateDir, %A_MyDocuments%\AutoHotkey\SciTE
 FileCopyDir, %A_ScriptDir%\..\newuser, %A_MyDocuments%\AutoHotkey\SciTE
 
 ; Mainly to avoid an annoying flashing window:

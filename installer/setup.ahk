@@ -30,7 +30,7 @@ if winVer < 5.1
 	ExitApp
 }
 
-if (A_ScriptDir = A_Temp)
+if 1 = /douninstall
 	goto UninstallMain
 
 if FileExist("SciTE.exe")
@@ -68,7 +68,7 @@ IfMsgBox, No
 FileCopy, %A_AhkPath%, %A_Temp%, 1
 FileCopy, %A_ScriptFullPath%, %A_Temp%, 1
 runasverb := A_IsAdmin ? "" : "*RunAs "
-Run, %runasverb%"%A_Temp%\%intlAhkName%" /CP65001 "%A_Temp%\%A_ScriptName%"
+Run, %runasverb%"%A_Temp%\%intlAhkName%" /CP65001 "%A_Temp%\%A_ScriptName%" /douninstall
 ExitApp
 
 UninstallMain:
@@ -194,7 +194,7 @@ Btn_Install()
 	if FileExist(ahkPath "\SciTE\$VER")
 	{
 		FileRead, ov, %ahkPath%\SciTE\$VER
-		if ov = v3.0.00
+		if ov = 3.0.00
 		{
 			; We're upgrading from S4AHK v3.0.00 (which used a different installer)
 			v3Upgrade := true

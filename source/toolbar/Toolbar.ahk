@@ -288,7 +288,7 @@ if DirectorReady
 var1 = %1%
 var2 = %2%
 if (var1 != "/NoAutorun" && var2 != "/NoAutorun")
-	Run, "%A_AhkPath%" "%SciTEDir%\Autorun.ahk"
+	Run, "%A_AhkPath%" "%SciTEDir%\tools\Autorun.ahk"
 
 ; Safety SciTE window existance timer
 SetTimer, check4scite, 1000
@@ -320,7 +320,7 @@ Menu, ToolMenu, Show
 return
 
 check4updates:
-Run, "%A_AhkPath%" "%SciTEDir%\tools\updater\SciTEUpdate.ahk"
+Run, "%A_AhkPath%" "%SciTEDir%\tools\SciTEUpdate.ahk"
 return
 
 exitroutine:
@@ -341,7 +341,7 @@ Run, SciTE.exe "%LocalPropsPath%"
 return
 
 editautorun:
-Run, SciTE.exe "%LocalSciTEPath%\Autorun.ahk"
+Run, SciTE.exe "%LocalSciTEPath%\tools\Autorun.ahk"
 return
 
 editlua:
@@ -353,7 +353,7 @@ Run, %runasverb%SciTE.exe "%SciTEDir%\toolbar.properties"
 return
 
 editglobalautorun:
-Run, %runasverb%SciTE.exe "%SciTEDir%\Autorun.ahk"
+Run, %runasverb%SciTE.exe "%SciTEDir%\tools\Autorun.ahk"
 return
 
 editplatforms:

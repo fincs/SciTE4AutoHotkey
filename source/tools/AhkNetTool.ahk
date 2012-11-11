@@ -9,7 +9,7 @@
 SetWorkingDir, %A_ScriptDir%
 DetectHiddenWindows, On
 
-Menu, Tray, Icon, ..\..\toolicon.icl, 9
+Menu, Tray, Icon, ..\toolicon.icl, 9
 
 IsPortable := FileExist(A_ScriptDir "\..\$PORTABLE")
 if !IsPortable

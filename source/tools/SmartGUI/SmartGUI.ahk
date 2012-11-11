@@ -1,4 +1,4 @@
-
+﻿
 /*
 
 ___________________________________________
@@ -2667,3 +2667,5 @@ Justify:
 	Control, Hide,, %CtrlNameCount%, ahk_id %MainWndID%
 	Control, Show,, %CtrlNameCount%, ahk_id %MainWndID%
 Return
+
+#include %A_ScriptDir%\..\Lib\GetSciTEInstance.ahk

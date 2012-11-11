@@ -12,12 +12,12 @@ SendMode Input
 SetWorkingDir, %A_ScriptDir%
 
 baseurl = http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3
-isPortable := FileExist("..\..\$PORTABLE")
+isPortable := FileExist("..\$PORTABLE")
 today := SubStr(A_Now, 1, 8)
 if !isPortable
 	LocalSciTEPath = %A_MyDocuments%\AutoHotkey\SciTE
 else
-	LocalSciTEPath = %A_ScriptDir%\..\..\user
+	LocalSciTEPath = %A_ScriptDir%\..\user
 
 if 1 = /silent
 	isSilent := true
@@ -60,7 +60,7 @@ try
 	ExitApp
 }
 
-FileRead, curVer, ..\..\$VER
+FileRead, curVer, ..\$VER
 if (curVer < latestVer)
 {
 	MsgBox, 36, SciTE4AutoHotkey Updater,
@@ -80,7 +80,7 @@ if (curVer < latestVer)
 	ExitApp
 }
 
-FileRead, curRev, ..\..\$REVISION
+FileRead, curRev, ..\$REVISION
 if curRev =
 	curRev := 0
 
@@ -145,9 +145,9 @@ Loop, % toFetch
 		upd.Run(updfold)
 		FileRemoveDir, %updfold%, 1
 		
-		IfExist, ..\..\$REVISION
-			FileDelete, ..\..\$REVISION
-		FileAppend, %i%, ..\..\$REVISION
+		IfExist, ..\$REVISION
+			FileDelete, ..\$REVISION
+		FileAppend, %i%, ..\$REVISION
 		
 		LV_Modify(A_Index, "", i, "Done!", upd.title, upd.descr)
 		LV_ModifyCol()

@@ -81,8 +81,8 @@ szFilename := !bIsAttach ? oSciTE.CurrentFile : SelectAttachScript(AttachWin, Db
 if szFilename =
 	ExitApp
 
-; Do not allow debugging any script inside SciTE's toolbar and debugger folders
-if InStr(szFilename, SciTEPath "\debugger\") || InStr(szFilename, SciTEPath "\toolbar\")
+; Do not allow debugging neither the toolbar nor the debugger itself
+if InStr(szFilename, SciTEPath "\toolbar\") || (szFilename = A_ScriptFullPath)
 {
 	MsgBox, 48, SciTE4AutoHotkey Debugger, It is not supported to debug SciTE4AutoHotkey's debugger and toolbar scripts.
 	ExitApp

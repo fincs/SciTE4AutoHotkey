@@ -1,6 +1,5 @@
-; SciTE4AutoHotkey v3 autorun script
 ;
-; November 7, 2010 - fincs
+; SciTE4AutoHotkey v3 autorun script
 ;
 
 #NoEnv
@@ -26,10 +25,10 @@ bUpdatesEnabled := oSciTE.ResolveProp("automatic.updates") + 0
 bTillaGotoEnabled := oSciTE.ResolveProp("tillagoto.enable") + 0
 
 if bUpdatesEnabled
-	Run, "%A_AhkPath%" tools\updater\SciTEUpdate.ahk /silent
+	Run, "%A_AhkPath%" SciTEUpdate.ahk /silent
 
 if bTillaGotoEnabled
-	Run, "%A_AhkPath%" tools\TillaGoto.ahk
+	Run, "%A_AhkPath%" TillaGoto.ahk
 
 IfExist, %UserAutorun%
 	Run, "%A_AhkPath%" "%UserAutorun%"

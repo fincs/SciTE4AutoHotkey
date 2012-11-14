@@ -32,7 +32,7 @@ Director_Init()
 	DirectorReady := true
 }
 
-Director_Send(msg, returns=false, onArray=false)
+Director_Send(msg, returns := false, onArray := false)
 {
 	global directorhwnd, WM_COPYDATA, DirectorMsg, DirectorRcv, DirectorRetByArray
 	len := StrPutVar(msg, msg_utf8, "UTF-8")

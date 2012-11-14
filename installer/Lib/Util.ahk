@@ -33,7 +33,7 @@ Util_GetWinVer()
 	return pack
 }
 
-Util_CreateShortcut(Shrt, Path, Descr, Args="", Icon="", IconN="")
+Util_CreateShortcut(Shrt, Path, Descr, Args := "", Icon := "", IconN := "")
 {
 	SplitPath, Path,, Dir
 	FileDelete, %Shrt%
@@ -41,7 +41,7 @@ Util_CreateShortcut(Shrt, Path, Descr, Args="", Icon="", IconN="")
 }
 
 ; Written by Lexikos.
-Util_UserRun(target, args="")
+Util_UserRun(target, args := "")
 {
 	try
 		_ShellRun(target, args)

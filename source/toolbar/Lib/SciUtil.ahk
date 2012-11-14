@@ -95,7 +95,7 @@ SciUtil_GetLine(hSci, iLine)
 	return Trim(StrGet(&sText, "CP" SciUtil_GetCP(hSci)), "`r`n")
 }
 
-SciUtil_InsertText(hSci, sText, pos=-1)
+SciUtil_InsertText(hSci, sText, pos := -1)
 {
 	; Prepare a local buffer for conversion
 	sNewLen := StrPut(sText, "CP" (cp := SciUtil_GetCP(hSci)))

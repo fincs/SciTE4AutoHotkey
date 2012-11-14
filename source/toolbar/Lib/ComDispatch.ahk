@@ -37,7 +37,7 @@ _CreateIDispatchVTable(func)
 	return vtable_mem
 }
 
-_Dispatch_(this_, prm0=0, prm1=0, prm2=0, prm3=0, prm4=0, prm5=0, prm6=0, prm7=0, prm8=0)
+_Dispatch_(this_, prm0 := 0, prm1 := 0, prm2 := 0, prm3 := 0, prm4 := 0, prm5 := 0, prm6 := 0, prm7 := 0, prm8 := 0)
 {
 	Critical
 	

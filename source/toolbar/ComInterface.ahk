@@ -41,7 +41,7 @@ SendDirectorMsgRetArray
 ResolveProp
 )
 
-CoI_Message(this, msg, wParam=0, lParam=0)
+CoI_Message(this, msg, wParam := 0, lParam := 0)
 {
 	global _msg, _wParam, _lParam, scitehwnd, hwndgui, ATM_OFFSET
 	if (_msg := msg+0) = "" || (_wParam := wParam+0) = "" || (_lParam := lParam+0) = ""

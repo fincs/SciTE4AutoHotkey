@@ -205,7 +205,8 @@ Loop, %sdir%\*.scriptlet
 GuiControl,, MainListbox, % te
 return
 
-ValidateFilename(fn){
+ValidateFilename(fn)
+{
 	StringReplace, fn, fn, \, _, All
 	StringReplace, fn, fn, /, _, All
 	StringReplace, fn, fn, :, _, All

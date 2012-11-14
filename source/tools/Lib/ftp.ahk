@@ -25,7 +25,7 @@ FTP_SetCurrentDirectory(hConnect,DirName)
 	return !ErrorLevel && r
 }
 
-FTP_PutFile(hConnect, LocalFile, NewRemoteFile="", Flags=0)
+FTP_PutFile(hConnect, LocalFile, NewRemoteFile := "", Flags := 0)
 {
 	; Flags:
 	; FTP_TRANSFER_TYPE_UNKNOWN = 0 (Defaults to FTP_TRANSFER_TYPE_BINARY)
@@ -39,7 +39,7 @@ FTP_PutFile(hConnect, LocalFile, NewRemoteFile="", Flags=0)
 	return !ErrorLevel && r
 }
 
-FTP_GetFile(hConnect, RemoteFile, NewFile="", Flags=0)
+FTP_GetFile(hConnect, RemoteFile, NewFile := "", Flags := 0)
 {
 	; Flags:
 	; FTP_TRANSFER_TYPE_UNKNOWN = 0 (Defaults to FTP_TRANSFER_TYPE_BINARY)
@@ -55,7 +55,7 @@ FTP_GetFile(hConnect, RemoteFile, NewFile="", Flags=0)
 	return !ErrorLevel && r
 }
 
-FTP_GetFileSize(hConnect, FileName, Flags=0)
+FTP_GetFileSize(hConnect, FileName, Flags := 0)
 {
 	; Flags:
 	; FTP_TRANSFER_TYPE_UNKNOWN = 0 (Defaults to FTP_TRANSFER_TYPE_BINARY)
@@ -84,7 +84,7 @@ FTP_RenameFile(hConnect, Existing, New)
 	return !ErrorLevel && r
 }
 
-FTP_Open(Server, Port=21, Username=0, Password=0 ,Proxy="", ProxyBypass="")
+FTP_Open(Server, Port := 21, Username := 0, Password := 0, Proxy := "", ProxyBypass := "")
 {
 	IfEqual, Username, 0, SetEnv, Username, anonymous
 	IfEqual, Password, 0, SetEnv, Password, anonymous

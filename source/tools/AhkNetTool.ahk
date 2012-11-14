@@ -170,7 +170,7 @@ ParseParams(outVar, nParams)
 	return RegExMatch(plist, pattern, %outVar%) != 0
 }
 
-ExecCmd(cmd, param1="", param2="", param3="", param4="")
+ExecCmd(cmd, param1 := "", param2 := "", param3 := "", param4 := "")
 {
 	global hFTPConnection, InFile, LastError
 	

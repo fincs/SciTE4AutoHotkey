@@ -1,5 +1,5 @@
 
-UninstallOldBetas(user="ask")
+UninstallOldBetas(user := "ask")
 {
 	inst := RemoveDir(ahkPath "\SciTE_beta1")
 	inst |= RemoveDir(ahkPath "\SciTE_beta2")

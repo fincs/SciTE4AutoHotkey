@@ -544,7 +544,7 @@ OnExit ; disable the OnExit trap
 ExitApp ; exit
 
 ; DBGp_CloseDebugger() - used to close the debugger
-DBGp_CloseDebugger(force=0)
+DBGp_CloseDebugger(force := 0)
 {
 	global
 	if !bIsAsync && !force && !Dbg_OnBreak
@@ -844,7 +844,7 @@ Dbg_GetStack()
 ; | Variable inspection |
 ; =======================
 
-VE_Create(name, ByRef cont, readonly=0)
+VE_Create(name, ByRef cont, readonly := 0)
 {
 	global
 	local VE_LF, VE_CRLF
@@ -1185,7 +1185,7 @@ SciTE_GetFile()
 	return oSciTE.CurrentFile
 }
 
-SciTE_SetCurrentLine(line, mode=1) ; show the current line markers in SciTE
+SciTE_SetCurrentLine(line, mode := 1) ; show the current line markers in SciTE
 {
 	global
 	line--
@@ -1264,7 +1264,7 @@ Util_ProcessExist(a)
 	return r
 }
 
-Util_AddBkToList(uri, line, id, cond="")
+Util_AddBkToList(uri, line, id, cond := "")
 {
 	global Dbg_BkList
 	Dbg_BkList[uri, line] := { id: id, cond: cond }

@@ -172,14 +172,14 @@ CountLocalesAndChoose(ByRef choosenum)
 	return list
 }
 
-FindInList(ByRef list, item, delim="|")
+FindInList(ByRef list, item, delim := "|")
 {
 	Loop, Parse, list, %delim%
 		if (A_LoopField = item)
 			return A_Index
 }
 
-GetItem(ByRef list, id, delim="|")
+GetItem(ByRef list, id, delim := "|")
 {
 	Loop, Parse, list, %delim%
 		if (A_Index = id)

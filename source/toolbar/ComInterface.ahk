@@ -17,6 +17,8 @@ GetSciTEHandle & SciTEHandle = CoI_GetSciTEHandle
 Message
 ReloadProps
 SciTEDir
+IsPortable
+UserDir
 
 ; Files
 GetCurrentFile & CurrentFile = CoI_GetCurrentFile
@@ -29,6 +31,7 @@ SwitchToTab
 GetDocument & Document = CoI_GetDocument
 GetSelection & Selection = CoI_GetSelection
 InsertText
+Output
 
 ; Platform
 GetActivePlatform & ActivePlatform = CoI_GetActivePlatform
@@ -70,6 +73,18 @@ CoI_SciTEDir(this)
 {
 	global SciTEDir
 	return SciTEDir
+}
+
+CoI_IsPortable(this)
+{
+	global IsPortable
+	return IsPortable
+}
+
+CoI_UserDir(this)
+{
+	global LocalSciTEPath
+	return LocalSciTEPath
 }
 
 CoI_GetTabs(this)
@@ -158,6 +173,11 @@ CoI_GetSelection(this)
 {
 	global scintillahwnd
 	return SciUtil_GetSelection(scintillahwnd)
+}
+
+CoI_Output(this, text)
+{
+	Director_Send("output:" CEscape(text))
 }
 
 CoI_GetSciTEHandle(this)

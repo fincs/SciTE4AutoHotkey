@@ -6,8 +6,7 @@ goto _aaa_skip
 
 UpdateProfile:
 StringReplace, lblname, SciTEVersion, %A_Space%, _, All
-lblname := "Update_" lblname
-if IsLabel(lblname)
+if IsLabel(lblname := "Update_" lblname)
 {
 	gosub Update_common
 	goto %lblname%
@@ -24,6 +23,7 @@ gosub Create_extensions
 gosub Copy_new_styles
 Update_3_rc1:
 Update_3.0.00:
+Update_3.0.01:
 return
 
 Update_common:

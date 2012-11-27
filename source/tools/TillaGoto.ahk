@@ -51,7 +51,8 @@ bDirectives      := oSciTE.ResolveProp("tillagoto.directives") + 0
 
 _AhkScriptIsActive()
 {
-	return _SciTEIsActive() ;&& SubStr(_GetSciTEFile(), -3) = ".ahk"
+	global oSciTE
+	return _SciTEIsActive() ;&& oSciTE.ResolveProp("Language") = "ahk1" ; Alternate test: FileExt = "ahk"
 }
 
 _GetSciTEHandle()
@@ -536,7 +537,7 @@ GUIInteract(wParam, lParam, msg, hwnd) {
 	} Else If (msg = 255) { ;WM_INPUT
 		
 		;Get flags
-		flags := HID_GetInputInfo(lParam, (12 + PtrSize() * 2) | 0x0100)
+		flags := HID_GetInputInfo(lParam, (12 + A_PtrSize * 2) | 0x0100)
 		
 		If (flags = -1) ;Check if we got an error
 			Return 0
@@ -547,7 +548,7 @@ GUIInteract(wParam, lParam, msg, hwnd) {
 		
 		;Check for line history
 		If (flags & 0x0400) And GetKeyState("Shift", "P") And _SciTEIsActive() {
-			iWheelTurns := HID_GetInputInfo(lParam, (14 + PtrSize() * 2) | 0x1100)
+			iWheelTurns := HID_GetInputInfo(lParam, (14 + A_PtrSize * 2) | 0x1100)
 			If (iWheelTurns <> -1) {    ;Check for error
 				iWheelTurns := Round(iWheelTurns / 120)
 				bForward := iWheelTurns > 0
@@ -736,10 +737,8 @@ AnalyseScript:
 		
 		;Get path of running AutoHotkey
 		; <fincs-edit> Use actual AutoHotkey build instead of internal one
-		IfNotInString, sScriptDir, % SubStr(A_ScriptDir, 1, InStr(A_ScriptDir, "\", false, 0)-1)
-			UsedAhkPath := oSciTE.ResolveProp("AutoHotkey")
-		else
-			UsedAhkPath := A_AhkPath
+		UsedAhkPath := oSciTE.ResolveProp("AutoHotkey")
+		
 		StringLeft, sLibPattern, UsedAhkPath, InStr(UsedAhkPath, "\", False, 0)
 		sLibPattern .= "Lib\*.ahk"
 		
@@ -750,6 +749,7 @@ AnalyseScript:
 Return
 
 FindLibFile(sLib) {
+	global oSciTE
 	
 	;Append extension if none given
 	StringRight, t, sLib, 4
@@ -767,10 +767,8 @@ FindLibFile(sLib) {
 	
 	;Get path of running AutoHotkey
 	; <fincs-edit> Use actual AutoHotkey build instead of internal one
-	IfNotInString, sScriptDir, % SubStr(A_ScriptDir, 1, InStr(A_ScriptDir, "\", false, 0)-1)
-		UsedAhkPath := A_ScriptDir "\..\..\AutoHotkey.exe"
-	else
-		UsedAhkPath := A_AhkPath
+	UsedAhkPath := oSciTE.ResolveProp("AutoHotkey")
+	
 	StringLeft, sLibPattern, UsedAhkPath, InStr(UsedAhkPath, "\", False, 0)
 	sLibPattern .= "Lib\*.ahk"
 	
@@ -939,10 +937,10 @@ ScanScriptFile(sPath, bRecurse = False, bFuncsOnly = False, bIsInclude = False) 
 }
 
 AbsolutePath(sPath) {
-	If DllCall("shlwapi\PathIsRelative" (A_IsUnicode ? "W" : "A"), Ptr(), &sPath) {
-		n := DllCall("GetFullPathName", Ptr(), &sPath, "UInt", 0, "UInt", 0, "Int", 0)
+	If DllCall("shlwapi\PathIsRelative", "Ptr", &sPath) {
+		n := DllCall("GetFullPathName", "Ptr", &sPath, "UInt", 0, "UInt", 0, "Int", 0)
 		VarSetCapacity(sAbs, A_IsUnicode ? n * 2 : n)
-		DllCall("GetFullPathName", Ptr(), &sPath, "UInt", n, "Str", sAbs, Ptr() "*", 0)
+		DllCall("GetFullPathName", "Ptr", &sPath, "UInt", n, "Str", sAbs, "Ptr*", 0)
 		Return sAbs
 	} Else Return sPath
 }
@@ -1332,12 +1330,12 @@ FilterComments(ByRef s, bRespectLines = False) {
 			
 			;Put in the same amount of line feed characters
 			Loop % (l2 - l1)
-				NumPut(10, blank, (A_Index - 1) * (1 + !!A_IsUnicode), "UChar")
+				NumPut(10, blank, (A_Index - 1) * (1 + !!A_IsUnicode), A_IsUnicode ? "UShort" : "UChar")
 		}
 		
 		;Blank out
-		DllCall("RtlMoveMemory", Ptr(), &s + (i - 1) * (1 + !!A_IsUnicode)
-							   , Ptr(), &blank, "UInt", len * (1 + !!A_IsUnicode))
+		DllCall("RtlMoveMemory", "Ptr", &s + (i - 1) * (1 + !!A_IsUnicode)
+							   , "Ptr", &blank, "UInt", len * (1 + !!A_IsUnicode))
 		
 		If Not j
 			Break
@@ -1355,7 +1353,7 @@ FilterComments(ByRef s, bRespectLines = False) {
 			Return
 		
 		blank := GenSpaces(len := i - 1)
-		DllCall("RtlMoveMemory", Ptr(), &s, Ptr(), &blank, "UInt", len * (1 + !!A_IsUnicode))
+		DllCall("RtlMoveMemory", "Ptr", &s, "Ptr", &blank, "UInt", len * (1 + !!A_IsUnicode))
 	}
 }
 
@@ -1429,12 +1427,12 @@ GenSpaces(n) {
 		
 		VarSetCapacity(func, StrLen(hex) // 2)
 		Loop % StrLen(hex) // 2
-			NumPut("0x" . SubStr(hex, 2 * A_Index - 1, 2), func, A_Index - 1, "Char")
-		DllCall("VirtualProtect", Ptr(), &func, "UInt", VarSetCapacity(func), "UInt", 0x40, "UInt*", 0)
+			NumPut("0x" . SubStr(hex, 2 * A_Index - 1, 2), func, A_Index - 1, "UChar")
+		DllCall("VirtualProtect", "Ptr", &func, "UInt", VarSetCapacity(func), "UInt", 0x40, "UInt*", 0)
 	}
 	
 	VarSetCapacity(s, (n + 1) * (1 + !!A_IsUnicode), 0)
-	DllCall(&func, Ptr(), &s, "UInt", n, "Int", 1 + !!A_IsUnicode, "CDecl")
+	DllCall(&func, "Ptr", &s, "UInt", n, "Int", 1 + !!A_IsUnicode, "CDecl")
 	VarSetCapacity(s, -1)
 	
 	Return s
@@ -1668,7 +1666,7 @@ ListBoxAdjustHSB(hLB) {
 	VarSetCapacity(lptm, A_IsUnicode ? 60 : 56)
 	
 	;Use GetDC to retrieve handle to the display context for the list box and store it in hDCListBox
-	hDCListBox := DllCall("GetDC", "UInt", hLB)
+	hDCListBox := DllCall("GetDC", "Ptr", hLB, "Ptr")
 	
 	;Send the list box a WM_GETFONT message to retrieve the handle to the 
 	;font that the list box is using, and store this handle in hFontNew
@@ -1677,11 +1675,11 @@ ListBoxAdjustHSB(hLB) {
 	
 	;Use SelectObject to select the font into the display context.
 	;Retain the return value from the SelectObject call in hFontOld
-	hFontOld := DllCall("SelectObject", "UInt", hDCListBox, "UInt", hFontNew)
+	hFontOld := DllCall("SelectObject", "Ptr", hDCListBox, "Ptr", hFontNew, "Ptr")
 	
 	;Call GetTextMetrics to get additional information about the font being used
 	;(eg. to get tmAveCharWidth's value)
-	DllCall("GetTextMetrics", "UInt", hDCListBox, Ptr(), &lptm)
+	DllCall("GetTextMetrics", "Ptr", hDCListBox, "Ptr", &lptm)
 	tmAveCharWidth := NumGet(lptm, 20, "UInt")
 	
 	;Get item count using LB_GETCOUNT
@@ -1694,7 +1692,7 @@ ListBoxAdjustHSB(hLB) {
 		s := GetListBoxItem(hLB, A_Index - 1)
 		
 		;For each string, the value of the extent to be used is calculated as follows:
-		DllCall("GetTextExtentPoint32", "UInt", hDCListBox, "Str", s, "Int", StrLen(s), "Int64P", nSize)
+		DllCall("GetTextExtentPoint32", "Ptr", hDCListBox, "Str", s, "Int", StrLen(s), "Int64P", nSize)
 		dwExtent := (nSize & 0xFFFFFFFF) + tmAveCharWidth
 		
 		;Keep if it's the highest to date
@@ -1703,8 +1701,8 @@ ListBoxAdjustHSB(hLB) {
 	}
 	
 	;After all the extents have been calculated, select the old font back into hDCListBox and then release it:
-	DllCall("SelectObject", "UInt", hDCListBox, "UInt", hFontOld)
-	DllCall("ReleaseDC", "UInt", hLB, "UInt", hDCListBox)
+	DllCall("SelectObject", "Ptr", hDCListBox, "Ptr", hFontOld)
+	DllCall("ReleaseDC", "Ptr", hLB, "Ptr", hDCListBox)
 	
 	;Adjust the horizontal bar using LB_SETHORIZONTALEXTENT
 	SendMessage 404, dwMaxExtent, 0,, ahk_id %hLB%
@@ -1756,7 +1754,7 @@ GetLongestItem(hLB) { ;We need the listbox to get the font used
 	VarSetCapacity(lptm, A_IsUnicode ? 60 : 56)
 	
 	;Use GetDC to retrieve handle to the display context for the list box and store it in hDCListBox
-	hDCListBox := DllCall("GetDC", "UInt", hLB)
+	hDCListBox := DllCall("GetDC", "Ptr", hLB, "Ptr")
 	
 	;Send the list box a WM_GETFONT message to retrieve the handle to the 
 	;font that the list box is using, and store this handle in hFontNew
@@ -1765,11 +1763,11 @@ GetLongestItem(hLB) { ;We need the listbox to get the font used
 	
 	;Use SelectObject to select the font into the display context.
 	;Retain the return value from the SelectObject call in hFontOld
-	hFontOld := DllCall("SelectObject", "UInt", hDCListBox, "UInt", hFontNew)
+	hFontOld := DllCall("SelectObject", "Ptr", hDCListBox, "Ptr", hFontNew, "Ptr")
 	
 	;Call GetTextMetrics to get additional information about the font being used
 	;(eg. to get tmAveCharWidth's value)
-	DllCall("GetTextMetrics", "UInt", hDCListBox, Ptr(), &lptm)
+	DllCall("GetTextMetrics", "Ptr", hDCListBox, "Ptr", &lptm)
 	tmAveCharWidth := NumGet(lptm, 20, "UInt")
 	
 	;Now, we need to loop through each label/hotkey/function
@@ -1778,7 +1776,7 @@ GetLongestItem(hLB) { ;We need the listbox to get the font used
 		Loop %sLabels0% {
 			
 			;For each string, the value of the extent to be used is calculated as follows:
-			DllCall("GetTextExtentPoint32", "UInt", hDCListBox, "Str", sLabels%A_Index%_List
+			DllCall("GetTextExtentPoint32", "Ptr", hDCListBox, "Str", sLabels%A_Index%_List
 										  , "Int", StrLen(sLabels%A_Index%_List), "Int64P", nSize)
 			dwExtent := (nSize & 0xFFFFFFFF) + tmAveCharWidth
 			
@@ -1790,7 +1788,7 @@ GetLongestItem(hLB) { ;We need the listbox to get the font used
 		Loop %sFuncs0% {
 			
 			;For each string, the value of the extent to be used is calculated as follows:
-			DllCall("GetTextExtentPoint32", "UInt", hDCListBox, "Str", sFuncs%A_Index%_List
+			DllCall("GetTextExtentPoint32", "Ptr", hDCListBox, "Str", sFuncs%A_Index%_List
 										  , "Int", StrLen(sFuncs%A_Index%_List), "Int64P", nSize)
 			dwExtent := (nSize & 0xFFFFFFFF) + tmAveCharWidth
 			
@@ -1803,7 +1801,7 @@ GetLongestItem(hLB) { ;We need the listbox to get the font used
 		Loop %sLabels0% {
 			
 			;For each string, the value of the extent to be used is calculated as follows:
-			DllCall("GetTextExtentPoint32", "UInt", hDCListBox, "Str", sLabels%A_Index%
+			DllCall("GetTextExtentPoint32", "Ptr", hDCListBox, "Str", sLabels%A_Index%
 										  , "Int", StrLen(sLabels%A_Index%), "Int64P", nSize)
 			dwExtent := (nSize & 0xFFFFFFFF) + tmAveCharWidth
 			
@@ -1815,7 +1813,7 @@ GetLongestItem(hLB) { ;We need the listbox to get the font used
 		Loop %sFuncs0% {
 			
 			;For each string, the value of the extent to be used is calculated as follows:
-			DllCall("GetTextExtentPoint32", "UInt", hDCListBox, "Str", sFuncs%A_Index%
+			DllCall("GetTextExtentPoint32", "Ptr", hDCListBox, "Str", sFuncs%A_Index%
 										  , "Int", StrLen(sFuncs%A_Index%), "Int64P", nSize)
 			dwExtent := (nSize & 0xFFFFFFFF) + tmAveCharWidth
 			
@@ -1826,8 +1824,8 @@ GetLongestItem(hLB) { ;We need the listbox to get the font used
 	}
 	
 	;After all the extents have been calculated, select the old font back into hDCListBox and then release it:
-	DllCall("SelectObject", "UInt", hDCListBox, "UInt", hFontOld)
-	DllCall("ReleaseDC", "UInt", hLB, "UInt", hDCListBox)
+	DllCall("SelectObject", "Ptr", hDCListBox, "Ptr", hFontOld)
+	DllCall("ReleaseDC", "Ptr", hLB, "Ptr", hDCListBox)
 	
 	;Return the longest one found
 	Return dwMaxExtent
@@ -1843,7 +1841,7 @@ GetMaxCharacters(hLB, iWidth) { ;We need the listbox to get the font used
 	VarSetCapacity(lptm, A_IsUnicode ? 60 : 56)
 	
 	;Use GetDC to retrieve handle to the display context for the list box and store it in hDCListBox
-	hDCListBox := DllCall("GetDC", "UInt", hLB)
+	hDCListBox := DllCall("GetDC", "Ptr", hLB, "Ptr")
 	
 	;Send the list box a WM_GETFONT message to retrieve the handle to the 
 	;font that the list box is using, and store this handle in hFontNew
@@ -1852,15 +1850,15 @@ GetMaxCharacters(hLB, iWidth) { ;We need the listbox to get the font used
 	
 	;Use SelectObject to select the font into the display context.
 	;Retain the return value from the SelectObject call in hFontOld
-	hFontOld := DllCall("SelectObject", "UInt", hDCListBox, "UInt", hFontNew)
+	hFontOld := DllCall("SelectObject", "Ptr", hDCListBox, "Ptr", hFontNew, "Ptr")
 	
 	;Call GetTextMetrics to get additional information about the font being used
-	DllCall("GetTextMetrics", "UInt", hDCListBox, Ptr(), &lptm)
+	DllCall("GetTextMetrics", "Ptr", hDCListBox, "Ptr", &lptm)
 	tmAveCharWidth := NumGet(lptm, 20, "UInt")
 	
 	;After all the extents have been calculated, select the old font back into hDCListBox and then release it:
-	DllCall("SelectObject", "UInt", hDCListBox, "UInt", hFontOld)
-	DllCall("ReleaseDC", "UInt", hLB, "UInt", hDCListBox)
+	DllCall("SelectObject", "Ptr", hDCListBox, "Ptr", hFontOld)
+	DllCall("ReleaseDC", "Ptr", hLB, "Ptr", hDCListBox)
 	
 	Return Floor(iWidth / tmAveCharWidth)
 }
@@ -1877,12 +1875,12 @@ Sci_GetText(hSci) {
 	
 	;0x38 = PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE
 	WinGet, pidSci, PID, ahk_id %hSci%
-	If Not (hProc := DllCall("OpenProcess", "UInt", 0x38, "Int", 0, "UInt", pidSci))
+	If Not (hProc := DllCall("OpenProcess", "UInt", 0x38, "Int", 0, "UInt", pidSci, "Ptr"))
 		Return
 	
 	;MEM_COMMIT=0x1000, PAGE_READWRITE=4
 	If Not (ptrBuf := DllCall("VirtualAllocEx", "UInt", hProc, "UInt", 0, "UInt", iLength
-											  , "UInt", 0x1000, "UInt", 4, Ptr()))
+											  , "UInt", 0x1000, "UInt", 4, "Ptr"))
 		Return
 	
 	;Fill buffer with text. SCI_GETTEXT
@@ -1890,18 +1888,17 @@ Sci_GetText(hSci) {
 	
 	;Read buffer
 	VarSetCapacity(sText, iLength)
-	DllCall("ReadProcessMemory", "UInt", hProc, Ptr(), ptrBuf, Ptr(), &sText, "UInt", iLength, "UInt", 0)
+	DllCall("ReadProcessMemory", "Ptr", hProc, "Ptr", ptrBuf, "Ptr", &sText, "UInt", iLength, "UInt", 0)
 	VarSetCapacity(sText, -1)
 	
 	;We're done with the remote buffer
-	DllCall("VirtualFreeEx", "UInt", hProc, Ptr(), ptrBuf, "UInt", 0, "UInt", 0x8000) ;MEM_RELEASE = 0x8000
-	DllCall("CloseHandle", "UInt", hProc)
+	DllCall("VirtualFreeEx", "Ptr", hProc, "Ptr", ptrBuf, "UInt", 0, "UInt", 0x8000) ;MEM_RELEASE = 0x8000
+	DllCall("CloseHandle", "Ptr", hProc)
 	
 	;Check if codepage conversion is necessary. SCI_GETCODEPAGE
 	SendMessage, 2137, 0, 0,, ahk_id %hSci%
-	If IsFunc(func := "StrGet") And ((A_IsUnicode And ErrorLevel != 1200)
-								  Or (!A_IsUnicode And ErrorLevel != 1252))
-		sText := %func%(&sText, "CP" . ErrorLevel)
+	If ((A_IsUnicode And ErrorLevel != 1200) Or (!A_IsUnicode And ErrorLevel != 1252))
+		sText := StrGet(&sText, "CP" . ErrorLevel)
 	
 	Return sText
 }
@@ -1918,12 +1915,12 @@ Sci_GetSelText(hSci) {
 	
 	;0x38 = PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE
 	WinGet, pidSci, PID, ahk_id %hSci%
-	If Not (hProc := DllCall("OpenProcess", "UInt", 0x38, "Int", 0, "UInt", pidSci))
+	If Not (hProc := DllCall("OpenProcess", "UInt", 0x38, "Int", 0, "UInt", pidSci, "Ptr"))
 		Return
 	
 	;MEM_COMMIT=0x1000, PAGE_READWRITE=4
 	If Not (ptrBuf := DllCall("VirtualAllocEx", "UInt", hProc, "UInt", 0, "UInt", iLength
-											  , "UInt", 0x1000, "UInt", 4, Ptr()))
+											  , "UInt", 0x1000, "UInt", 4, "Ptr"))
 		Return
 	
 	;Fill buffer. SCI_GETSELTEXT
@@ -1931,18 +1928,17 @@ Sci_GetSelText(hSci) {
 	
 	;Read buffer
 	VarSetCapacity(sText, iLength)
-	DllCall("ReadProcessMemory", "UInt", hProc, Ptr(), ptrBuf, Ptr(), &sText, "UInt", iLength, "UInt", 0)
+	DllCall("ReadProcessMemory", "Ptr", hProc, "Ptr", ptrBuf, "Ptr", &sText, "UInt", iLength, "UInt", 0)
 	VarSetCapacity(sText, -1)
 	
 	;We're done with the remote buffer
-	DllCall("VirtualFreeEx", "UInt", hProc, Ptr(), ptrBuf, "UInt", 0, "UInt", 0x8000) ;MEM_RELEASE = 0x8000
-	DllCall("CloseHandle", "UInt", hProc)
+	DllCall("VirtualFreeEx", "Ptr", hProc, "Ptr", ptrBuf, "UInt", 0, "UInt", 0x8000) ;MEM_RELEASE = 0x8000
+	DllCall("CloseHandle", "Ptr", hProc)
 	
 	;Get the current codepage used. SCI_GETCODEPAGE
 	SendMessage, 2137, 0, 0,, ahk_id %hSci%
-	If IsFunc(func := "StrGet") And ((A_IsUnicode And ErrorLevel != 1200)
-								  Or (!A_IsUnicode And ErrorLevel != 1252))
-		sText := %func%(&sText, "CP" . ErrorLevel)
+	If ((A_IsUnicode And ErrorLevel != 1200) Or (!A_IsUnicode And ErrorLevel != 1252))
+		sText := StrGet(&sText, "CP" . ErrorLevel)
 	
 	Return sText
 }
@@ -1955,12 +1951,12 @@ Sci_GetLineText(hSci, iLine) {
 	
 	;0x38 = PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE
 	WinGet, pidSci, PID, ahk_id %hSci%
-	If Not (hProc := DllCall("OpenProcess", "UInt", 0x38, "Int", 0, "UInt", pidSci))
+	If Not (hProc := DllCall("OpenProcess", "UInt", 0x38, "Int", 0, "UInt", pidSci, "Ptr"))
 		Return
 	
 	;MEM_COMMIT=0x1000, PAGE_READWRITE=4
 	If Not (ptrBuf := DllCall("VirtualAllocEx", "UInt", hProc, "UInt", 0, "UInt", iLength
-											  , "UInt", 0x1000, "UInt", 4, Ptr()))
+											  , "UInt", 0x1000, "UInt", 4, "Ptr"))
 		Return
 	
 	;Fill buffer with text. SCI_GETLINE
@@ -1968,18 +1964,17 @@ Sci_GetLineText(hSci, iLine) {
 	
 	;Read buffer
 	VarSetCapacity(sText, iLength)
-	DllCall("ReadProcessMemory", "UInt", hProc, Ptr(), ptrBuf, Ptr(), &sText, "UInt", iLength, "UInt", 0)
+	DllCall("ReadProcessMemory", "Ptr", hProc, "Ptr", ptrBuf, "Ptr", &sText, "UInt", iLength, "UInt", 0)
 	VarSetCapacity(sText, -1)
 	
 	;We're done with the remote buffer
-	DllCall("VirtualFreeEx", "UInt", hProc, Ptr(), ptrBuf, "UInt", 0, "UInt", 0x8000) ;MEM_RELEASE = 0x8000
-	DllCall("CloseHandle", "UInt", hProc)
+	DllCall("VirtualFreeEx", "Ptr", hProc, "Ptr", ptrBuf, "UInt", 0, "UInt", 0x8000) ;MEM_RELEASE = 0x8000
+	DllCall("CloseHandle", "Ptr", hProc)
 	
 	;Get the current codepage used. SCI_GETCODEPAGE
 	SendMessage, 2137, 0, 0,, ahk_id %hSci%
-	If IsFunc(func := "StrGet") And ((A_IsUnicode And ErrorLevel != 1200)
-								  Or (!A_IsUnicode And ErrorLevel != 1252))
-		sText := %func%(&sText, "CP" . ErrorLevel)
+	If ((A_IsUnicode And ErrorLevel != 1200) Or (!A_IsUnicode And ErrorLevel != 1252))
+		sText := StrGet(&sText, "CP" . ErrorLevel)
 	
 	;Trim off ending characters
 	sText := RegExReplace(sText, "\R")
@@ -2007,8 +2002,7 @@ LineFromPos(pos) {
 }
 
 LineFromPosEx(ByRef s, pos) {
-	
-	If Not (i := RegExMatch(s, "[\r\n]+", t)) ;Get break used
+	If Not (i := RegExMatch(s, "[\r]?[\n]", t)) ;Get break used
 		Return 1 ;We're on the first line
 	Else {
 		n := 1, j := StrLen(t)
@@ -2074,9 +2068,7 @@ CheckTextClick(x, y) {
 }
 
 StringReverse(s) {
-	If A_IsUnicode
-		DllCall("msvcrt\_wcsrev", Ptr(), &s, "CDecl")
-	Else DllCall("msvcrt\_strrev", Ptr(), &s, "CDecl")
+	DllCall(A_IsUnicode ? "msvcrt\_wcsrev" : "msvcrt\_strrev", "Ptr", &s, "CDecl")
 	Return s
 }
 
@@ -2211,7 +2203,7 @@ LH_SetCurLine(ByRef uLine) {
 HID_Register(UsagePage = False, Usage = False, Handle = False, Flags = 0) {
 	
 	;Prep var
-	VarSetCapacity(uDev, (8 + PtrSize()), 0)
+	VarSetCapacity(uDev, (8 + A_PtrSize), 0)
 	
 	;Check if hwnd needs to be null. RIDEV_REMOVE, RIDEV_EXCLUDE
 	Handle := ((Flags & 0x00000001) Or (Flags & 0x00000010)) ? 0 : Handle
@@ -2219,10 +2211,10 @@ HID_Register(UsagePage = False, Usage = False, Handle = False, Flags = 0) {
 	NumPut(UsagePage, uDev, 0, "UShort")
 	NumPut(Usage,     uDev, 2, "UShort")
 	NumPut(Flags,     uDev, 4, "UInt")
-	NumPut(Handle,    uDev, 8, Ptr())
+	NumPut(Handle,    uDev, 8, "Ptr")
 	
 	;Call
-	r := DllCall("RegisterRawInputDevices", Ptr(), &uDev, "UInt", 1, "UInt", 8 + PtrSize())
+	r := DllCall("RegisterRawInputDevices", "Ptr", &uDev, "UInt", 1, "UInt", 8 + A_PtrSize)
 	
 	;Check for error
 	If Not r Or ErrorLevel {
@@ -2244,12 +2236,12 @@ HID_GetInputInfo(InputHandle, Flag) {
 	If (InputHandle = iLastHandle) ;We can retrieve the data without having to call again
 		Return NumGet(uRawInput, Flag, HID_NumIsShort(Flag) ? (HID_NumIsSigned(Flag) ? "Short" : "UShort")
 															: (HID_NumIsSigned(Flag) ? "Int"
-															: (Flag = 8 ? Ptr() : "UInt")))
+															: (Flag = 8 ? "Ptr" : "UInt")))
 	Else {    ;We need to get a fresh copy
 		
 		;Get raw data size                                           RID_INPUT
-		r := DllCall("GetRawInputData", "UInt", InputHandle, "UInt", 0x10000003, Ptr(), 0
-									  , "UInt*", iSize, "UInt", 8 + PtrSize() * 2)
+		r := DllCall("GetRawInputData", "Ptr", InputHandle, "UInt", 0x10000003, "Ptr", 0
+									  , "UInt*", iSize, "UInt", 8 + A_PtrSize * 2)
 		If (r = -1) Or ErrorLevel {
 			ErrorLevel := "GetRawInputData call failed."
 			. "`nReturn value: " r
@@ -2263,8 +2255,8 @@ HID_GetInputInfo(InputHandle, Flag) {
 		VarSetCapacity(uRawInput, iSize)
 		
 		;Get raw data                                                RID_INPUT
-		r := DllCall("GetRawInputData", "UInt", InputHandle, "UInt", 0x10000003, Ptr(), &uRawInput
-									  , "UInt*", iSize, "UInt", 8 + PtrSize() * 2)
+		r := DllCall("GetRawInputData", "Ptr", InputHandle, "UInt", 0x10000003, "Ptr", &uRawInput
+									  , "UInt*", iSize, "UInt", 8 + A_PtrSize * 2)
 		If (r = -1) Or ErrorLevel {
 			ErrorLevel := "GetRawInputData call failed."
 			. "`nReturn value: " r
@@ -2287,7 +2279,7 @@ HID_GetInputInfo(InputHandle, Flag) {
 		;Retrieve data
 		Return NumGet(uRawInput, Flag, HID_NumIsShort(Flag) ? (HID_NumIsSigned(Flag) ? "Short" : "UShort")
 															: (HID_NumIsSigned(Flag) ? "Int"
-															: (Flag = 8 ? Ptr() : "UInt")))
+															: (Flag = 8 ? "Ptr" : "UInt")))
 	}
 }
 
@@ -2311,21 +2303,13 @@ HID_NumIsSigned(ByRef Flag) {
  Miscellaneous functions |
 					   */
 
-PtrSize() {
-	Return A_PtrSize ? A_PtrSize : 4
-}
-
-Ptr() {
-	Return A_PtrSize ? "Ptr" : "UInt"
-}
-
 ;EmptyMem() by heresy
 ;http://www.autohotkey.com/forum/viewtopic.php?t=32876
 EmptyMem(PID="AHK Rocks"){
 	pid:=(pid="AHK Rocks") ? DllCall("GetCurrentProcessId") : pid
-	h:=DllCall("OpenProcess", "UInt", 0x001F0FFF, "Int", 0, "Int", pid)
-	DllCall("SetProcessWorkingSetSize", "UInt", h, "Int", -1, "Int", -1)
-	DllCall("CloseHandle", "Int", h)
+	h:=DllCall("OpenProcess", "UInt", 0x001F0FFF, "Int", 0, "Int", pid, "Ptr")
+	DllCall("SetProcessWorkingSetSize", "Ptr", h, "Int", -1, "Int", -1)
+	DllCall("CloseHandle", "Ptr", h)
 }
 
 ;Based on Lazslo's CRC32() and MCode() functions
@@ -2347,7 +2331,7 @@ GetFileCRC32(path = False) {
 		
 		VarSetCapacity(CRC32_Init, StrLen(hex) // 2)
 		Loop % StrLen(hex) // 2
-			NumPut("0x" . SubStr(hex, 2 * A_Index - 1, 2), CRC32_Init, A_Index - 1, "Char")
+			NumPut("0x" . SubStr(hex, 2 * A_Index - 1, 2), CRC32_Init, A_Index - 1, "UChar")
 		
 		;Prep MCode for CRC32()
 		If (A_PtrSize = 8)
@@ -2358,17 +2342,17 @@ GetFileCRC32(path = False) {
 		
 		VarSetCapacity(CRC32, StrLen(hex) // 2)
 		Loop % StrLen(hex) // 2
-			NumPut("0x" . SubStr(hex, 2 * A_Index - 1, 2), CRC32, A_Index - 1, "Char")
+			NumPut("0x" . SubStr(hex, 2 * A_Index - 1, 2), CRC32, A_Index - 1, "UChar")
 		
-		DllCall("VirtualProtect", Ptr(), &CRC32, Ptr(), VarSetCapacity(CRC32), "UInt", 0x40, "UInt*", 0)
+		DllCall("VirtualProtect", "Ptr", &CRC32, "Ptr", VarSetCapacity(CRC32), "UInt", 0x40, "UInt*", 0)
 		
 		VarSetCapacity(CRC32LookupTable, 256 * 4)
-		DllCall(&CRC32_Init, Ptr(), &CRC32LookupTable, "CDecl")
+		DllCall(&CRC32_Init, "Ptr", &CRC32LookupTable, "CDecl")
 	}
 	
 	If path {
 		FileGetSize, Bytes, %path%
 		FileRead, Buffer, %path%
-		Return DllCall(&CRC32, Ptr(), &Buffer, "UInt", Bytes, "Int", -1, Ptr(), &CRC32LookupTable, "CDecl UInt")
+		Return DllCall(&CRC32, "Ptr", &Buffer, "UInt", Bytes, "Int", -1, "Ptr", &CRC32LookupTable, "CDecl UInt")
 	}
 }

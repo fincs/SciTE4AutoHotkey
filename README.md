@@ -21,7 +21,7 @@ SciTE4AutoHotkey is a SciTE-based AutoHotkey script editor. It offers:
 Git importing status
 --------------------
 
-Complete. The recommended "setup" procedure is fetching the repository somewhere, then making a symbolic link between %AhkDir%\SciTE and <repo-dir>\source. \*.exe, \*.dll, \*.chm, \*.bak and \*.db are already discarded by .gitignore.
+Complete. The recommended "setup" procedure is fetching the repository somewhere. \*.exe, \*.dll, \*.chm, \*.bak and \*.db are already discarded by .gitignore.
 
 Building SciTE4AutoHotkey
 -------------------------

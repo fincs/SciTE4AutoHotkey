@@ -6,7 +6,9 @@
 *.bin
 *.sfx
 *.bat
+*.zip
 *~
 /source/tools/GenDocs/
 /installer/$SETUP
 /installer/$DATA/
+/installer/s4ahk_portable/

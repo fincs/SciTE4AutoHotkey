@@ -37,6 +37,10 @@ if !oSciTE
 	ExitApp
 }
 
+dbgAddr := oSciTE.ResolveProp("ahk.debugger.address")
+dbgPort := oSciTE.ResolveProp("ahk.debugger.port")+0
+dbgCaptureStreams := !!oSciTE.ResolveProp("ahk.debugger.capture.streams")
+
 if 1 = /attach
 	bIsAttach := true
 else
@@ -132,11 +136,11 @@ DBGp_OnStream("OnDebuggerStream")
 DBGp_OnEnd("OnDebuggerDisconnection")
 
 ; Now really run AutoHotkey and wait for it to connect
-Dbg_Socket := DBGp_StartListening() ; start listening
+Dbg_Socket := DBGp_StartListening(dbgAddr, dbgPort) ; start listening
 SplitPath, szFilename,, szDir
 
 if !bIsAttach
-	Run, "%AhkExecutable%" /Debug "%szFilename%", %szDir%,, Dbg_PID ; run AutoHotkey and store its process ID
+	Run, "%AhkExecutable%" /Debug=%dbgAddr%:%dbgPort% "%szFilename%", %szDir%,, Dbg_PID ; run AutoHotkey and store its process ID
 else
 {
 	; Set the Last Found Window
@@ -144,7 +148,7 @@ else
 	; Get PID of the AutoHotkey window
 	WinGet, Dbg_PID, PID
 	; Tell AutoHotkey to debug
-	PostMessage, DllCall("RegisterWindowMessage", "str", "AHK_ATTACH_DEBUGGER")
+	PostMessage, DllCall("RegisterWindowMessage", "str", "AHK_ATTACH_DEBUGGER"), DllCall("ws2_32\inet_addr", "astr", dbgAddr), dbgPort
 }
 
 while (Dbg_AHKExists := Util_ProcessExist(Dbg_PID)) && Dbg_Session = "" ; wait for AutoHotkey to connect or exit
@@ -391,7 +395,7 @@ return
 SciTEMsgHandler(wParam, lParam, msg, hwnd)
 {
 	Critical
-	global scintillahwnd, SciTEConnected, Dbg_ExitByDisconnect, Dbg_Session, Dbg_IsClosing, Dbg_WaitClose, Dbg_OnBreak, bIsAsync, bInBkProcess
+	global scintillahwnd, SciTEConnected, Dbg_ExitByDisconnect, Dbg_Session, Dbg_IsClosing, Dbg_WaitClose, Dbg_OnBreak, bIsAsync, bInitBk, InitBkList
 	
 	; This code used to be a big if/else if block. I've changed it to this pseudo-switch structure.
 	if IsLabel("_wP" wParam)
@@ -407,9 +411,13 @@ _wP1: ; Breakpoint setting
 	if !bIsAsync && !Dbg_OnBreak
 		return true
 	
-	; We need to launch the breakpoint setting code due to usage of COM
-	global _temp := lParam + 1 ; convert line number from 0-based to 1-based
-	SetTimer, SetBreakpointHelper, -10
+	if !bInitBk
+	{
+		; We need to launch the breakpoint setting code in a separate thread due to usage of COM
+		global _temp := lParam + 1 ; convert line number from 0-based to 1-based
+		SetTimer, SetBreakpointHelper, -10
+	} else
+		InitBkList.Insert(lParam + 1)
 	return true
 	
 _wP2: ; Variable inspection
@@ -470,6 +478,14 @@ _wP4: ; Hovering
 			ToolTip, %Dbg_VarName% is an object
 	}
 	return true
+	
+_wP5: ; Breakpoint initialization
+	bInitBk := lParam
+	if !bInitBk
+		SetTimer, InitBreakpoints, -10
+	else
+		InitBkList := []
+	return true
 
 _wP255: ; Disconnect
 	if !Dbg_ExitByDisconnect
@@ -487,6 +503,12 @@ _wP255: ; Disconnect
 
 SetBreakpointHelper:
 SetBreakpoint(_temp)
+return
+
+InitBreakpoints:
+for _, line in InitBkList
+	SetBreakpoint(line)
+InitBkList := ""
 return
 
 SetBreakpoint(lParam)
@@ -635,8 +657,11 @@ OnDebuggerConnection(session, init)
 	session.feature_set("-n max_children -v 100")
 	session.feature_set("-n max_data -v " (Dbg_MemLimit := 128*1024)) ; Requested by Lexikos
 	session.feature_set("-n max_depth -v 32")
-	session.stdout("-c 2")
-	session.stderr("-c 2")
+	if dbgCaptureStreams
+	{
+		session.stdout("-c 2")
+		session.stderr("-c 2")
+	}
 	session.feature_get("-n supports_async", response)
 	bIsAsync := !!InStr(response, ">1<")
 	; Really nothing more to do

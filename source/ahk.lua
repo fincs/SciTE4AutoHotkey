@@ -178,10 +178,14 @@ end
 function DBGp_BkReset()
 	if savedbk == nil then return end
 	
+	pumpmsg(4112, 5, 1)
+	
 	editor:MarkerDeleteAll(10)
 	for i,v in ipairs(savedbk) do
 		pumpmsg(4112, 1, v)
 	end
+	
+	pumpmsg(4112, 5, 0)
 	
 	savedbk = nil
 end

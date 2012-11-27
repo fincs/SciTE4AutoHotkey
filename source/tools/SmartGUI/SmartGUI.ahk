@@ -55,13 +55,14 @@ MenuWnd = SmartGUI Creator for SciTE4AutoHotkey v3
 GeneratedWnd = Untitled GUI
 CustomOptions = -16|BackgroundTrans|Border|Buttons|Center|Checked|Disabled|Hidden|Horz|HScroll|Invert|Left|Limit|Lowercase|Multi|NoTicks|Number|Password|Range|ReadOnly|Right|Smooth|Theme|ToolTip|Uppercase|Vertical|VScroll|WantReturn|Wrap
 
-IsPortable := FileExist(A_ScriptDir "\..\$PORTABLE")
-if !IsPortable
-	LocalSciTEPath = %A_MyDocuments%\AutoHotkey\SciTE
-else
-	LocalSciTEPath = %A_ScriptDir%\..\user
+scite := GetSciTEInstance()
+if !scite
+{
+	MsgBox, 16, SmartGUI Creator, Cannot find SciTE!
+	ExitApp
+}
 
-SettingsPath = %LocalSciTEPath%\Settings
+SettingsPath := scite.UserDir "\Settings"
 
 ;___________________________________________
 
@@ -1393,18 +1394,7 @@ GenerateGUI:
 	StringReplace, FinalScript, FinalScript, `n, `r`n, All ; Use Windows line endings
 	
 	IfEqual, SaveGUI, 1
-	{
-		scite := GetSciTEInstance()
-		if !scite
-		{
-			Clipboard := FinalScript
-			ClipWait, 1
-		}else
-		{
-			scite.InsertText(FinalScript)
-			scite := ""
-		}
-	}
+		scite.InsertText(FinalScript)
 	
 	IfNotEqual, SaveGUI, 1
 		FileAppend, #NoTrayIcon`n`n%FinalScript%, %SaveAsFile%

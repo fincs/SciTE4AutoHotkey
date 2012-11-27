@@ -11,18 +11,14 @@ SetWorkingDir, %A_ScriptDir%
 
 Menu, Tray, Icon, ..\toolicon.icl, 17
 
-IsPortable := FileExist(A_ScriptDir "\..\$PORTABLE")
-if !IsPortable
-	LocalSciTEPath = %A_MyDocuments%\AutoHotkey\SciTE
-else
-	LocalSciTEPath = %A_ScriptDir%\..\user
-
 scite := GetSciTEInstance()
 if !scite
 {
 	MsgBox, 16, SciTE properties editor, Can't find SciTE!
 	ExitApp
 }
+
+LocalSciTEPath := scite.UserDir
 
 UserPropsFile = %LocalSciTEPath%\_config.properties
 

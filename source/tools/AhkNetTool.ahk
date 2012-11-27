@@ -11,20 +11,14 @@ DetectHiddenWindows, On
 
 Menu, Tray, Icon, ..\toolicon.icl, 9
 
-IsPortable := FileExist(A_ScriptDir "\..\$PORTABLE")
-if !IsPortable
-	LocalSciTEPath = %A_MyDocuments%\AutoHotkey\SciTE
-else
-	LocalSciTEPath = %A_ScriptDir%\..\user
-
-inifile = %LocalSciTEPath%\Settings\ahknet.ini
-
 oSciTE := GetSciTEInstance()
 if !oSciTE
 {
 	MsgBox, 16, autohotkey.net Tool, Cannot find SciTE!
 	ExitApp
 }
+
+inifile := oSciTE.UserDir "\Settings\ahknet.ini"
 
 ; Command data
 _CommandList = ChangeDirectory,UploadScript,UploadFile

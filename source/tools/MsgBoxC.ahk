@@ -3,13 +3,12 @@
 #NoEnv
 SetWorkingDir, %A_ScriptDir%
 
-scitehwnd := WinExist("ahk_class SciTEWindow")
-/*IfWinNotExist, ahk_id %scitehwnd%
+oSciTE := GetSciTEInstance()
+if !oSciTE
 {
-	MsgBox, 16, MsgBox Creator, SciTE window not found
+	MsgBox, 16, MsgBox Creator, Cannot find SciTE!
 	ExitApp
 }
-*/
 
 ;Tray-Menu
 Menu, Tray, Icon, ..\toolicon.icl, 10
@@ -70,10 +69,7 @@ Gui, Add, Edit, xs+10 ys+17 w70 vTimeout gCreate_Msgbox_Command
 Gui, Add, UpDown, Range-1-2147483, -1
 
 Gui, Add, Button, x530 y280 h30 w90 vTest gTest, &Test
-if(scitehwnd)
-	Gui, Add, Button, x430 y320 h30 w90 Default gSciTEInsert, &Insert in SciTE
-else
-	Gui, Add, Button, x430 y320 h30 w90 Default gClipboardCopy, &Copy to clipboard
+Gui, Add, Button, x430 y320 h30 w90 Default gSciTEInsert, &Insert in SciTE
 Gui, Add, Button, x530 y320 h30 w90 gReset, &Reset
 
 Gui, Add, Groupbox, x10 y350 w610 h75 section, Result
@@ -221,21 +217,7 @@ Escape_Characters(byref Var)
 }
 
 SciTEInsert:
-IfWinNotExist, ahk_id %scitehwnd%
-	goto ClipboardCopy
-WinActivate, ahk_id %scitehwnd%
-WinWaitActive
-scite := GetSciTEInstance()
-if !scite
-{
-	MsgBox, 16, MsgBox Creator, Can't retrieve SciTE COM object!
-	ExitApp
-}
-scite.InsertText(Msgbox_Command)
-ExitApp
-
-ClipboardCopy:
-Clipboard := Msgbox_Command
+oSciTE.InsertText(Msgbox_Command)
 ExitApp
 
 GuiClose:

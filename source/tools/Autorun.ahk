@@ -6,20 +6,14 @@
 #NoTrayIcon
 SetWorkingDir, %A_ScriptDir%
 
-IsPortable := FileExist(A_ScriptDir "\$PORTABLE")
-if !IsPortable
-	LocalSciTEPath = %A_MyDocuments%\AutoHotkey\SciTE
-else
-	LocalSciTEPath = %A_ScriptDir%\..\user
-
-UserAutorun = %LocalSciTEPath%\Autorun.ahk
-
 oSciTE := GetSciTEInstance()
 if !oSciTE
 {
 	MsgBox, 16, SciTE4AutoHotkey, Cannot find SciTE!
-	return
+	ExitApp
 }
+
+UserAutorun := oSciTE.UserDir "\Autorun.ahk"
 
 bUpdatesEnabled := oSciTE.ResolveProp("automatic.updates") + 0
 bTillaGotoEnabled := oSciTE.ResolveProp("tillagoto.enable") + 0

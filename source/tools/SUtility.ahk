@@ -12,11 +12,8 @@ if !scite
 	ExitApp
 }
 
-IsPortable := FileExist(A_ScriptDir "\..\$PORTABLE")
-if !IsPortable
-	LocalSciTEPath = %A_MyDocuments%\AutoHotkey\SciTE
-else
-	LocalSciTEPath = %A_ScriptDir%\..\user
+LocalSciTEPath := scite.UserDir
+scitehwnd := scite.SciTEHandle
 
 sdir = %LocalSciTEPath%\Scriptlets
 IfNotExist, %sdir%
@@ -26,14 +23,6 @@ IfNotExist, %sdir%
 }
 
 FileEncoding, UTF-8
-
-IfWinNotExist, ahk_class SciTEWindow
-{
-	MsgBox, 16, Scriptlet Utility, SciTE window not found!
-	ExitApp
-}
-
-scitehwnd := WinExist("")
 
 ; Check command line
 if 1 = /insert

@@ -45,7 +45,7 @@ index 0000000..e7be725
 +EndGlobal
 diff --git a/scintilla/Scintilla.vcxproj b/scintilla/Scintilla.vcxproj
 new file mode 100644
-index 0000000..cdf3331
+index 0000000..9b801bf
 --- /dev/null
 +++ b/scintilla/Scintilla.vcxproj
 @@ -0,0 +1,358 @@
@@ -80,27 +80,27 @@ index 0000000..cdf3331
 +    <ConfigurationType>DynamicLibrary</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
 +    <CharacterSet>Unicode</CharacterSet>
-+    <PlatformToolset>v100</PlatformToolset>
++    <PlatformToolset>v110_xp</PlatformToolset>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
 +    <ConfigurationType>DynamicLibrary</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
 +    <CharacterSet>Unicode</CharacterSet>
-+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
++    <PlatformToolset>v110_xp</PlatformToolset>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
 +    <ConfigurationType>DynamicLibrary</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
-+    <PlatformToolset>v100</PlatformToolset>
++    <PlatformToolset>v110_xp</PlatformToolset>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
 +    <ConfigurationType>DynamicLibrary</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
-+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
++    <PlatformToolset>v110_xp</PlatformToolset>
 +  </PropertyGroup>
 +  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
 +  <ImportGroup Label="ExtensionSettings">
@@ -981,7 +981,7 @@ index 85ba2a1..81d5d34 100644
  #endif
 diff --git a/scintilla/lexers/LexAHK1.cxx b/scintilla/lexers/LexAHK1.cxx
 new file mode 100644
-index 0000000..e63d55f
+index 0000000..53e9dcb
 --- /dev/null
 +++ b/scintilla/lexers/LexAHK1.cxx
 @@ -0,0 +1,487 @@
@@ -990,11 +990,11 @@ index 0000000..e63d55f
 + ** Lexer for AutoHotkey, simplified version
 + ** Written by Philippe Lhoste (PhiLho)
 + ** Some hacks by fincs to:
-+ **  - Support AutoHotkey_L object syntax
++ **  - Support object syntax
 + **  - Support ternary operators (? :)
 + **  - Fix folding
 + **/
-+// Copyright 1998-2009 by Neil Hodgson <neilh@scintilla.org>
++// Copyright 1998-2012 by Neil Hodgson <neilh@scintilla.org>
 +// The License.txt file describes the conditions under which this software may be distributed.
 +
 +#include <stdlib.h>
@@ -1519,7 +1519,7 @@ index 990fa9f..be8ce85 100644
   ../lexlib/WordList.h ../lexlib/LexAccessor.h ../lexlib/Accessor.h \
 diff --git a/scite/SciTE.vcxproj b/scite/SciTE.vcxproj
 new file mode 100644
-index 0000000..9b97f9c
+index 0000000..d03ab94
 --- /dev/null
 +++ b/scite/SciTE.vcxproj
 @@ -0,0 +1,298 @@
@@ -1554,27 +1554,27 @@ index 0000000..9b97f9c
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
 +    <CharacterSet>Unicode</CharacterSet>
-+    <PlatformToolset>v100</PlatformToolset>
++    <PlatformToolset>v110_xp</PlatformToolset>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
 +    <CharacterSet>Unicode</CharacterSet>
-+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
++    <PlatformToolset>v110_xp</PlatformToolset>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
-+    <PlatformToolset>v100</PlatformToolset>
++    <PlatformToolset>v110_xp</PlatformToolset>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
-+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
++    <PlatformToolset>v110_xp</PlatformToolset>
 +  </PropertyGroup>
 +  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
 +  <ImportGroup Label="ExtensionSettings">
@@ -2334,7 +2334,7 @@ index 4886e00..3f3d6eb 100644
  	virtual bool OnUserListSelection(int, const char *);
  
 diff --git a/scite/src/SciTE.h b/scite/src/SciTE.h
-index 391fdfc..f3b5c93 100644
+index 391fdfc..730f87e 100644
 --- a/scite/src/SciTE.h
 +++ b/scite/src/SciTE.h
 @@ -9,9 +9,10 @@
@@ -2344,9 +2344,9 @@ index 391fdfc..f3b5c93 100644
 -#define VERSION_SCITE "3.2.3"
 -#define VERSION_WORDS 3, 2, 3, 0
 -#define COPYRIGHT_DATES "December 1998-July 2012"
-+#define VERSION_SCITE "3.0.01"
++#define VERSION_SCITE "3.0.01.01"
 +#define VERSION_ORGSCITE "3.2.3"
-+#define VERSION_WORDS 3, 0, 1, 0
++#define VERSION_WORDS 3, 0, 1, 1
 +#define COPYRIGHT_DATES "December 1998-November 2012"
  #define COPYRIGHT_YEARS "1998-2012"
  
@@ -2359,10 +2359,18 @@ index 391fdfc..f3b5c93 100644
 +// fincs-edit
 +#define IDI_MAINICON 500
 diff --git a/scite/src/SciTEBase.cxx b/scite/src/SciTEBase.cxx
-index 3f3e042..8a3bd0c 100644
+index 3f3e042..0a035ee 100644
 --- a/scite/src/SciTEBase.cxx
 +++ b/scite/src/SciTEBase.cxx
-@@ -176,6 +176,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
+@@ -169,6 +169,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
+ 	bracesCheck = true;
+ 	bracesSloppy = false;
+ 	bracesStyle = 0;
++	bracesStyle2 = 0;
+ 	braceCount = 0;
+ 
+ 	indentationWSVisible = true;
+@@ -176,6 +177,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
  	autoCompleteIgnoreCase = false;
  	callTipUseEscapes = false;
  	callTipIgnoreCase = false;
@@ -2370,7 +2378,33 @@ index 3f3e042..8a3bd0c 100644
  	autoCCausedByOnlyOne = false;
  	startCalltipWord = 0;
  	currentCallTip = 0;
-@@ -1485,10 +1486,12 @@ void SciTEBase::Redraw() {
+@@ -523,6 +525,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
+ 		return false;
+ 
+ 	int bracesStyleCheck = editor ? bracesStyle : 0;
++	int bracesStyleCheck2 = editor ? bracesStyle2 : 0;
+ 	int caretPos = win.Call(SCI_GETCURRENTPOS, 0, 0);
+ 	braceAtCaret = -1;
+ 	braceOpposite = -1;
+@@ -539,7 +542,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
+ 	}
+ 	// Priority goes to character before caret
+ 	if (charBefore && IsBrace(charBefore) &&
+-	        ((styleBefore == bracesStyleCheck) || (!bracesStyle))) {
++	        (((styleBefore == bracesStyleCheck) || (!bracesStyle)) || ((styleBefore == bracesStyleCheck2) || (!bracesStyle2)))) {
+ 		braceAtCaret = caretPos - 1;
+ 	}
+ 	bool colonMode = false;
+@@ -555,7 +558,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
+ 		if (win.Send(SCI_POSITIONAFTER, caretPos) == (caretPos + 1)) {
+ 			char charAfter = acc[caretPos];
+ 			char styleAfter = static_cast<char>(acc.StyleAt(caretPos) & maskStyle);
+-			if (charAfter && IsBrace(charAfter) && ((styleAfter == bracesStyleCheck) || (!bracesStyle))) {
++			if (charAfter && IsBrace(charAfter) && (((styleAfter == bracesStyleCheck) || (!bracesStyle)) || ((styleAfter == bracesStyleCheck2) || (!bracesStyle2)))) {
+ 				braceAtCaret = caretPos;
+ 				isAfter = false;
+ 			}
+@@ -1485,10 +1488,12 @@ void SciTEBase::Redraw() {
  }
  
  char *SciTEBase::GetNearestWords(const char *wordStart, size_t searchLen,
@@ -2385,7 +2419,7 @@ index 3f3e042..8a3bd0c 100644
  		separators++;
  	}
  	return words;
-@@ -1500,7 +1503,7 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
+@@ -1500,7 +1505,7 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
  	}
  	if (apis) {
  		char *words = GetNearestWords(currentCallTipWord.c_str(), currentCallTipWord.length(),
@@ -2394,7 +2428,7 @@ index 3f3e042..8a3bd0c 100644
  		if (!words)
  			return;
  		// Counts how many call tips
-@@ -1514,7 +1517,7 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
+@@ -1514,7 +1519,7 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
  
  		// Should get current api definition
  		const char *word = apis.GetNearestWord(currentCallTipWord.c_str(), currentCallTipWord.length(),
@@ -2403,7 +2437,7 @@ index 3f3e042..8a3bd0c 100644
  		if (word) {
  			functionDefinition = word;
  			if (maxCallTips > 1) {
-@@ -1624,7 +1627,7 @@ void SciTEBase::ContinueCallTip() {
+@@ -1624,7 +1629,7 @@ void SciTEBase::ContinueCallTip() {
  			commas--;
  		// If it reached the end of the argument list it means that the user typed in more
  		// arguments than the ones listed in the calltip
@@ -2412,7 +2446,7 @@ index 3f3e042..8a3bd0c 100644
  			commas = 0;
  		else
  			startHighlight++;
-@@ -1695,7 +1698,8 @@ bool SciTEBase::StartAutoComplete() {
+@@ -1695,7 +1700,8 @@ bool SciTEBase::StartAutoComplete() {
  	SString root = line.substr(startword, current - startword);
  	if (apis) {
  		char *words = GetNearestWords(root.c_str(), root.length(),
@@ -2422,7 +2456,7 @@ index 3f3e042..8a3bd0c 100644
  		if (words) {
  			EliminateDuplicateWords(words);
  			wEditor.Call(SCI_AUTOCSETSEPARATOR, ' ');
-@@ -4016,7 +4020,7 @@ void SciTEBase::Notify(SCNotification *notification) {
+@@ -4016,7 +4022,7 @@ void SciTEBase::Notify(SCNotification *notification) {
  
  	case SCN_MARGINCLICK: {
  			if (extender)
@@ -2432,9 +2466,18 @@ index 3f3e042..8a3bd0c 100644
  				if (notification->margin == 2) {
  					MarginClick(notification->position, notification->modifiers);
 diff --git a/scite/src/SciTEBase.h b/scite/src/SciTEBase.h
-index 1233953..a50805d 100644
+index 1233953..7cd2167 100644
 --- a/scite/src/SciTEBase.h
 +++ b/scite/src/SciTEBase.h
+@@ -470,7 +470,7 @@ protected:
+ 	bool twoPhaseDraw;
+ 	bool bracesCheck;
+ 	bool bracesSloppy;
+-	int bracesStyle;
++	int bracesStyle, bracesStyle2;
+ 	int braceCount;
+ 
+ 	bool indentationWSVisible;
 @@ -484,6 +484,7 @@ protected:
  	SString calltipParametersEnd;
  	SString calltipParametersSeparators;
@@ -2454,10 +2497,19 @@ index 1233953..a50805d 100644
  	void ContinueCallTip();
  	virtual void EliminateDuplicateWords(char *words);
 diff --git a/scite/src/SciTEProps.cxx b/scite/src/SciTEProps.cxx
-index 077266d..58d7465 100644
+index 077266d..ae5643e 100644
 --- a/scite/src/SciTEProps.cxx
 +++ b/scite/src/SciTEProps.cxx
-@@ -1014,6 +1014,9 @@ void SciTEBase::ReadProperties() {
+@@ -997,6 +997,8 @@ void SciTEBase::ReadProperties() {
+ 	char bracesStyleKey[200];
+ 	sprintf(bracesStyleKey, "braces.%s.style", language.c_str());
+ 	bracesStyle = props.GetInt(bracesStyleKey, 0);
++	strcat(bracesStyleKey, "2");
++	bracesStyle2 = props.GetInt(bracesStyleKey, 0);
+ 
+ 	char key[200];
+ 	SString sval;
+@@ -1014,6 +1016,9 @@ void SciTEBase::ReadProperties() {
  
  	calltipEndDefinition = FindLanguageProperty("calltip.*.end.definition");
  
@@ -2720,7 +2772,7 @@ index 0000000..6e68610
 +	return 0;
 +}
 diff --git a/scite/win32/SciTERes.rc b/scite/win32/SciTERes.rc
-index 66423ed..a6cc8fc 100644
+index 66423ed..bd61c84 100644
 --- a/scite/win32/SciTERes.rc
 +++ b/scite/win32/SciTERes.rc
 @@ -6,7 +6,9 @@
@@ -2774,7 +2826,7 @@ index 66423ed..a6cc8fc 100644
 -			VALUE	"OriginalFilename",	"SciTE.EXE\0"
 -			VALUE	"ProductName",	"SciTE\0"
 +			VALUE	"InternalName",	"SciTE4AutoHotkey\0"
-+			VALUE	"LegalCopyright",	"SciTE is (c) 1998-2011 by Neil Hodgson, the AutoHotkey distribution is (c) 2007-2010 by fincs\0"
++			VALUE	"LegalCopyright",	"SciTE is (c) 1998-2012 by Neil Hodgson, the AutoHotkey distribution is (c) 2007-2012 by fincs\0"
 +			VALUE	"OriginalFilename",	"SciTE.exe\0"
 +			VALUE	"ProductName",	"SciTE4AutoHotkey\0"
  			VALUE	"ProductVersion",	VERSION_SCITE "\0"

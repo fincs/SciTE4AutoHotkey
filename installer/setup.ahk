@@ -248,9 +248,23 @@ Btn_Browse()
 	oTextBox.value := ov
 }
 
+closeSciTE()
+{
+	while WinExist("ahk_class SciTEWindow") ; can't use the COM object because this is an elevated process
+	{
+		MsgBox, 53, %uititle%, SciTE4AutoHotkey is currently running. Please close it before continuing.
+		IfMsgBox, Cancel
+			return false
+	}
+	return true
+}
+
 Btn_PerformInstall()
 {
 	Gui +OwnDialogs
+	if !closeSciTE()
+		return
+	
 	document := getDocument()
 	installDir := document.getElementById("opt_installdir").value
 	bDefaultEditor := document.getElementById("opt_defedit").checked != 0
@@ -334,6 +348,9 @@ Btn_PerformInstall()
 
 Btn_PerformUninstall()
 {
+	if !closeSciTE()
+		return
+	
 	RegRead, installDir, HKLM, Software\SciTE4AutoHotkey, InstallDir
 	RegRead, defEdit, HKLM, Software\SciTE4AutoHotkey, InstallDefEditor
 	RegRead, defSS, HKLM, Software\SciTE4AutoHotkey, InstallDefSS

@@ -372,5 +372,9 @@ Btn_PerformUninstall()
 	if defDS
 		FileDelete, %A_DesktopCommon%\SciTE4AutoHotkey.lnk
 	
+	MsgBox, 52, %uititle%, Do you want to remove the user profile?
+	IfMsgBox, Yes
+		WipeProfile(A_MyDocuments "\AutoHotkey\SciTE\")
+	
 	MsgBox, 64, %uititle%, SciTE4AutoHotkey uninstalled successfully!
 }

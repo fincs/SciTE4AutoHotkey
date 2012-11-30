@@ -12,7 +12,7 @@ SendMode, Input
 SetWorkingDir, %A_ScriptDir%
 
 global uititle := "SciTE4AutoHotkey Setup"
-global programVer := "3.0.01"
+global programVer := "3.0.01.01"
 global winVer := Util_GetWinVer()
 global ahkPath := Util_GetAhkPath()
 global intlAhkName := ""

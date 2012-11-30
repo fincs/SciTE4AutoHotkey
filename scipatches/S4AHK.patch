@@ -45,10 +45,10 @@ index 0000000..e7be725
 +EndGlobal
 diff --git a/scintilla/Scintilla.vcxproj b/scintilla/Scintilla.vcxproj
 new file mode 100644
-index 0000000..9b801bf
+index 0000000..8f443e7
 --- /dev/null
 +++ b/scintilla/Scintilla.vcxproj
-@@ -0,0 +1,358 @@
+@@ -0,0 +1,359 @@
 +﻿<?xml version="1.0" encoding="utf-8"?>
 +<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 +  <ItemGroup Label="ProjectConfigurations">
@@ -187,6 +187,7 @@ index 0000000..9b801bf
 +      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
 +      <BufferSecurityCheck>false</BufferSecurityCheck>
 +      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
 +    </ClCompile>
 +    <Link>
 +      <SubSystem>Windows</SubSystem>
@@ -1519,10 +1520,10 @@ index 990fa9f..be8ce85 100644
   ../lexlib/WordList.h ../lexlib/LexAccessor.h ../lexlib/Accessor.h \
 diff --git a/scite/SciTE.vcxproj b/scite/SciTE.vcxproj
 new file mode 100644
-index 0000000..d03ab94
+index 0000000..acdbe54
 --- /dev/null
 +++ b/scite/SciTE.vcxproj
-@@ -0,0 +1,298 @@
+@@ -0,0 +1,299 @@
 +﻿<?xml version="1.0" encoding="utf-8"?>
 +<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 +  <ItemGroup Label="ProjectConfigurations">
@@ -1666,6 +1667,7 @@ index 0000000..d03ab94
 +      <OmitFramePointers>true</OmitFramePointers>
 +      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
 +      <BufferSecurityCheck>false</BufferSecurityCheck>
++      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
 +    </ClCompile>
 +    <Link>
 +      <SubSystem>Windows</SubSystem>

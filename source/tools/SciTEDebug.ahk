@@ -41,6 +41,10 @@ dbgAddr := oSciTE.ResolveProp("ahk.debugger.address")
 dbgPort := oSciTE.ResolveProp("ahk.debugger.port")+0
 dbgCaptureStreams := !!oSciTE.ResolveProp("ahk.debugger.capture.streams")
 
+global dbgMaxChildren := oSciTE.ResolveProp("ahk.debugger.max.obj.children")+0
+global dbgMaxDepth := oSciTE.ResolveProp("ahk.debugger.max.obj.depth")+0
+global dbgMaxData := oSciTE.ResolveProp("ahk.debugger.max.data")+0
+
 if 1 = /attach
 	bIsAttach := true
 else
@@ -654,9 +658,9 @@ OnDebuggerConnection(session, init)
 	dom := loadXML(init)
 	Dbg_Lang := dom.selectSingleNode("/init/@language").text
 	session.property_set("-n A_DebuggerName -- " DBGp_Base64UTF8Encode("SciTE4AutoHotkey"))
-	session.feature_set("-n max_children -v 100")
-	session.feature_set("-n max_data -v " (Dbg_MemLimit := 128*1024)) ; Requested by Lexikos
-	session.feature_set("-n max_depth -v 32")
+	session.feature_set("-n max_children -v " dbgMaxChildren)
+	session.feature_set("-n max_data -v " dbgMaxData)
+	session.feature_set("-n max_depth -v " dbgMaxDepth)
 	if dbgCaptureStreams
 	{
 		session.stdout("-c 2")
@@ -1051,7 +1055,7 @@ Dbg_GetContexts()
 	Dbg_Session.feature_set("-n max_data -v 65")
 	Dbg_Session.context_get("-c 0", Dbg_LocalContext)
 	Dbg_Session.context_get("-c 1", Dbg_GlobalContext)
-	Dbg_Session.feature_set("-n max_data -v " Dbg_MemLimit) ; Requested by Lexikos
+	Dbg_Session.feature_set("-n max_data -v " dbgMaxData)
 	Dbg_LocalContext  := loadXML(Dbg_LocalContext)
 	Dbg_GlobalContext := loadXML(Dbg_GlobalContext)
 }

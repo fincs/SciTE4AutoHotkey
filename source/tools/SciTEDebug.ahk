@@ -466,7 +466,12 @@ _wP4: ; Hovering
 		ToolTip
 	else
 	{
+		; Avoid hangs on really complex objects
+		session.feature_set("-n max_children -v 0")
+		session.feature_set("-n max_depth -v 0")
 		Dbg_Session.property_get("-m 200 -n " Dbg_VarName, Dbg_Response)
+		session.feature_set("-n max_children -v " dbgMaxChildren)
+		session.feature_set("-n max_depth -v " dbgMaxDepth)
 		dom := loadXML(Dbg_Response)
 		check := dom.selectSingleNode("/response/property/@name").text
 		if check = (invalid)

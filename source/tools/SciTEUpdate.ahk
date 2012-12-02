@@ -247,6 +247,9 @@ class Update
 		}
 		VarSetCapacity(buf, 0)
 		
+		FileCreateDir, %target%\Lib
+		FileCopy, %A_ScriptDir%\Lib\SUpd.ahk, %target%\Lib\SUpd.ahk
+		
 		RunWait, "%A_AhkPath%" "%target%\update.ahk"
 		if ErrorLevel != 0
 			throw Exception("Update failed.", 0, "Revision " this.revision)

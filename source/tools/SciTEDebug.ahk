@@ -42,7 +42,6 @@ dbgPort := oSciTE.ResolveProp("ahk.debugger.port")+0
 dbgCaptureStreams := !!oSciTE.ResolveProp("ahk.debugger.capture.streams")
 
 global dbgMaxChildren := oSciTE.ResolveProp("ahk.debugger.max.obj.children")+0
-global dbgMaxDepth := oSciTE.ResolveProp("ahk.debugger.max.obj.depth")+0
 global dbgMaxData := oSciTE.ResolveProp("ahk.debugger.max.data")+0
 
 if 1 = /attach
@@ -432,7 +431,11 @@ _wP2: ; Variable inspection
 	}
 	
 	Dbg_VarName := Trim(StrGet(lParam, "UTF-8"), " `t`r`n=")
+	
+	; Allow retrieving immediate children for object values
+	SetEnableChildren(true)
 	Dbg_Session.property_get("-n " Dbg_VarName, Dbg_Response)
+	SetEnableChildren(false)
 	dom := loadXML(Dbg_Response)
 	
 	Dbg_NewVarName := dom.selectSingleNode("/response/property/@name").text
@@ -466,12 +469,7 @@ _wP4: ; Hovering
 		ToolTip
 	else
 	{
-		; Avoid hangs on really complex objects
-		session.feature_set("-n max_children -v 0")
-		session.feature_set("-n max_depth -v 0")
 		Dbg_Session.property_get("-m 200 -n " Dbg_VarName, Dbg_Response)
-		session.feature_set("-n max_children -v " dbgMaxChildren)
-		session.feature_set("-n max_depth -v " dbgMaxDepth)
 		dom := loadXML(Dbg_Response)
 		check := dom.selectSingleNode("/response/property/@name").text
 		if check = (invalid)
@@ -508,6 +506,20 @@ _wP255: ; Disconnect
 	Dbg_WaitClose := true ; the main thread can finish waiting now
 	Sleep, 10
 	return true
+}
+
+SetEnableChildren(v)
+{
+	global Dbg_Session
+	if v
+	{
+		Dbg_Session.feature_set("-n max_children -v " dbgMaxChildren)
+		Dbg_Session.feature_set("-n max_depth -v 1")
+	}else
+	{
+		Dbg_Session.feature_set("-n max_children -v 0")
+		Dbg_Session.feature_set("-n max_depth -v 0")
+	}
 }
 
 SetBreakpointHelper:
@@ -663,9 +675,8 @@ OnDebuggerConnection(session, init)
 	dom := loadXML(init)
 	Dbg_Lang := dom.selectSingleNode("/init/@language").text
 	session.property_set("-n A_DebuggerName -- " DBGp_Base64UTF8Encode("SciTE4AutoHotkey"))
-	session.feature_set("-n max_children -v " dbgMaxChildren)
 	session.feature_set("-n max_data -v " dbgMaxData)
-	session.feature_set("-n max_depth -v " dbgMaxDepth)
+	SetEnableChildren(false)
 	if dbgCaptureStreams
 	{
 		session.stdout("-c 2")
@@ -985,13 +996,6 @@ VL_Update()
 	VL_Local := Util_UnpackNodes(Dbg_LocalContext.selectNodes("/response/property/@name"))
 	VL_Global := Util_UnpackNodes(Dbg_GlobalContext.selectNodes("/response/property/@name"))
 	VL_NVars := VL_Local.MaxIndex() + VL_Global.MaxIndex()
-	; The removal of the following was requested by Lexikos:
-	;~ if VL_NVars > 100
-	;~ {
-		;~ MsgBox, 36, SciTE4AutoHotkey Debugger, There are %VL_NVars% variables.`nUpdating the variable list window may take some time. Continue?
-		;~ IfMsgBox, No
-			;~ return
-	;~ }
 	VL_LocalCont := Util_UnpackContNodes(Dbg_LocalContext.selectNodes("/response/property"))
 	VL_GlobalCont := Util_UnpackContNodes(Dbg_GlobalContext.selectNodes("/response/property"))
 	; update
@@ -1031,7 +1035,9 @@ if A_GuiEvent != DoubleClick
 LV_GetText(VL_Scope, A_EventInfo, 1)
 VL_Scope := VL_Scope != "Local"
 LV_GetText(VL_VarName, A_EventInfo, 2)
+SetEnableChildren(true)
 Dbg_Session.property_get("-c " VL_Scope " -n " VL_VarName, Dbg_Response)
+SetEnableChildren(false)
 dom := loadXML(Dbg_Response)
 
 if dom.selectSingleNode("/response/property/@type").text != "Object"
@@ -1041,6 +1047,7 @@ if dom.selectSingleNode("/response/property/@type").text != "Object"
 	VE_Create(VL_VarName, VL_VarData, VL_VarIsReadOnly)
 }else
 	OE_Create(dom)
+dom := ""
 return
 
 VLGuiClose:
@@ -1115,7 +1122,7 @@ OE_Create(ByRef objdom)
 	Gui 6:Destroy
 	Gui 6:Default
 	Gui 6:+ToolWindow +AlwaysOnTop +LabelOEGui +Resize +MinSize -MaximizeBox
-	Gui 6:Add, TreeView, x0 y0 w336 h320 vOE_Tree gOE_Click
+	Gui 6:Add, TreeView, x0 y0 w336 h320 vOE_Tree gOE_Event AltSubmit
 	root := TV_Add(objdom.selectSingleNode("/response/property/@name").text)
 	OE_Add(objdom.selectNodes("/response/property[1]/property"), root)
 	TV_Modify(root, "Expand")
@@ -1135,8 +1142,12 @@ OE_Add(nodes, tnode)
 	{
 		node := nodes.item[A_Index-1]
 		ttnode := TV_Add(node.attributes.getNamedItem("name").text, tnode)
-		OE_Data[ttnode] := node
-		OE_Add(node.selectNodes("property"), ttnode)
+		needToLoadChildren := node.attributes.getNamedItem("children").text
+		fullName := node.attributes.getNamedItem("fullname").text
+		nType := node.attributes.getNamedItem("type").text
+		if needToLoadChildren
+			q := TV_Add("{FAIL}", ttnode)
+		OE_Data[ttnode] := { loadC: needToLoadChildren, name: fullName, type: nType, text: node.text, dummyC: q }
 	}
 }
 
@@ -1152,15 +1163,40 @@ OE_Close()
 	OE_Data := ""
 }
 
-OE_Click:
-if A_GuiEvent != DoubleClick
-	return
-fullname := (OE_TempNode := OE_Data[A_EventInfo]).attributes.getNamedItem("fullname").text
-if fullname && OE_TempNode.attributes.getNamedItem("type").text != "object"
+OE_OnDoubleClick(itemId)
 {
-	cont := DBGp_Base64UTF8Decode(OE_TempNode.text)
-	VE_Create(fullname, cont)
+	global OE_Data
+	node := OE_Data[itemId]
+	fullname := node.name
+	if fullname && node.type != "object"
+	{
+		cont := DBGp_Base64UTF8Decode(node.text)
+		VE_Create(fullname, cont)
+	}
 }
+
+OE_OnExpand(itemId)
+{
+	global OE_Data, Dbg_Session
+	node := OE_Data[itemId]
+	if !node.loadC
+		return
+	TV_Modify(A_EventInfo, "-Expand")
+	SetEnableChildren(true)
+	Dbg_Session.property_get("-n " node.name, Dbg_Response)
+	SetEnableChildren(false)
+	dom := loadXML(Dbg_Response)
+	node.loadC := false
+	OE_Add(dom.selectNodes("/response/property[1]/property"), itemId)
+	TV_Delete(node.dummyC)
+	TV_Modify(A_EventInfo, "+Expand")
+}
+
+OE_Event:
+if A_GuiEvent = +
+	OE_OnExpand(A_EventInfo)
+else if A_GuiEvent = DoubleClick
+	OE_OnDoubleClick(A_EventInfo)
 return
 
 OEGuiSize:

@@ -126,7 +126,7 @@ _6: ; IDispatch::Invoke
 	
 	; Copy the parameters to a regular AutoHotkey array
 	Loop, %nparams%
-		params._Insert(a := params_safearray[idx := nparams - A_Index])
+		params.Insert(a := params_safearray[idx := nparams - A_Index])
 	
 _call:
 	; Prepare a ComVar for converting the return value to VARIANT

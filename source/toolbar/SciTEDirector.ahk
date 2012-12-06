@@ -84,7 +84,7 @@ _Director_Recv(wParam, lParam, msg, hwnd)
 		if !DirectorRetByArray
 			DirectorMsg := message
 		else
-			DirectorMsg._Insert(message)
+			DirectorMsg.Insert(message)
 	}else
 	{
 		func := "SciTE_On" message.type

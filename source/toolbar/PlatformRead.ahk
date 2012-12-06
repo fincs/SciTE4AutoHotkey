@@ -24,8 +24,8 @@ Util_EnumPlatforms(ByRef file)
 		{
 			lplats := SubStr(line, 11)
 			Loop, Parse, lplats, `,
-				plats._Insert(Trim(A_LoopField))
-		}else if(l = ".condplat ")
+				plats.Insert(Trim(A_LoopField))
+		} else if (l = ".condplat ")
 		{
 			StringTrimLeft, line, line, 10
 			if RegExMatch(line, "^\s*(.+?)\s+(.+)$", o)
@@ -35,11 +35,11 @@ Util_EnumPlatforms(ByRef file)
 				,cond := o2
 				,parm := {}
 				Loop, Parse, cond, `,
-					`(A_Index > 1) ? parm._Insert(Util_Dereference(Trim(A_LoopField))) : (func := Trim(A_LoopField))
+					(A_Index > 1) ? parm.Insert(Util_Dereference(Trim(A_LoopField))) : (func := Trim(A_LoopField))
 				if func in FileExist,WinActive,WinExist
 					res := !!%func%(parm*)
 				if res
-					plats._Insert(plat)
+					plats.Insert(plat)
 			}
 		}
 	}

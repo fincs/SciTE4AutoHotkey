@@ -41,7 +41,7 @@ SciTE_OnMacroGetList()
 {
 	static _created_menu := 0
 	macros := ListMacros()
-	if !macros._MaxIndex()
+	if !macros.MaxIndex()
 	{
 		MsgBox, 48, Toolbar, There aren't any macros!
 		return
@@ -106,7 +106,7 @@ ListMacros()
 	Loop, %LocalSciTEPath%\Macros\*.macro
 	{
 		SplitPath, A_LoopFileFullPath,,,, namenoext
-		macros._Insert(namenoext)
+		macros.Insert(namenoext)
 	}
 	return macros
 }

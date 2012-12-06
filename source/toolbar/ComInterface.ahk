@@ -129,7 +129,7 @@ CoI_GetTabs(this)
 
 _GetAsSafeArray(this)
 {
-	copy := this._Clone(), ComObjFlags(copy, -1)
+	copy := this.Clone(), ComObjFlags(copy, -1)
 	return copy
 }
 
@@ -249,7 +249,7 @@ CoI_SendDirectorMsgRet(this, msg)
 CoI_SendDirectorMsgRetArray(this, msg)
 {
 	obj := Director_Send(msg, true, true)
-	array := ComObjArray(VT_VARIANT:=12, (t := obj._MaxIndex()) ? t : 0), ComObjFlags(array, -1)
+	array := ComObjArray(VT_VARIANT:=12, (t := obj.MaxIndex()) ? t : 0), ComObjFlags(array, -1)
 	for each, msg in obj
 		array[each - 1] := ComDispatch(msg, CMsgRetDispTable)
 	return array

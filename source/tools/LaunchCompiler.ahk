@@ -1,10 +1,5 @@
 ;
-; File encoding:  UTF-8
-; Platform:  Windows XP/Vista/7
-; Author:    A.N.Other <myemail@nowhere.com>
-;
-; Script description:
-;	Template script
+; SciTE4AutoHotkey Compiler Launching Stub
 ;
 
 #NoEnv

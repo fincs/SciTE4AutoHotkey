@@ -1,3 +1,7 @@
+;
+; Scriptlet Utility
+;
+
 #NoEnv
 #NoTrayIcon
 #SingleInstance Ignore

@@ -1,6 +1,5 @@
 ;
 ; SciTE4AutoHotkey Settings Editor
-;     v3.0.01 - by fincs
 ;
 
 #NoEnv

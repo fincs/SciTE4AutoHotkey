@@ -1,6 +1,5 @@
 ;
 ; autohotkey.net Utility
-;     v1.1 - by fincs
 ;
 
 #NoTrayIcon

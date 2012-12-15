@@ -1,8 +1,5 @@
 ;
-; File encoding:  UTF-8
-;
-; Script description:
-;	SciTE4AutoHotkey Updater
+; SciTE4AutoHotkey Updater
 ;
 
 #SingleInstance Off

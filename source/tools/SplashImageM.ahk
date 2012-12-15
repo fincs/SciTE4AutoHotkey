@@ -1,3 +1,7 @@
+;
+; SplashImage Maker
+;
+
 #SingleInstance Ignore
 #NoTrayIcon
 #NoEnv

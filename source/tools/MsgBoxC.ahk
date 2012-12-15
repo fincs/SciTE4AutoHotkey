@@ -1,3 +1,7 @@
+;
+; SciTE4AutoHotkey MsgBox Creator
+;
+
 #SingleInstance Ignore
 #NoTrayIcon
 #NoEnv

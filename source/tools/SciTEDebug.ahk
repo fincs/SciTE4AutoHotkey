@@ -1,6 +1,5 @@
 ;
 ; SciTE4AutoHotkey Script Debugger
-;     v3.0.01 - by fincs
 ;
 ;TillaGoto.iIncludeMode = 0x10111111
 

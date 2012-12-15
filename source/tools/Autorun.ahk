@@ -1,5 +1,5 @@
 ;
-; SciTE4AutoHotkey v3 autorun script
+; SciTE4AutoHotkey Autorun Script
 ;
 
 #NoEnv

@@ -94,7 +94,7 @@ function OnMarginClick(position, margin)
 	
 	if margin == 1 then
 		if prepared then
-			return pumpmsg(4112, 1, editor:LineFromPosition(position))
+			postmsg(4112, 1, editor:LineFromPosition(position))
 		else
 			line = editor:LineFromPosition(position)
 			if editor:MarkerNext(line, 1024) == line then -- 1024 = BIT(10)
@@ -102,8 +102,8 @@ function OnMarginClick(position, margin)
 			else
 				editor:MarkerAdd(line, 10)
 			end
-			return true
 		end
+		return true
 	else
 		return false
 	end
@@ -185,7 +185,7 @@ function DBGp_BkReset()
 		pumpmsg(4112, 1, v)
 	end
 	
-	pumpmsg(4112, 5, 0)
+	postmsg(4112, 5, 0)
 	
 	savedbk = nil
 end
@@ -207,42 +207,42 @@ end
 
 function DBGp_Run()
 	if not prepared then return end
-	pumpmsgstr(4112, 3, "run")
+	postmsg(4112, 3, 1)
 end
 
 function DBGp_Stop()
 	if not prepared then return end
-	pumpmsgstr(4112, 3, "stop")
+	postmsg(4112, 3, 2)
 end
 
 function DBGp_Pause()
 	if not prepared then return end
-	pumpmsgstr(4112, 3, "pause")
+	postmsg(4112, 3, 3)
 end
 
 function DBGp_StepInto()
 	if not prepared then return end
-	pumpmsgstr(4112, 3, "stepinto")
+	postmsg(4112, 3, 4)
 end
 
 function DBGp_StepOver()
 	if not prepared then return end
-	pumpmsgstr(4112, 3, "stepover")
+	postmsg(4112, 3, 5)
 end
 
 function DBGp_StepOut()
 	if not prepared then return end
-	pumpmsgstr(4112, 3, "stepout")
+	postmsg(4112, 3, 6)
 end
 
 function DBGp_Stacktrace()
 	if not prepared then return end
-	pumpmsgstr(4112, 3, "stacktrace")
+	postmsg(4112, 3, 7)
 end
 
 function DBGp_Varlist()
 	if not prepared then return end
-	pumpmsgstr(4112, 3, "varlist")
+	postmsg(4112, 3, 8)
 end
 
 -- ============================================================ --

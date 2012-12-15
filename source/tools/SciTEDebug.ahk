@@ -455,7 +455,8 @@ _wP2: ; Variable inspection
 	return true
 
 _wP3: ; Command
-	p := "cmd_" StrGet(lParam, "UTF-8")
+	static _ := [ "run", "stop", "pause", "stepinto", "stepover", "stepout", "stacktrace", "varlist" ]
+	p := "cmd_" _[lParam]
 	if IsLabel(p)
 		gosub %p%
 	return true

@@ -4,6 +4,8 @@
 ;
 ;TillaGoto.iIncludeMode = 0x10111111
 
+;{ Auto-Execute Section
+
 #SingleInstance Ignore
 #NoTrayIcon
 SetBatchLines, -1
@@ -227,6 +229,10 @@ RemoveTooltip:
 ToolTip
 return
 
+;}
+
+;{ Script Attaching
+
 SelectAttachScript(ByRef outwin, ByRef outpid)
 {
 	global SciTEPath
@@ -296,9 +302,9 @@ if A_GuiEvent != DoubleClick
 attSelection := A_EventInfo
 return
 
-; ====================
-; | Toolbar commands |
-; ====================
+;}
+
+;{ Toolbar Commands
 
 F5::
 if Dbg_OnBreak
@@ -391,9 +397,9 @@ if Dbg_VarWin || (!Dbg_OnBreak && !bIsAsync)
 VL_Create()
 return
 
-; =========================
-; | SciTE message handler |
-; =========================
+;}
+
+;{ SciTE Message Handler
 
 SciTEMsgHandler(wParam, lParam, msg, hwnd)
 {
@@ -564,9 +570,9 @@ SetBreakpoint(lParam)
 	}
 }
 
-; ================
-; | Exit routine |
-; ================
+;}
+
+;{ Exit Routine
 
 GuiClose:
 IfWinExist, ahk_id %scitehwnd%
@@ -612,9 +618,9 @@ DBGp_CloseDebugger(force := 0)
 	return 1 ; success
 }
 
-; ===================
-; | SciTE functions |
-; ===================
+;}
+
+;{ SciTE Kitchen Sink Functions
 
 SciTE_Connect()
 {
@@ -661,9 +667,9 @@ if !_waiting
 ListLines, On
 return
 
-; =======================
-; | DBGp Event Handlers |
-; =======================
+;}
+
+;{ DBGp Event Handlers
 
 ; OnDebuggerConnection() - fired when we receive a connection.
 OnDebuggerConnection(session, init)
@@ -741,10 +747,9 @@ OnDebuggerDisconnection(session)
 	SetTimer, SciTEDebugTitle, Off
 }
 
-; ================================
-; | Wrappers for those commands  |
-; | that have to set Dbg_OnBreak |
-; ================================
+;}
+
+;{ Wrappers for DBGp Commands that set Dbg_OnBreak
 
 DBGp_CmdRun(a)
 {
@@ -798,9 +803,9 @@ DBGp_CmdStepOut(a)
 	ST_Clear()
 }
 
-; ==============
-; | Stacktrace |
-; ==============
+;}
+
+;{ Stacktrace Window
 
 ST_Create()
 {
@@ -886,9 +891,9 @@ Dbg_GetStack()
 	Dbg_Stack := loadXML(Dbg_Stack)
 }
 
-; =======================
-; | Variable inspection |
-; =======================
+;}
+
+;{ Variable Inspection Window
 
 VE_Create(name, ByRef cont, readonly := 0)
 {
@@ -970,9 +975,9 @@ GuiControl, MoveDraw, LF, x%VE_initx% y%VE_inity%
 GuiControl, MoveDraw, CR+LF, % "x" VE_initx " y" (VE_inity+16)
 return
 
-; =================
-; | Variable list |
-; =================
+;}
+
+;{ Variable List Window
 
 VL_Create()
 {
@@ -1073,9 +1078,9 @@ Dbg_GetContexts()
 	Dbg_GlobalContext := loadXML(Dbg_GlobalContext)
 }
 
-; =================
-; | Stream window |
-; =================
+;}
+
+;{ Stream Window
 
 SP_Output(stream, data)
 {
@@ -1110,9 +1115,9 @@ Gui 5:Destroy
 Dbg_StreamWin := false
 return
 
-; ============================
-; | Object inspection window |
-; ============================
+;}
+
+;{ Object Inspection Window
 
 OE_Create(ByRef objdom)
 {
@@ -1208,9 +1213,9 @@ OEGuiClose:
 OE_Close()
 return
 
-; =====================
-; | SciTE interaction |
-; =====================
+;}
+
+;{ Even More SciTE Kitchen Sink Functions
 
 SciTE_UpdateCurLineOfCode()
 {
@@ -1297,9 +1302,9 @@ SciTE_BPSymbolRemove(line) ; show the current line markers in SciTE
 	DllCall("SendMessage", "ptr", scintillahwnd, "uint", SCI_MARKERDELETE, "int", line, "int", 10)
 }
 
-; ===========
-; | Sandbox |
-; ===========
+;}
+
+;{ Sandbox
 
 Util_UnpackNodes(nodes)
 {
@@ -1371,3 +1376,5 @@ GetExeMachine(exepath)
 	exe.Seek(60), exe.Seek(exe.ReadUInt()+4)
 	return exe.ReadUShort()
 }
+
+;}

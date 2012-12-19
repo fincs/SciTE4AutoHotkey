@@ -470,7 +470,7 @@ _wP4: ; Hovering
 	if !bIsAsync && !Dbg_OnBreak
 		return true
 	
-	Dbg_VarName := Trim(SubStr(StrGet(lParam, "UTF-8"), 2), " `t`r`n")
+	Dbg_VarName := Trim(StrGet(lParam, "UTF-8"), " `t`r`n")
 	if Dbg_VarName =
 		ToolTip
 	else

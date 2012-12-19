@@ -543,8 +543,8 @@ end
 -- ================ --
 
 function GetWord(pos)
-	from = editor:WordStartPosition(pos)
-	to = editor:WordEndPosition(pos)
+	from = editor:WordStartPosition(pos, true)
+	to = editor:WordEndPosition(pos, true)
 	return editor:textrange(from, to)
 end
 

@@ -108,7 +108,7 @@ Loop, Parse, alltext, `n, `r
 
 FTP_Close()
 LittleSplashOff()
-MsgBox, 64, autohotkey.net Tool, Upload succesful!
+MsgBox, 64, autohotkey.net Tool, Upload successful!
 
 GuiClose:
 ExitApp

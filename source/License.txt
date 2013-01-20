@@ -1,7 +1,7 @@
 License for Scintilla and SciTE
 ===============================
 
-Copyright 1998-2012 by Neil Hodgson <neilh@scintilla.org>
+Copyright 1998-2013 by Neil Hodgson <neilh@scintilla.org>
 
 All Rights Reserved
 
@@ -23,7 +23,7 @@ OR PERFORMANCE OF THIS SOFTWARE.
 License for the toolbar, debugger & setting files
 =================================================
 
-Copyright 2007-2012 by fincs (@ autohotkey.com forum)
+Copyright 2007-2013 by fincs (@ autohotkey.com forum)
 
 This program is free software. It comes without any warranty, to
 the extent permitted by applicable law. You can redistribute it and/or

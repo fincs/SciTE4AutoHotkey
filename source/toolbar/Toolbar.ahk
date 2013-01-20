@@ -14,6 +14,7 @@
 #Include ProfileUpdate.ahk
 SetWorkingDir, %A_ScriptDir%
 DetectHiddenWindows, On
+SetBatchLines, -1
 
 ; CLSID and APPID for this script: don't reuse, please!
 CLSID_SciTE4AHK := "{D7334085-22FB-416E-B398-B5038A5A0784}"

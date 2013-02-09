@@ -552,7 +552,7 @@ SetBreakpoint(lParam)
 	}else
 	{
 		bInBkProcess := true
-		Dbg_Session.breakpoint_set("-t line -n " lParam " -f " file, Dbg_Response)
+		Dbg_Session.breakpoint_set("-t line -n " lParam " -f " uri, Dbg_Response)
 		IfInString, Dbg_Response, <error ; Check if AutoHotkey actually inserted the breakpoint.
 		{
 			bInBkProcess := false

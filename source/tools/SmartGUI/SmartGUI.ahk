@@ -1481,7 +1481,7 @@ Return
 
 
 SciteHome:
-	Run, http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_2/web/
+	Run, http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3/web/
 Return
 
 

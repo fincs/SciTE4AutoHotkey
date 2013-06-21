@@ -36,4 +36,4 @@ GenDocs v3.0 must be placed in a SciTE/tools/GenDocs/ folder.
 
 You must also build the [documentation](https://github.com/fincs/SciTE4AHK-Docs) and place it in the source folder.
 
-The latest AutoHotkey Unicode binary (v1.1.09.00 at the time of writing) also needs to be placed in the source folder.
+The latest AutoHotkey Unicode binary (v1.1.11.00 at the time of writing) also needs to be placed in the source folder.

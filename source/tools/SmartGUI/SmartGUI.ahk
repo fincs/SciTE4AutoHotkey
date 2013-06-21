@@ -258,8 +258,8 @@ Gui, 9:Add, Picture, x726 y7 w32 h32 gChangeFont vTBFont Icon19, smartgui.icl
 Gui, 9:Add, text, x1 y45 w3200 h2400 +0x4
 
 ;Gui, 9:Add, Text, x1 y1 h40 w%A_ScreenWidth%
-WinHeight := A_ScreenHeight - 150
-WinWidth := A_ScreenWidth - 100
+WinHeight := A_ScreenHeight - DPIScale(150)
+WinWidth := A_ScreenWidth - DPIScale(100)
 
 Gui, 9:Show, h%WinHeight% w%WinWidth%, %MenuWnd%
 Gui, 9:Maximize
@@ -269,8 +269,8 @@ Gui, 9:Maximize
 WinGet, MenuWndID, ID, %MenuWnd%
 
 WinGetPos, MenuWX, MenuWY, MenuWW, MenuWH, %MenuWnd%
-MainWX := MenuWX + 135
-MainWY := MenuWY + 95
+MainWX := MenuWX + DPIScale(135)
+MainWY := MenuWY + DPIScale(95)
 
 Gui, 1:+Resize +Owner9
 Gui, 1:Show, w%GuiW% h%GuiH% x%MainWX% y%MainWY%, %MainWnd%
@@ -282,17 +282,17 @@ WinGet, MainWndID, ID, %MainWnd%
 ;WinDiffH contains titlebar + bottom border
 WinGetPos,,, WinW, WinH, ahk_id %MainWndID%
 WinDiffW = %WinW%
-WinDiffW -= %GuiW%
+WinDiffW -= DPIScale(GuiW)
 WinDiffW /= 2
 WinDiffH = %WinH%
-WinDiffH -= %GuiH%
+WinDiffH -= DPIScale(GuiH)
 
 
 ;adjusting grid to adapt to different visual themes
 GridY = %WinDiffH%
 GridY -= %WinDiffW%
 
-Gui, 1:add, Picture, x-%WinDiffW% y-%GridY%, %GridFile%
+Gui, 1:add, Picture, x-%WinDiffW% y-%GridY% w2048 h1536, %GridFile%
 IfEqual, G, 0
 {
 	Control, hide,, Static1, ahk_id %MainWndID%
@@ -624,7 +624,7 @@ Return
 
 	Loop, Parse, PosFields
 	{
-		CurrPos := CtrlSet%A_LoopField%
+		CurrPos := DPIUnscale(CtrlSet%A_LoopField%)
 		IniWrite, %CurrPos%, %Temp%\SGUIControls.ini, %CtrlNameCount%, %A_LoopField%
 	}
 Return
@@ -769,7 +769,7 @@ CenterH:
 
 	Loop, Parse, PosFields
 	{
-		CurrPos := c%A_LoopField%
+		CurrPos := DPIUnscale(c%A_LoopField%)
 		IniWrite, %CurrPos%, %Temp%\SGUIControls.ini, %CtrlNameCount%, %A_LoopField%
 	}
 Return
@@ -799,7 +799,7 @@ CenterV:
 
 	Loop, Parse, PosFields
 	{
-		CurrPos := c%A_LoopField%
+		CurrPos := DPIUnscale(c%A_LoopField%)
 		IniWrite, %CurrPos%, %Temp%\SGUIControls.ini, %CtrlNameCount%, %A_LoopField%
 	}
 Return
@@ -847,10 +847,10 @@ PreCreateCtrl:
 
 	MouseGetPos,,,, GuiCtrl
 	ControlGetPos, cX, cY, cW, cH, %GuiCtrl%, %MenuWnd%
-	cX2 := cX - 1
-	cY2 := cY - 1
-	cW2 := cW + 2
-	cH2 := cH + 2
+	cX2 := cX - DPIScale(1)
+	cY2 := cY - DPIScale(1)
+	cW2 := cW + DPIScale(2)
+	cH2 := cH + DPIScale(2)
 	ControlMove, Static1, %cX2%, %CY2%, %cW2%, %cH2%, %MenuWnd%
 	GuiControl, 9:Show, ButtonBorder
 	KeyWait, LButton
@@ -1033,13 +1033,12 @@ Alter:
 		{
 			MouseGetPos, mX, mY
 			
-			;this seems easier on CPU than 'transform, mod'
 			IfEqual, M, 0
 			{
-				StringRight, dmX, mX, 1
-				StringRight, dmY, mY, 1
-				mX -= %dmX%
-				mY -= %dmY%
+				; Crappy fix is crappy
+				fact := DPIScale(10)
+				mX := fact*(mX // fact)
+				mY := fact*(mY // fact)
 			}
 
 			;if mouse position not changed then no need to do anything
@@ -1054,6 +1053,10 @@ Alter:
 			
 			;update Gui Helper window
 			ControlGetPos, ScX, ScY, ScW, ScH, %CtrlName%%CtrlCount%, ahk_id %MainWndID%
+			ScX := DPIUnscale(ScX)
+			ScY := DPIUnscale(ScY)
+			ScW := DPIUnscale(ScW)
+			ScH := DPIUnscale(ScH)
 			CtrlInfo = X:%ScX%`tY:%ScY%`t`nW:%ScW%`tH:%ScH%`t`n%CtrlName%%CtrlCount%
 			ControlSetText, Static5, %CtrlInfo%, GUI Helper
 			
@@ -1093,10 +1096,10 @@ Alter:
 
 			IfEqual, M, 0
 			{
-				StringRight, dmX, mX2, 1
-				StringRight, dmY, mY2, 1
-				mX2 -= %dmX%
-				mY2 -= %dmY%
+				; Crappy fix is crappy
+				fact := DPIScale(10)
+				mX2 := fact*(mX2 // fact)
+				mY2 := fact*(mY2 // fact)
 			}
 
 			cW = %mX2%
@@ -1116,6 +1119,10 @@ Alter:
 			
 			;update Gui Helper window
 			ControlGetPos, ScX, ScY, ScW, ScH, %CtrlName%%CtrlCount%, ahk_id %MainWndID%
+			ScX := DPIUnscale(ScX)
+			ScY := DPIUnscale(ScY)
+			ScW := DPIUnscale(ScW)
+			ScH := DPIUnscale(ScH)
 			CtrlInfo = X:%ScX%`tY:%ScY%`t`nW:%ScW%`tH:%ScH%`t`n%CtrlName%%CtrlCount%
 			ControlSetText, Static5, %CtrlInfo%, GUI Helper
 			
@@ -1155,7 +1162,7 @@ Alter:
 
 	Loop, Parse, PosFields
 	{
-		CurrPos := c%A_LoopField%
+		CurrPos := DPIUnscale(c%A_LoopField%)
 		IniWrite, %CurrPos%, %Temp%\SGUIControls.ini, %CtrlName%%CtrlCount%, %A_LoopField%
 	}
 
@@ -1373,6 +1380,9 @@ GenerateGUI:
 	wH += %tmpW%
 	wW -= %WinDiffW%
 	wW -= %tmpW%
+	
+	wH := DPIUnscale(wH)
+	wW := DPIUnscale(wW)
 
 	IfEqual, SaveGUI, 3
 	{
@@ -1802,7 +1812,7 @@ EditGUI:
 					{
 						IfEqual, Opt1, %A_LoopField%
 						{
-							c%A_LoopField% = %Opt2%
+							c%A_LoopField% := Opt2
 							IniWrite, %Opt2%, %Temp%\SGUIControls.ini, %CtrlName%%CtrlCount%, %A_LoopField%
 							Done = 1
 						}
@@ -1849,7 +1859,7 @@ EditGUI:
 			
 				Loop, Parse, PosFields
 				{
-					CurrPos := c%A_LoopField%
+					CurrPos := DPIUnscale(c%A_LoopField%)
 					IniWrite, %CurrPos%, %Temp%\SGUIControls.ini, %CtrlName%%CtrlCount%, %A_LoopField%
 				}
 
@@ -1893,8 +1903,8 @@ Return
 
 GuiHelper:
 	WinGetPos, MenuWX, MenuWY, MenuWW, MenuWH, %MenuWnd%
-	HlprWX := MenuWX + 5
-	HlprWY := MenuWY + 95
+	HlprWX := MenuWX + DPIScale(5)
+	HlprWY := MenuWY + DPIScale(95)
 
 	IfEqual, HelperStatus, 0
 	{
@@ -1925,7 +1935,10 @@ GuiHelper:
 
 	
 	;report mouse position
+	CoordMode, Mouse, Client
 	MouseGetPos, MouseX, MouseY, CurrID, MCtrl
+	MouseX := DPIUnscale(MouseX)
+	MouseY := DPIUnscale(MouseY)
 	ControlSetText, Static6, X: %MouseX%  Y:%MouseY%, GUI Helper
 
 	;Only return control info from SGUI main window
@@ -1933,6 +1946,13 @@ GuiHelper:
 	{
 		ControlGetPos, ScX, ScY, ScW, ScH, %MCtrl%, ahk_id %MainWndID%
 		WinGetActiveStats, SwT, SwW, SwH, SwX, SwY
+		
+		SwW := DPIUnscale(SwW)
+		SwH := DPIUnscale(SwH)
+		ScX := DPIUnscale(ScX)
+		ScY := DPIUnscale(ScY)
+		ScW := DPIUnscale(ScW)
+		ScH := DPIUnscale(ScH)
 		
 		WinInfo = X:%SwX%`tY:%SwY%`t`nW:%SwW%`tH:%SwH%`t
 		CtrlInfo = %MCtrl%`nX:%ScX%`tY:%ScY%`t`nW:%ScW%`tH:%ScH%`t
@@ -2260,8 +2280,8 @@ Return
 		;adjust it for reqd change
 		;move controls to desired place
 		ControlGetPos, TempX, TempY, TempW, TempH, %CtrlNameCount%, ahk_id %MainWndID%
-		TempX += %AddX%
-		TempY += %AddY%
+		TempX += DPIScale(AddX)
+		TempY += DPIScale(AddY)
 		ControlMove, %CtrlNameCount%, %TempX%, %TempY%,,, ahk_id %MainWndID%
 		Control, Hide,, %CtrlNameCount%, ahk_id %MainWndID%
 		Control, Show,, %CtrlNameCount%, ahk_id %MainWndID%
@@ -2275,7 +2295,7 @@ Return
 		
 		Loop, Parse, PosFields
 		{
-			CurrPos := Temp%A_LoopField%
+			CurrPos := DPIUnscale(Temp%A_LoopField%)
 			IniWrite, %CurrPos%, %Temp%\SGUIControls.ini, %CtrlNameCount%, %A_LoopField%
 		}
 	}
@@ -2415,7 +2435,8 @@ Return
 
 
 Stealer:
-	SplashImage,, W300 H75 B1, Activate Target Window and press F12 or press Escape to Cancel., Select Target Window, 
+	siW := DPIScale(300), siH := DPIScale(75)
+	SplashImage,, W%siW% H%siH% B1, Activate Target Window and press F12 or press Escape to Cancel., Select Target Window, 
 
 	Loop
 	{
@@ -2473,11 +2494,17 @@ Stealer:
 		
 		
 		ControlGetPos, TempX, TempY, TempW, TempH, %CtrlNameCount%, ahk_id %WinID%
+		;MsgBox %TempX% %TempY% %WinDiffW% %WinDiffH%
 		
 		;fix for title bar & border 
 		TempX -= %WinDiffW%
 		TempY -= %WinDiffH%
 		TempY += %WinDiffW%
+		
+		TempX := DPIUnscale(TempX)
+		TempY := DPIUnscale(TempY)
+		TempW := DPIUnscale(TempW)
+		TempH := DPIUnscale(TempH)
 
 		ControlGetText, CtrlText, %CtrlNameCount%, ahk_id %WinID%
 		ControlGet, CtrlStyle, Style,, %CtrlNameCount%, ahk_id %WinID%
@@ -2608,6 +2635,16 @@ Stealer:
 	WinActivate, ahk_id %MainWndID%
 	Ctrl2Add =
 Return
+
+DPIScale(x)
+{
+	return (x * A_ScreenDPI) // 96
+}
+
+DPIUnscale(x)
+{
+	return (x * 96) // A_ScreenDPI
+}
 
 ; SciTE4AutoHotkey Version fix: get client size
 GetClientSize(ByRef w, ByRef h, Title="", Text="", ExcludeTitle="", ExcludeText=""){

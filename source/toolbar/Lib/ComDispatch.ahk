@@ -134,13 +134,37 @@ _call:
 	,ret      := ComObjValue(retvar.ref)
 	
 	; Call the function
-	,retvar[] := func.(this.this, params*)
+	try retvar[] := func.(this.this, params*)
+	catch e
+	{
+		; Clear caller-supplied VARIANT.
+		Loop, % sizeof_VARIANT // 8
+			NumPut(0, prm5+8*(A_Index-1), "Int64")
+		; Fill exception info
+		if prm6
+		{
+			NumPut(0, prm6+0) ; wCode, wReserved, padding
+			NumPut(_BSTR(e.what), prm6+A_PtrSize) ; bstrSource
+			NumPut(_BSTR(e.message), prm6+2*A_PtrSize) ; bstrDescription
+			NumPut(_BSTR(e.file ":" e.line), prm6+3*A_PtrSize) ; bstrHelpFile
+			NumPut(0, prm6+4*A_PtrSize) ; dwHelpContext, padding
+			NumPut(0, prm6+5*A_PtrSize) ; pvReserved
+			NumPut(0, prm6+6*A_PtrSize) ; pfnDeferredFillIn
+			NumPut(0x80020009, prm6+7*A_PtrSize, "UInt") ; scode
+		}
+		return 0x80020009 ; DISP_E_EXCEPTION
+	}
 	
 	; Move the converted return value to the caller-supplied VARIANT. Also clear the ComVar.
 	Loop, % sizeof_VARIANT // 8
 		idx:=8*(A_Index-1), NumPut(NumGet(ret+idx, "Int64"), prm5+idx, "Int64"), NumPut(0, ret+idx, "Int64")
 	
 	return 0
+}
+
+_BSTR(ByRef a)
+{
+	return DllCall("oleaut32\SysAllocString", "wstr", a, "ptr")
 }
 
 _CoTaskMemAlloc(size)

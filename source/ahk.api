@@ -697,6 +697,7 @@ TreeView
 UpDown
 ActiveX
 Link
+Custom
 
 IconSmall
 Tile
@@ -722,6 +723,7 @@ NA
 Cancel
 Destroy
 Center
+DPIScale
 
 Margin
 MaxSize

@@ -973,6 +973,7 @@ A_Programs
 A_ProgramsCommon
 A_PtrSize
 A_RegView
+A_ScreenDPI
 A_ScreenHeight
 A_ScreenWidth
 A_ScriptDir

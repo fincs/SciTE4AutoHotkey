@@ -315,7 +315,7 @@ SummonGUI:
 	;Get window info
 	WinGetPos, iX, iY,,, ahk_id %hEditor%
 	ControlGetPos, sX, sY, sW, sH, %cSci%, ahk_id %hEditor%
-	iX += sX + (Not bPosLeft ? sW - (iW + (iMargin * 2)) - (Sci_VScrollVisible(hSci) ? SM_CXVSCROLL : 0) - 2 : 2)
+	iX += sX + (Not bPosLeft ? sW - (iW + (iMargin * 2)*A_ScreenDPI/96) - (Sci_VScrollVisible(hSci) ? SM_CXVSCROLL : 0) - 2 : 2)
 	iY += sY + 2
 	
 	;Make sure we should still show the GUI

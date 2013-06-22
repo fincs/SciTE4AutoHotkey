@@ -83,6 +83,8 @@ InitUI()
 	while wb.ReadyState != 4
 		Sleep, 10
 	getDocument().getElementById("versionTag").innerText := "version " programVer
+	if (A_ScreenDPI != 96)
+		wb.document.body.style.zoom := A_ScreenDPI/96
 }
 
 ; Fix keyboard shortcuts in WebBrowser control.

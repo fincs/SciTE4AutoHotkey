@@ -614,7 +614,26 @@ function FileExists(file)
 	end
 end
 
+function RegisterEvents(events)
+	-- Code originally written by Lexikos (AutoComplete.lua)
+	for evt, func in pairs(events) do
+		local oldfunc = _G[evt]
+		if oldfunc then
+			_G[evt] = function(...) return func(...) or oldfunc(...) end
+		else
+			_G[evt] = func
+		end
+	end
+end
+
+-- Globals for extensions
+g_SettingsDir = props['SciteUserHome'].."/Settings"
+
 local userlua = props['SciteUserHome'].."/UserLuaScript.lua"
+local extlua = props['SciteUserHome'].."/_extensions.lua"
 if FileExists(userlua) then
 	dofile(userlua)
+end
+if FileExists(extlua) then
+	dofile(extlua)
 end

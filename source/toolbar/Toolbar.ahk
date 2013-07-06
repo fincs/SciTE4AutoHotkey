@@ -12,6 +12,7 @@
 #Include SciTEDirector.ahk
 #Include SciTEMacros.ahk
 #Include ProfileUpdate.ahk
+#Include Extensions.ahk
 SetWorkingDir, %A_ScriptDir%
 DetectHiddenWindows, On
 SetBatchLines, -1
@@ -81,6 +82,7 @@ if !IsPortable
 else
 	LocalSciTEPath = %SciTEDir%\user
 LocalPropsPath = %LocalSciTEPath%\UserToolbar.properties
+global ExtensionDir := LocalSciTEPath "\Extensions"
 
 FileEncoding, UTF-8
 
@@ -103,7 +105,14 @@ if !IsPortable && (!FileExist(LocalPropsPath) || !SciTEVersion)
 	FirstTime := true
 }
 
-ToolbarProps := GlobalSettings "`n" LocalSettings
+SciTEVersionInt := Util_VersionTextToNumber(SciTEVersion)
+
+IfNotExist, %LocalSciTEPath%\Settings\
+	FileCreateDir, %LocalSciTEPath%\Settings\
+IfNotExist, %LocalSciTEPath%\Extensions\
+	FileCreateDir, %LocalSciTEPath%\Extensions\
+
+ToolbarProps := GlobalSettings "`n" Util_ReadExtToolbarDef() LocalSettings
 
 ; Load the tools
 ntools = 13
@@ -177,8 +186,12 @@ Loop, Parse, ToolbarProps, `n, `r
 		MsgBox, 16, SciTE4AutoHotkey Toolbar, A tool name can't contain a comma! Specified:`n%varz1%
 		ExitApp
 	}
-	varz4 := ParseCmdLine(varz4 = "" ? varz2 : varz4)
+	varz4 := ParseCmdLine((noIconSp := varz4 = "") ? varz2 : varz4)
+	if RegExMatch(varz4, "^""\s*(.+?)\s*""", ovt)
+		varz4 := ovt1
 	StringReplace, varz4, varz4, `",, All
+	if noIconSp && varz4 = A_AhkPath
+		varz4 .= ",2"
 	curtool := Tools[ntools] := { Name: Trim(varz1), Path: Trim(varz2), Hotkey: Trim(varz3) }
 	IfInString, varz4, `,
 	{
@@ -215,7 +228,18 @@ hToolbar := Toolbar_Add(hwndgui, "OnToolbar", "FLAT TOOLTIPS", _ToolIL)
 Toolbar_Insert(hToolbar, _ToolButs)
 Toolbar_SetMaxTextRows(hToolbar, 0)
 
-; Build the menu
+; Build the menus
+
+Menu, ExtMonMenu, Add, Install extension, ExtMonInstallExt
+Menu, ExtMonMenu, Add, Remove extension, ExtMonRemoveExt
+Menu, ExtMonMenu, Add, Create extension, ExtMonCreateExt
+Menu, ExtMonMenu, Add, Export extension, ExtMonExportExt
+
+Menu, ExtMenu, Add, Extension manager, extmon
+Menu, ExtMenu, Add, Reload extensions, reloadexts
+
+Menu, ToolMenu, Add, Extensions, :ExtMenu
+Menu, ToolMenu, Add
 Menu, ToolMenu, Add, Edit User toolbar properties, editprops
 Menu, ToolMenu, Add, Edit User autorun script, editautorun
 Menu, ToolMenu, Add, Edit User Lua script, editlua
@@ -335,6 +359,13 @@ IfWinExist, ahk_id %scitehwnd%
 		return
 }
 ExitApp
+
+reloadexts:
+Util_CheckReload()
+reloadextsForce:
+Util_RebuildExtensions()
+Util_ReloadSciTE()
+return
 
 editprops:
 Run, SciTE.exe "%LocalPropsPath%"

@@ -14,16 +14,13 @@ if !oSciTE
 	ExitApp
 }
 
-;Tray-Menu
+scHwnd := oSciTE.SciTEHandle
+
+; Main icon
 Menu, Tray, Icon, ..\toolicon.icl, 10
-Menu, Tray, Add, Open, Open
-Menu, Tray, Add, Reset Settings, Reset
-Menu, Tray, Add, Close, GuiClose
-Menu, Tray, Click, 1
-Menu, Tray, Default, Open
-Menu, Tray, NoStandard
 
 ;GUI
+Gui, +Owner%scHwnd%
 Gui, Add, Text, x10 y10 section, Title
 Gui, Add, Edit, xs+0 ys+15 section w400 vTitle gCreate_Msgbox_Command,
 Gui, Add, Text, xs+0 ys+25 section, Text:
@@ -47,10 +44,10 @@ Gui, Add, Radio, xs+0 ys+120 vIcon4 gCreate_Msgbox_Command, Exclamation
 Gui, Add, Radio, xs+0 ys+160 vIcon5 gCreate_Msgbox_Command, Info
 ;Gui, Add, Picture, xs+90 ys-10 gSelect_NoIcon icon1, %A_WinDir%\system32\user32.dll
 Gui, Add, Picture, xs+90 ys-10 gSelect_NoIcon h30 w20
-Gui, Add, Picture, xs+90 ys+30 gSelect_ErrorIcon icon4 , %A_WinDir%\system32\user32.dll
-Gui, Add, Picture, xs+90 ys+70 gSelect_Question icon3 , %A_WinDir%\system32\user32.dll
-Gui, Add, Picture, xs+90 ys+110 gSelect_Exclamation icon2, %A_WinDir%\system32\user32.dll
-Gui, Add, Picture, xs+90 ys+150 gSelect_Info icon5 , %A_WinDir%\system32\user32.dll
+Gui, Add, Picture, xs+90 ys+30 gSelect_ErrorIcon icon4 w32 h32, %A_WinDir%\system32\user32.dll
+Gui, Add, Picture, xs+90 ys+70 gSelect_Question icon3 w32 h32, %A_WinDir%\system32\user32.dll
+Gui, Add, Picture, xs+90 ys+110 gSelect_Exclamation icon2 w32 h32, %A_WinDir%\system32\user32.dll
+Gui, Add, Picture, xs+90 ys+150 gSelect_Info icon5 w32 h32, %A_WinDir%\system32\user32.dll
 
 Gui, Add, Groupbox, x430 y20 h140 w190 section, Modality
 Gui, Add, Radio, xs+10 ys+20 section Checked vModality1 gCreate_Msgbox_Command, Normal
@@ -59,14 +56,14 @@ Gui, Add, Radio, xs+0 ys+25 section vModality3 gCreate_Msgbox_Command, System Mo
 Gui, Add, Radio, xs+0 ys+25 section vModality4 gCreate_Msgbox_Command, Always on top
 Gui, Add, Radio, xs+0 ys+25 section vModality5 gCreate_Msgbox_Command, Default desktop
 
-Gui, Add, Groupbox, x430 y170 h45 w190 section, Default-Button
+Gui, Add, Groupbox, x430 y170 h45 w190 section, Default Button
 Gui, Add, Radio, xs+10 ys+20 section Checked vDefault1 gCreate_Msgbox_Command, 1st
 Gui, Add, Radio, xs+65 ys+0 section vDefault2 gCreate_Msgbox_Command, 2nd
 Gui, Add, Radio, xs+65 ys+0 section vDefault3 gCreate_Msgbox_Command, 3rd
 
-Gui, Add, Groupbox, x435 y220 h45 w190 section, Allignment
-Gui, Add, Checkbox, xs+10 ys+20 vAllignment1 section gCreate_Msgbox_Command, Right-justified
-Gui, Add, Checkbox, xs+100 ys+0 vAllignment2 gCreate_Msgbox_Command, Right-to-left
+Gui, Add, Groupbox, x435 y220 h45 w190 section, Alignment
+Gui, Add, Checkbox, xs+10 ys+20 vAlignment1 section gCreate_Msgbox_Command, Right-justified
+Gui, Add, Checkbox, xs+100 ys+0 vAlignment2 gCreate_Msgbox_Command, Right-to-left
 
 Gui, Add, Groupbox, x430 y270 h45 w90 section, Timeout
 Gui, Add, Edit, xs+10 ys+17 w70 vTimeout gCreate_Msgbox_Command
@@ -80,7 +77,7 @@ Gui, Add, Groupbox, x10 y350 w610 h75 section, Result
 Gui, Add, Edit, xs+10 ys+20 w590 r3 vMsgbox_Command,
 
 Gui, Show, , MsgBox Creator for SciTE4AutoHotkey v3
-GoSub, Reset      ;Initalize GUI from Ini
+GoSub, Reset      ;Initalize GUI
 return
 
 Select_NoIcon:
@@ -175,14 +172,17 @@ Loop, 3
 	}
 }
 
-;Check Allignment
-Allignment = 0
-if Allignment1 = 1
-	Allignment += 524288
-if Allignment2 = 1
-	Allignment += 1048576
+;Check Alignment
+Alignment = 0
+if Alignment1 = 1
+	Alignment += 524288
+if Alignment2 = 1
+	Alignment += 1048576
 
-Msgbox_Number := ButtonSelection + Icon + Modality + Default + Allignment   ;Generate type of messagebox
+Msgbox_Number := ButtonSelection + Icon + Modality + Default + Alignment   ;Generate type of messagebox
+
+if TestMode
+	return
 
 Escape_Characters(Title)
 Escape_Characters(Text)
@@ -201,15 +201,16 @@ Msgbox_Command = MsgBox, %Msgbox_Number%, %Title%, %Text%%Timeout%
 GuiControl, , Msgbox_Command, %Msgbox_Command%
 return
 
-;Creates a Temp-File to show actual configuration
 Test:
+TestMode := true
 GoSub, Create_Msgbox_Command
-GuiControl, Disable, Test
-FileDelete, %A_Temp%\MsgboxTemp.ahk
-FileAppend, #NoTrayIcon`n%Msgbox_Command%, %A_Temp%\MsgboxTemp.ahk, UTF-8
-RunWait, %A_AhkPath% "%A_Temp%\MsgboxTemp.ahk"
-FileDelete, %A_Temp%\MsgboxTemp.ahk
-GuiControl, Enable, Test
+TestMode := false
+Gui, +OwnDialogs
+Title := Title ? Title : "%A_ScriptName%"
+if Timeout != -1
+	MsgBox, % Msgbox_Number, % Title, % Text, % Timeout
+else
+	MsgBox, % Msgbox_Number, % Title, % Text
 return
 
 ;Escapes Characters like ","
@@ -232,43 +233,16 @@ Gui, Show
 return
 
 Reset:
-IfExist %A_ScriptDir%\Msgbox.ini
-{
-	IniRead, Title, %A_ScriptDir%\Msgbox.ini, Reset, Title, %A_Space%
-	IniRead, Text, %A_ScriptDir%\Msgbox.ini, Reset, Text, %A_Space%
-	IniRead, Modality, %A_ScriptDir%\Msgbox.ini, Reset, Modality, 1
-	IniRead, Icon, %A_ScriptDir%\Msgbox.ini, Reset, Icon, 1
-	IniRead, Button_Selection, %A_ScriptDir%\Msgbox.ini, Reset, Button, 1
-	IniRead, Button_Selection_Help, %A_ScriptDir%\Msgbox.ini, Reset, Help Button, 0
-	IniRead, Default, %A_ScriptDir%\Msgbox.ini, Reset, Default Button, 1
-	IniRead, Timeout, %A_ScriptDir%\Msgbox.ini, Reset, Timeout, -1
-	IniRead, Allignment1, %A_ScriptDir%\Msgbox.ini, Reset, Allignment_Right, 0
-	IniRead, Allignment2, %A_ScriptDir%\Msgbox.ini, Reset, Allignment_RtL, 0
-}
-else
-{
-	Title =
-	Text =
-	Modality = 1
-	Icon = 1
-	Button_Selection = 1
-	Button_Selection_Help = 0
-	Default = 1
-	Timeout = -1
-	Allignment1 = 0
-	Allignment2 = 0
-}
-
-GuiControl, , Title, %Title%
-GuiControl, , Text, %Text%
-GuiControl, , Modality%Modality%, 1
-GuiControl, , Icon%Icon%, 1
-GuiControl, , Button_Selection%Button_Selection%, 1
-GuiControl, , Button_Selection_Help, %Button_Selection_Help%
-GuiControl, , Default%Default%, 1
-GuiControl, , Timeout, %Timeout%
-GuiControl, , Allignment1, %Allignment1%
-GuiControl, , Allignment2, %Allignment2%
+GuiControl,, Title
+GuiControl,, Text
+GuiControl,, Modality1, 1
+GuiControl,, Icon1, 1
+GuiControl,, Button_Selection1, 1
+GuiControl,, Button_Selection_Help, 0
+GuiControl,, Default1, 1
+GuiControl,, Timeout, -1
+GuiControl,, Alignment1, 0
+GuiControl,, Alignment2, 0
 return
 
 GuiSize:

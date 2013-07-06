@@ -8,37 +8,37 @@
 DetectHiddenWindows, On
 FileEncoding, UTF-8
 Menu, Tray, Icon, %A_ScriptDir%\..\toolicon.icl, 11
+progName = Scriptlet Utility
 
 scite := GetSciTEInstance()
 if !scite
 {
-	MsgBox, 16, Scriptlet Utility, SciTE COM object not found!
+	MsgBox, 16, %progName%, SciTE COM object not found!
 	ExitApp
 }
 
+textFont := scite.ResolveProp("default.text.font")
 LocalSciTEPath := scite.UserDir
 scitehwnd := scite.SciTEHandle
 
 sdir = %LocalSciTEPath%\Scriptlets
 IfNotExist, %sdir%
 {
-	MsgBox, 16, Scriptlet Utility, Scriptlet folder doesn't exist!
+	MsgBox, 16, %progName%, Scriptlet folder doesn't exist!
 	ExitApp
 }
-
-FileEncoding, UTF-8
 
 ; Check command line
 if 1 = /insert
 {
 	if 2 =
 	{
-		MsgBox, 64, Scriptlet Utility, Usage: %A_ScriptName% /insert scriptletName
+		MsgBox, 64, %progName%, Usage: %A_ScriptName% /insert scriptletName
 		ExitApp
 	}
 	IfNotExist, %sdir%\%2%.scriptlet
 	{
-		MsgBox, 52, Scriptlet Utility,
+		MsgBox, 52, %progName%,
 		(LTrim
 		Invalid scriptlet name: "%2%".
 		Perhaps you have clicked on a toolbar icon whose scriptlet attached no longer exists?
@@ -58,35 +58,47 @@ if 1 = /addScriptlet
 	defaultScriptlet := scite.Selection
 	if defaultScriptlet =
 	{
-		MsgBox, 16, Scriptlet Utility, Nothing is selected!
+		MsgBox, 16, %progName%, Nothing is selected!
 		ExitApp
 	}
 	gosub AddBut ; that does it all
 	if !_RC
 		ExitApp ; Maybe the user has cancelled the action.
-	MsgBox, 68, Scriptlet Utility, Scriptlet added sucessfully. Do you want to open the scriptlet manager?
+	MsgBox, 68, %progName%, Scriptlet added sucessfully. Do you want to open the scriptlet manager?
 	IfMsgBox, Yes
 		Reload ; no parameters are passed to script
 	ExitApp
 }
 
-Gui, Add, ListBox, x2 y2 w160 h240 vMainListbox gSelectLB
-Gui, Font, S9, Courier New
-Gui, Add, Edit, x172 y2 w290 h240 vScriptPane -Wrap +WantTab +HScroll
-Gui, Font
-Gui, Add, Button, x2 y242 w20 h20 gAddBut, +
-Gui, Add, Button, x22 y242 w20 h20 gSubBut, -
-Gui, Add, Button, x42 y242 w20 h20 gRenBut, *
-Gui, Add, Button, x72 y242 w80 h20 gToolbarBut, Add to toolbar
-Gui, Add, Button, x172 y242 w90 h20 gInsertBut, Insert into SciTE
-Gui, Add, Button, x262 y242 w40 h20 gSaveBut, Save
-Gui, Add, Button, x312 y242 w120 h20 gOpenInSciTE, Open scriptlet in SciTE
-Gui, Add, Button, x442 y242 w20 h20 gGuiClose, X
-Gui, Show, w478 h270, Scriptlet Utility
+Gui, +MinSize Resize Owner%scitehwnd%
+Gui, Add, Button, Section gAddBut, New
+Gui, Add, Button, ys gRenBut, Rename
+Gui, Add, Button, ys gSubBut, Delete
+Gui, Add, ListBox, xs w160 h240 vMainListbox gSelectLB HScroll
+Gui, Add, Button, ys Section gToolbarBut, Add to toolbar
+Gui, Add, Button, ys gInsertBut, Insert into SciTE
+Gui, Add, Button, ys gSaveBut, Save
+Gui, Add, Button, ys gOpenInSciTE, Open in SciTE
+Gui, Font, S9, %textFont%
+Gui, Add, Edit, xs w320 h240 vScriptPane -Wrap WantTab HScroll
+Gui, Show,, %progName%
+
 selectQ =
 defaultScriptlet =
 gosub ListboxUpdate
 return
+
+GuiSize:
+Anchor("MainListbox", "h")
+Anchor("ScriptPane", "wh")
+return
+
+GuiGetPos(ctrl, guiId := "")
+{
+	guiId := guiId ? (guiId ":") : ""
+	GuiControlGet, ov, %guiId%Pos, %ctrl%
+	return { x: ovx, y: ovy, w: ovw, h: ovh }
+}
 
 GuiClose:
 ExitApp
@@ -98,7 +110,8 @@ GuiControl,, ScriptPane, % scriptletText
 Return
 
 AddBut:
-InputBox, fname2create, Scriptlet Utility, Input the name of the scriptlet to create
+Gui +OwnDialogs
+InputBox, fname2create, %progName%, Enter the name of the scriptlet to create:
 if ErrorLevel
 	return
 if !fname2create
@@ -123,8 +136,12 @@ if defaultScriptlet =
 return
 
 SubBut:
+Gui +OwnDialogs
 GuiControlGet, selected,, MainListbox
 if selected =
+	return
+MsgBox, 52, %progName%, Are you sure you want to delete '%selected%'?
+IfMsgBox, No
 	return
 FileDelete, %sdir%\%selected%.scriptlet
 fname2create =
@@ -132,10 +149,11 @@ gosub CompleteUpdate
 return
 
 RenBut:
+Gui +OwnDialogs
 GuiControlGet, selected,, MainListbox
 if selected =
 	return
-InputBox, fname2create, Scriptlet Utility, Input the new name of the scriptlet,,,,,,,, %selected%
+InputBox, fname2create, %progName%, Enter the new name of the scriptlet:,,,,,,,, %selected%
 if ErrorLevel
 	return
 if !fname2create
@@ -145,7 +163,7 @@ if (fname2create = selected)
 fname2create := ValidateFilename(fname2create)
 IfExist, %sdir%\%fname2create%.scriptlet
 {
-	MsgBox, 48, Scriptlet Utility, That name already exists!`nChoose another name please.
+	MsgBox, 48, %progName%, That name already exists!`nChoose another name please.
 	return
 }
 FileMove, %sdir%\%selected%.scriptlet, %sdir%\%fname2create%.scriptlet

@@ -899,6 +899,7 @@ A_DetectHiddenWindows
 A_EndChar
 A_EventInfo
 A_ExitReason
+A_FileEncoding
 A_FormatFloat
 A_FormatInteger
 A_Gui

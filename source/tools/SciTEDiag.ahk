@@ -15,6 +15,7 @@ if !oSciTE
 SciTEDir := oSciTE.SciTEDir
 A_AhkBin := oSciTE.ResolveProp("AutoHotkey")
 A_AhkDir := oSciTE.ResolveProp("AutoHotkeyDir")
+textFont := oSciTE.ResolveProp("default.text.font")
 
 MsgBox, 36, SciTE Diagnostics Utility,
 (
@@ -55,7 +56,7 @@ Menu, MenuBar, Add, Copy to clipboard, ClipSave
 
 Gui, +Resize
 Gui, Menu, MenuBar
-Gui, Font, s10, Courier New
+Gui, Font, s10, %textFont%
 Gui, Add, Edit, x0 y0 w640 h480 vdiagtext, % diagtext
 Gui, Show, w640 h480, SciTE diagnostic info
 return

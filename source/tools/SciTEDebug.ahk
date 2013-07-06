@@ -38,6 +38,7 @@ if !oSciTE
 	ExitApp
 }
 
+global dbgTextFont := oSciTE.ResolveProp("default.text.font")
 dbgAddr := oSciTE.ResolveProp("ahk.debugger.address")
 dbgPort := oSciTE.ResolveProp("ahk.debugger.port")+0
 dbgCaptureStreams := !!oSciTE.ResolveProp("ahk.debugger.capture.streams")
@@ -915,7 +916,7 @@ VE_Create(name, ByRef cont, readonly := 0)
 	Gui 3:+ToolWindow +AlwaysOnTop +LabelVEGui +Resize +MinSize -MaximizeBox
 	Gui 3:Add, Text, x8 y8 w80 h16 +Right, Variable name:
 	Gui 3:Add, Text, x92 y8 w236 h16 +Border vVE_VarName, %name%
-	Gui 3:Font, s9 bold, Courier New
+	Gui 3:Font, s9, %dbgTextFont%
 	Gui 3:Add, Edit, x8 y32 w320 h240 vVE_Contents hwndVE_Cont_HWND +HScroll %readonly2%, % cont
 	Gui 3:Font
 	Gui 3:Add, Button, x94 y280 w80 h32 gVE_Update %readonly%, Update
@@ -1087,7 +1088,7 @@ SP_Output(stream, data)
 	
 	if !Dbg_StreamWin
 	{
-		Gui 5:Font, s9 bold, Courier New
+		Gui 5:Font, s9, %dbgTextFont%
 		Gui 5:+ToolWindow +AlwaysOnTop +LabelSPGui +Resize +MinSize -MaximizeBox
 		Gui 5:Add, Edit, x0 y0 w320 h240 +ReadOnly vSP_Console hwndSP_ConHWND
 		Gui 5:Show, w320 h240, Stream viewer

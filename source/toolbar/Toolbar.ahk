@@ -103,6 +103,7 @@ if !IsPortable && (!FileExist(LocalPropsPath) || !SciTEVersion)
 	SendMessage, 1024+1, 0, 0,, ahk_id %scitehwnd%
 	FileRead, LocalSettings, %LocalPropsPath%
 	FirstTime := true
+	SciTEVersion := CurrentSciTEVersion
 }
 
 SciTEVersionInt := Util_VersionTextToNumber(SciTEVersion)

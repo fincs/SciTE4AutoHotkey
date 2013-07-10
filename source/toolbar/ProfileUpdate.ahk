@@ -10,7 +10,11 @@ if IsLabel(lblname := "Update_" lblname)
 {
 	gosub Update_common
 	goto %lblname%
-}
+} else if (SciTEVersion > CurrentSciTEVersion)
+	goto UpdateFailure
+else if (SciTEVersion >= "3.0.00")
+	goto Update_common
+UpdateFailure:
 SciTEVersion := ""
 return
 
@@ -22,10 +26,6 @@ Update_3_beta5:
 gosub Create_extensions
 gosub Copy_new_styles
 Update_3_rc1:
-Update_3.0.00:
-Update_3.0.01:
-Update_3.0.01.01:
-Update_3.0.02:
 return
 
 Update_common:

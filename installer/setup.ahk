@@ -11,7 +11,7 @@ SendMode, Input
 SetWorkingDir, %A_ScriptDir%
 
 global uititle := "SciTE4AutoHotkey Setup"
-global programVer := "3.0.03"
+global programVer ; will be filled in later
 global winVer := Util_GetWinVer()
 global ahkPath := Util_GetAhkPath()
 global intlAhkName := ""
@@ -32,9 +32,11 @@ if winVer < 5.1
 if 1 = /douninstall
 	goto UninstallMain
 
+FileRead, programVer, %A_ScriptDir%\$DATA\$VER
+
 if FileExist("SciTE.exe")
 	bUninstall := true
-else if !FileExist("$DATA\") || !FileExist("dialog.html") || !FileExist("banner.png")
+else if ErrorLevel || !FileExist("$DATA\") || !FileExist("dialog.html") || !FileExist("banner.png")
 {
 	MsgBox, 48, %uititle%, Oops `;p ; Short msg since so rare.
 	ExitApp
@@ -82,7 +84,10 @@ InitUI()
 	wb.Navigate("file://" A_ScriptDir "\dialog.html")
 	while wb.ReadyState != 4
 		Sleep, 10
-	getDocument().getElementById("versionTag").innerText := "version " programVer
+	doc := getDocument()
+	doc.getElementById("versionTag").innerText := "version " programVer
+	doc.getElementById("yearTag1").innerText := A_Year
+	doc.getElementById("yearTag2").innerText := A_Year
 	if (A_ScreenDPI != 96)
 		wb.document.body.style.zoom := A_ScreenDPI/96
 }

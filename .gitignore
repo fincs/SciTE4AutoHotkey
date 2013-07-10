@@ -8,6 +8,7 @@
 *.bat
 *.zip
 *.7z
+*.orig
 *~
 /source/tools/GenDocs/
 /installer/$SETUP

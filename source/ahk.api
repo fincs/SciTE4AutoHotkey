@@ -1,4 +1,3 @@
-#AllowSameLineComments \n(Only for .aut scripts) Allows comments on the same line.
 #ClipboardTimeout milliseconds\nChanges how long the script keeps trying to access the clipboard when the first attempt fails.
 #CommentFlag NewString
 #ErrorStdOut

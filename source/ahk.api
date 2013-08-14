@@ -67,7 +67,7 @@ EnvSub , Var, Value [, TimeUnits]
 EnvUpdate
 Exit [, ExitCode]
 ExitApp [, ExitCode]
-FileAppend [, Text, Filename, Encoding] \n(The encoding parameter is AutoHotkeyU-exclusive)
+FileAppend [, Text, Filename, Encoding]
 FileCopy , Source, Dest [, Flag (1 = overwrite)]
 FileCopyDir , Source, Dest [, Flag]
 FileCreateDir , Path

@@ -8,7 +8,7 @@
 SendMode Input
 SetWorkingDir, %A_ScriptDir%
 
-baseurl = http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3
+baseurl = http://fincs.ahk4.net/scite4ahk
 isPortable := FileExist("..\$PORTABLE")
 today := SubStr(A_Now, 1, 8)
 if !isPortable
@@ -41,9 +41,9 @@ if !isSilent
 	ToolTip, Fetching update info...
 try
 {
-	URLDownloadToFile, %baseurl%/version.txt, %f%
+	URLDownloadToFile, %baseurl%/upd/version.txt, %f%
 	FileRead, latestVer, %f%
-	URLDownloadToFile, %baseurl%/revision.txt, %f%
+	URLDownloadToFile, %baseurl%/upd/revision.txt, %f%
 	FileRead, latestRev, %f%
 	if !isSilent
 		ToolTip
@@ -73,7 +73,7 @@ if (curVer < latestVer)
 	until you upgrade to the latest version.
 	)
 	IfMsgBox, Yes
-		Run, %baseurl%/web/
+		Run, %baseurl%/
 	ExitApp
 }
 
@@ -131,7 +131,7 @@ Loop, % toFetch
 	
 	try
 	{
-		URLDownloadToFile, %baseurl%/revs/%i%.bin, %A_Temp%\S4AHKupd_%i%.bin
+		URLDownloadToFile, %baseurl%/upd/%i%.bin, %A_Temp%\S4AHKupd_%i%.bin
 		
 		upd := new Update(A_Temp "\S4AHKupd_" i ".bin", "{912B7AED-660B-4BC4-8DA3-34E394D9BBBA}")
 		LV_Modify(A_Index, "", i, "Running...", upd.title, upd.descr)

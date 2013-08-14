@@ -45,10 +45,10 @@ index 0000000..e7be725
 +EndGlobal
 diff --git a/scintilla/Scintilla.vcxproj b/scintilla/Scintilla.vcxproj
 new file mode 100644
-index 0000000..592452a
+index 0000000..385734f
 --- /dev/null
 +++ b/scintilla/Scintilla.vcxproj
-@@ -0,0 +1,363 @@
+@@ -0,0 +1,369 @@
 +﻿<?xml version="1.0" encoding="utf-8"?>
 +<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 +  <ItemGroup Label="ProjectConfigurations">
@@ -234,6 +234,7 @@ index 0000000..592452a
 +    <ClInclude Include="include\Scintilla.h" />
 +    <ClInclude Include="include\ScintillaWidget.h" />
 +    <ClInclude Include="lexlib\Accessor.h" />
++    <ClInclude Include="lexlib\CharacterCategory.h" />
 +    <ClInclude Include="lexlib\CharacterSet.h" />
 +    <ClInclude Include="lexlib\LexAccessor.h" />
 +    <ClInclude Include="lexlib\LexerBase.h" />
@@ -247,6 +248,8 @@ index 0000000..592452a
 +    <ClInclude Include="lexlib\WordList.h" />
 +    <ClInclude Include="src\AutoComplete.h" />
 +    <ClInclude Include="src\CallTip.h" />
++    <ClInclude Include="src\CaseConvert.h" />
++    <ClInclude Include="src\CaseFolder.h" />
 +    <ClInclude Include="src\Catalogue.h" />
 +    <ClInclude Include="src\CellBuffer.h" />
 +    <ClInclude Include="src\CharClassify.h" />
@@ -374,6 +377,7 @@ index 0000000..592452a
 +    <ClCompile Include="lexers\LexVisualProlog.cxx" />
 +    <ClCompile Include="lexers\LexYAML.cxx" />
 +    <ClCompile Include="lexlib\Accessor.cxx" />
++    <ClCompile Include="lexlib\CharacterCategory.cxx" />
 +    <ClCompile Include="lexlib\CharacterSet.cxx" />
 +    <ClCompile Include="lexlib\LexerBase.cxx" />
 +    <ClCompile Include="lexlib\LexerModule.cxx" />
@@ -384,6 +388,8 @@ index 0000000..592452a
 +    <ClCompile Include="lexlib\WordList.cxx" />
 +    <ClCompile Include="src\AutoComplete.cxx" />
 +    <ClCompile Include="src\CallTip.cxx" />
++    <ClCompile Include="src\CaseConvert.cxx" />
++    <ClCompile Include="src\CaseFolder.cxx" />
 +    <ClCompile Include="src\Catalogue.cxx" />
 +    <ClCompile Include="src\CellBuffer.cxx" />
 +    <ClCompile Include="src\CharClassify.cxx" />
@@ -415,10 +421,10 @@ index 0000000..592452a
 \ No newline at end of file
 diff --git a/scintilla/Scintilla.vcxproj.filters b/scintilla/Scintilla.vcxproj.filters
 new file mode 100644
-index 0000000..49e7999
+index 0000000..8266563
 --- /dev/null
 +++ b/scintilla/Scintilla.vcxproj.filters
-@@ -0,0 +1,544 @@
+@@ -0,0 +1,562 @@
 +﻿<?xml version="1.0" encoding="utf-8"?>
 +<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 +  <ItemGroup>
@@ -569,6 +575,15 @@ index 0000000..49e7999
 +      <Filter>Header Files</Filter>
 +    </ClInclude>
 +    <ClInclude Include="lexlib\SubStyles.h">
++      <Filter>Header Files</Filter>
++    </ClInclude>
++    <ClInclude Include="lexlib\CharacterCategory.h">
++      <Filter>Header Files</Filter>
++    </ClInclude>
++    <ClInclude Include="src\CaseConvert.h">
++      <Filter>Header Files</Filter>
++    </ClInclude>
++    <ClInclude Include="src\CaseFolder.h">
 +      <Filter>Header Files</Filter>
 +    </ClInclude>
 +  </ItemGroup>
@@ -959,6 +974,15 @@ index 0000000..49e7999
 +      <Filter>Source Files</Filter>
 +    </ClCompile>
 +    <ClCompile Include="lexers\LexSTTXT.cxx">
++      <Filter>Source Files</Filter>
++    </ClCompile>
++    <ClCompile Include="lexlib\CharacterCategory.cxx">
++      <Filter>Source Files</Filter>
++    </ClCompile>
++    <ClCompile Include="src\CaseConvert.cxx">
++      <Filter>Source Files</Filter>
++    </ClCompile>
++    <ClCompile Include="src\CaseFolder.cxx">
 +      <Filter>Source Files</Filter>
 +    </ClCompile>
 +  </ItemGroup>
@@ -2396,7 +2420,7 @@ index 0000000..2ed789e
 +	}
 +}
 diff --git a/scintilla/src/Catalogue.cxx b/scintilla/src/Catalogue.cxx
-index 84d003e..31fbc5b 100644
+index 1a56304..1439eb8 100644
 --- a/scintilla/src/Catalogue.cxx
 +++ b/scintilla/src/Catalogue.cxx
 @@ -84,6 +84,8 @@ int Scintilla_LinkLexers() {
@@ -2405,11 +2429,11 @@ index 84d003e..31fbc5b 100644
  	LINK_LEXER(lmAda);
 +	LINK_LEXER(lmAHK1);
 +	LINK_LEXER(lmAHK2);
- 	LINK_LEXER(lmAns1);
  	LINK_LEXER(lmAPDL);
  	LINK_LEXER(lmAsm);
+ 	LINK_LEXER(lmAsn1);
 diff --git a/scintilla/win32/ScintRes.rc b/scintilla/win32/ScintRes.rc
-index 1d1f24c..939b2d6 100644
+index cb3c982..fb438a9 100644
 --- a/scintilla/win32/ScintRes.rc
 +++ b/scintilla/win32/ScintRes.rc
 @@ -25,11 +25,11 @@ BEGIN
@@ -2428,20 +2452,20 @@ index 1d1f24c..939b2d6 100644
  			VALUE	"ProductVersion",	VERSION_SCINTILLA "\0"
  		END
 diff --git a/scintilla/win32/deps.mak b/scintilla/win32/deps.mak
-index 990fa9f..be8ce85 100644
+index a9466cd..9f3b619 100644
 --- a/scintilla/win32/deps.mak
 +++ b/scintilla/win32/deps.mak
-@@ -112,6 +112,10 @@ LexAda.o: ../lexers/LexAda.cxx ../include/ILexer.h ../include/Scintilla.h \
-  ../include/SciLexer.h ../lexlib/PropSetSimple.h ../lexlib/WordList.h \
+@@ -115,6 +115,10 @@ LexAbaqus.o: ../lexers/LexAbaqus.cxx ../include/ILexer.h \
+  ../include/Scintilla.h ../include/SciLexer.h ../lexlib/WordList.h \
   ../lexlib/LexAccessor.h ../lexlib/Accessor.h ../lexlib/StyleContext.h \
   ../lexlib/CharacterSet.h ../lexlib/LexerModule.h
 +LexAHK1.o: ../lexers/LexAda.cxx ../include/ILexer.h ../include/Scintilla.h \
 + ../include/SciLexer.h ../lexlib/PropSetSimple.h ../lexlib/WordList.h \
 + ../lexlib/LexAccessor.h ../lexlib/Accessor.h ../lexlib/StyleContext.h \
 + ../lexlib/CharacterSet.h ../lexlib/LexerModule.h
- LexAPDL.o: ../lexers/LexAPDL.cxx ../include/ILexer.h \
-  ../include/Scintilla.h ../include/SciLexer.h ../lexlib/PropSetSimple.h \
-  ../lexlib/WordList.h ../lexlib/LexAccessor.h ../lexlib/Accessor.h \
+ LexAda.o: ../lexers/LexAda.cxx ../include/ILexer.h ../include/Scintilla.h \
+  ../include/SciLexer.h ../lexlib/WordList.h ../lexlib/LexAccessor.h \
+  ../lexlib/Accessor.h ../lexlib/StyleContext.h ../lexlib/CharacterSet.h \
 diff --git a/scite/SciTE.vcxproj b/scite/SciTE.vcxproj
 new file mode 100644
 index 0000000..acdbe54
@@ -3088,10 +3112,10 @@ index 0000000..6709b29
 +</Project>
 \ No newline at end of file
 diff --git a/scite/src/Credits.cxx b/scite/src/Credits.cxx
-index d133ab7..a8832cd 100644
+index d9a6e93..a45384e 100644
 --- a/scite/src/Credits.cxx
 +++ b/scite/src/Credits.cxx
-@@ -395,7 +395,11 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
+@@ -396,7 +396,11 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
  		wsci.Send(SCI_STYLESETSIZE, 0, fontSize);
  		wsci.Send(SCI_STYLESETBACK, 0, ColourRGB(0, 0, 0x80));
  		AddStyledText(wsci, appTitle, 0);
@@ -3104,7 +3128,7 @@ index d133ab7..a8832cd 100644
  		SetAboutStyle(wsci, 1, ColourRGB(0, 0, 0));
  		int trsSty = 5; // define the stylenumber to assign font for translators.
  		SString translator = GetTranslationToAbout("TranslationCredit", false);
-@@ -415,16 +419,18 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
+@@ -416,16 +420,18 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
  		}
  #endif
  		AddStyledText(wsci, GetTranslationToAbout("Version").c_str(), trsSty);
@@ -3260,20 +3284,20 @@ index 4886e00..3f3d6eb 100644
  	virtual bool OnUserListSelection(int, const char *);
  
 diff --git a/scite/src/SciTE.h b/scite/src/SciTE.h
-index 4bb2b0c..de58039 100644
+index 0c89fe7..5126da3 100644
 --- a/scite/src/SciTE.h
 +++ b/scite/src/SciTE.h
 @@ -9,9 +9,10 @@
  #define SCITE_H
  
  // Version numbers and dates
--#define VERSION_SCITE "3.3.3"
--#define VERSION_WORDS 3, 3, 3, 0
--#define COPYRIGHT_DATES "December 1998-June 2013"
-+#define VERSION_SCITE "3.0.03"
-+#define VERSION_ORGSCITE "3.3.3"
-+#define VERSION_WORDS 3, 0, 3, 0
-+#define COPYRIGHT_DATES "December 1998-July 2013"
+-#define VERSION_SCITE "3.3.4"
+-#define VERSION_WORDS 3, 3, 4, 0
+-#define COPYRIGHT_DATES "December 1998-July 2013"
++#define VERSION_SCITE "3.0.04"
++#define VERSION_ORGSCITE "3.3.4"
++#define VERSION_WORDS 3, 0, 4, 0
++#define COPYRIGHT_DATES "December 1998-August 2013"
  #define COPYRIGHT_YEARS "1998-2013"
  
  // Menu IDs.
@@ -3287,7 +3311,7 @@ index 4bb2b0c..de58039 100644
 +// fincs-edit
 +#define IDI_MAINICON 500
 diff --git a/scite/src/SciTEBase.cxx b/scite/src/SciTEBase.cxx
-index 2ae1c0f..e97968a 100644
+index 4b5f665..f1e56fa 100644
 --- a/scite/src/SciTEBase.cxx
 +++ b/scite/src/SciTEBase.cxx
 @@ -170,6 +170,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
@@ -3413,7 +3437,7 @@ index 2ae1c0f..e97968a 100644
  				if (notification->margin == 2) {
  					MarginClick(notification->position, notification->modifiers);
 diff --git a/scite/src/SciTEBase.h b/scite/src/SciTEBase.h
-index 08d4690..40e172e 100644
+index f6bc98f..b42e378 100644
 --- a/scite/src/SciTEBase.h
 +++ b/scite/src/SciTEBase.h
 @@ -214,6 +214,7 @@ public:
@@ -3441,7 +3465,7 @@ index 08d4690..40e172e 100644
  	SString autoCompleteStartCharacters;
  	SString autoCompleteFillUpCharacters;
  	SString wordCharacters;
-@@ -739,7 +741,8 @@ protected:
+@@ -738,7 +740,8 @@ protected:
  	void GoMessage(int dir);
  	virtual bool StartCallTip();
  	char *GetNearestWords(const char *wordStart, size_t searchLen,
@@ -3452,7 +3476,7 @@ index 08d4690..40e172e 100644
  	void ContinueCallTip();
  	virtual void EliminateDuplicateWords(char *words);
 diff --git a/scite/src/SciTEBuffers.cxx b/scite/src/SciTEBuffers.cxx
-index 0384812..7ce623a 100644
+index 5864fff..6c0e108 100644
 --- a/scite/src/SciTEBuffers.cxx
 +++ b/scite/src/SciTEBuffers.cxx
 @@ -823,6 +823,7 @@ void SciTEBase::SetIndentSettings() {
@@ -3464,7 +3488,7 @@ index 0384812..7ce623a 100644
  	SString fileNameForExtension = ExtensionFileName();
  	SString useTabsChars = props.GetNewExpand("use.tabs.",
 diff --git a/scite/src/SciTEProps.cxx b/scite/src/SciTEProps.cxx
-index 1a3e584..d9f608b 100644
+index 68494ac..7f75b5c 100644
 --- a/scite/src/SciTEProps.cxx
 +++ b/scite/src/SciTEProps.cxx
 @@ -1004,6 +1004,8 @@ void SciTEBase::ReadProperties() {
@@ -3486,7 +3510,7 @@ index 1a3e584..d9f608b 100644
  	sprintf(key, "autocomplete.%s.start.characters", language.c_str());
  	autoCompleteStartCharacters = props.GetExpanded(key);
  	if (autoCompleteStartCharacters == "")
-@@ -1484,6 +1489,11 @@ void SciTEBase::SetPropertiesInitial() {
+@@ -1488,6 +1493,11 @@ void SciTEBase::SetPropertiesInitial() {
  	foldMargin = foldMarginWidth;
  	if (foldMarginWidth == 0)
  		foldMarginWidth = foldMarginWidthDefault;
@@ -3498,7 +3522,7 @@ index 1a3e584..d9f608b 100644
  
  	matchCase = props.GetInt("find.replace.matchcase");
  	regExp = props.GetInt("find.replace.regexp");
-@@ -1568,7 +1578,12 @@ void SciTEBase::ReadPropertiesInitial() {
+@@ -1572,7 +1582,12 @@ void SciTEBase::ReadPropertiesInitial() {
  		(splitVertical && (sizeHorizontal > 0) && (heightOutput < sizeHorizontal))) {
  		previousHeightOutput = splitVertical ? sizeHorizontal : sizeVertical;
  		if (!hideOutput) {
@@ -3858,7 +3882,7 @@ index 66423ed..ac9fb85 100644
  		END
  	END
 diff --git a/scite/win32/SciTEWin.cxx b/scite/win32/SciTEWin.cxx
-index b0450f6..7f651f6 100644
+index d2c9c90..b76483a 100644
 --- a/scite/win32/SciTEWin.cxx
 +++ b/scite/win32/SciTEWin.cxx
 @@ -53,9 +53,9 @@
@@ -3873,7 +3897,7 @@ index b0450f6..7f651f6 100644
  #endif
  
  static GUI::gui_string GetErrorMessage(DWORD nRet) {
-@@ -210,6 +210,11 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
+@@ -213,6 +213,11 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
  	// System type properties are also stored in the embedded properties.
  	propsEmbed.Set("PLAT_WIN", "1");
  	propsEmbed.Set("PLAT_WINNT", "1");
@@ -3885,7 +3909,7 @@ index b0450f6..7f651f6 100644
  
  	HRSRC handProps = ::FindResource(hInstance, TEXT("Embedded"), TEXT("Properties"));
  	if (handProps) {
-@@ -271,12 +276,14 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
+@@ -274,12 +279,14 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
  
  	// Register the frame window
  	className = TEXT("SciTEWindow");
@@ -3902,7 +3926,7 @@ index b0450f6..7f651f6 100644
  	wndclass.hCursor = NULL;
  	wndclass.hbrBackground = NULL;
  	wndclass.lpszMenuName = resourceName;
-@@ -422,10 +429,51 @@ FilePath SciTEWin::GetSciteDefaultHome() {
+@@ -426,10 +433,51 @@ FilePath SciTEWin::GetSciteDefaultHome() {
  	return GetSciTEPath(home);
  }
  
@@ -3955,7 +3979,7 @@ index b0450f6..7f651f6 100644
  	return GetSciTEPath(home);
  }
  
-@@ -584,6 +632,10 @@ HWND SciTEWin::MainHWND() {
+@@ -588,6 +636,10 @@ HWND SciTEWin::MainHWND() {
  	return HwndOf(wSciTE);
  }
  
@@ -3966,7 +3990,7 @@ index b0450f6..7f651f6 100644
  void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
  	int cmdID = ControlIDOfWParam(wParam);
  	if (wParam & 0x10000) {
-@@ -1463,6 +1515,18 @@ void SciTEWin::Run(const GUI::gui_char *cmdLine) {
+@@ -1466,6 +1518,18 @@ void SciTEWin::Run(const GUI::gui_char *cmdLine) {
  		return;	// Don't do anything else
  	}
  
@@ -3985,7 +4009,7 @@ index b0450f6..7f651f6 100644
  	// OK, the instance will be displayed
  	SizeSubWindows();
  	wSciTE.Show();
-@@ -1894,6 +1958,10 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
+@@ -1897,6 +1961,10 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
  			WorkerCommand(static_cast<int>(wParam), reinterpret_cast<Worker *>(lParam));
  			break;
  
@@ -3996,7 +4020,7 @@ index b0450f6..7f651f6 100644
  		case WM_NOTIFY:
  			Notify(reinterpret_cast<SCNotification *>(lParam));
  			break;
-@@ -1987,6 +2055,15 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
+@@ -1990,6 +2058,15 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
  		case WM_COPYDATA:
  			return uniqueInstance.CopyData(reinterpret_cast<COPYDATASTRUCT *>(lParam));
  
@@ -4012,7 +4036,7 @@ index b0450f6..7f651f6 100644
  		default:
  			return ::DefWindowProcW(MainHWND(), iMessage, wParam, lParam);
  		}
-@@ -3841,6 +3918,20 @@ uptr_t SciTEWin::EventLoop() {
+@@ -3858,6 +3935,20 @@ uptr_t SciTEWin::EventLoop() {
  	return msg.wParam;
  }
  
@@ -4033,7 +4057,7 @@ index b0450f6..7f651f6 100644
  int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
  
  	typedef BOOL (WINAPI *SetDllDirectorySig)(LPCTSTR lpPathName);
-@@ -3870,13 +3961,12 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
+@@ -3887,13 +3978,12 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
  #endif
  
  	SciTEWin::Register(hInstance);
@@ -4050,7 +4074,7 @@ index b0450f6..7f651f6 100644
  		::MessageBox(NULL, TEXT("The Scintilla DLL could not be loaded.  SciTE will now close"),
  			TEXT("Error loading Scintilla"), MB_OK | MB_ICONERROR);
 diff --git a/scite/win32/SciTEWin.h b/scite/win32/SciTEWin.h
-index 4ca85c9..2e318f0 100644
+index 6e44d17..e871b0e 100644
 --- a/scite/win32/SciTEWin.h
 +++ b/scite/win32/SciTEWin.h
 @@ -50,12 +50,13 @@ typedef void *HTHEME;
@@ -4068,7 +4092,7 @@ index 4ca85c9..2e318f0 100644
  #ifdef _MSC_VER
  #include <direct.h>
  #endif
-@@ -508,6 +509,7 @@ protected:
+@@ -506,6 +507,7 @@ protected:
  	void FullScreenToggle();
  	void Command(WPARAM wParam, LPARAM lParam);
  	HWND MainHWND();
@@ -4077,10 +4101,10 @@ index 4ca85c9..2e318f0 100644
  	virtual void UserStripShow(const char *description);
  	virtual void UserStripSet(int control, const char *value);
 diff --git a/scite/win32/SciTEWinBar.cxx b/scite/win32/SciTEWinBar.cxx
-index 3816f50..8954e43 100644
+index 26e1354..1526f4d 100644
 --- a/scite/win32/SciTEWinBar.cxx
 +++ b/scite/win32/SciTEWinBar.cxx
-@@ -982,6 +982,11 @@ void SciTEWin::Creation() {
+@@ -869,6 +869,11 @@ void SciTEWin::Creation() {
  	wOutput.Call(SCI_USEPOPUP, 0);
  	::DragAcceptFiles(MainHWND(), true);
  
@@ -4092,7 +4116,7 @@ index 3816f50..8954e43 100644
  	HWND hwndToolBar = ::CreateWindowEx(
  	               0,
  	               TOOLBARCLASSNAME,
-@@ -989,7 +994,7 @@ void SciTEWin::Creation() {
+@@ -876,7 +881,7 @@ void SciTEWin::Creation() {
  	               WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
  	               TBSTYLE_FLAT | TBSTYLE_TOOLTIPS | CCS_NORESIZE,
  	               0, 0,
@@ -4101,7 +4125,7 @@ index 3816f50..8954e43 100644
  	               MainHWND(),
  	               reinterpret_cast<HMENU>(IDM_TOOLWIN),
  	               hInstance,
-@@ -997,10 +1002,11 @@ void SciTEWin::Creation() {
+@@ -884,10 +889,11 @@ void SciTEWin::Creation() {
  	wToolBar = hwndToolBar;
  
  	::SendMessage(hwndToolBar, TB_BUTTONSTRUCTSIZE, sizeof(TBBUTTON), 0);
@@ -4115,7 +4139,7 @@ index 3816f50..8954e43 100644
  	::SendMessage(hwndToolBar, TB_ADDBITMAP, 1, (LPARAM)&addbmp);
  
  	TBBUTTON tbb[ELEMENTS(bbs)];
-@@ -1147,7 +1153,7 @@ void SciTEWin::Creation() {
+@@ -1036,7 +1042,7 @@ void SciTEWin::Creation() {
  	              SB_SETPARTS, 1,
  	              reinterpret_cast<LPARAM>(widths));
  
@@ -4125,7 +4149,7 @@ index 3816f50..8954e43 100644
  	bands.push_back(Band(true, 100, true, wContent));
  	bands.push_back(Band(true, userStrip.Height(), false, userStrip));
 diff --git a/scite/win32/SciTEWinDlg.cxx b/scite/win32/SciTEWinDlg.cxx
-index bb9bcca..a741620 100644
+index 27383e0..6318061 100644
 --- a/scite/win32/SciTEWinDlg.cxx
 +++ b/scite/win32/SciTEWinDlg.cxx
 @@ -242,6 +242,11 @@ bool SciTEWin::OpenDialog(FilePath directory, const GUI::gui_char *filter) {

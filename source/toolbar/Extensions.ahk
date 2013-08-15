@@ -152,6 +152,7 @@ if ExtCreate_HasToolbar
 if ExtCreate_HasLua
 {
 	manifest .= "LuaScript=extension.lua`n"
+	FileEncoding, CP0
 	FileAppend,
 	(LTrim
 	-- Lua script specific to this extension
@@ -169,6 +170,7 @@ if ExtCreate_HasLua
 	RegisterEvents(events)
 	
 	), %tmpExtDir%\extension.lua
+	FileEncoding, UTF-8
 }
 
 FileAppend, % manifest, %tmpExtDir%\manifest.ini

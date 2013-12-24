@@ -228,6 +228,8 @@ OnMessage(ATM_DRUNTOGGLE, "Msg_DebugRunToggle")
 hToolbar := Toolbar_Add(hwndgui, "OnToolbar", "FLAT TOOLTIPS", _ToolIL)
 Toolbar_Insert(hToolbar, _ToolButs)
 Toolbar_SetMaxTextRows(hToolbar, 0)
+if A_ScreenDPI >= 120
+	Toolbar_SetButtonSize(hToolbar, 24, 24)
 
 ; Build the menus
 

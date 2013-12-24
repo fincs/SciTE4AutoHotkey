@@ -45,12 +45,12 @@ index 0000000..e7be725
 +EndGlobal
 diff --git a/scintilla/Scintilla.vcxproj b/scintilla/Scintilla.vcxproj
 new file mode 100644
-index 0000000..385734f
+index 0000000..b963681
 --- /dev/null
 +++ b/scintilla/Scintilla.vcxproj
-@@ -0,0 +1,369 @@
+@@ -0,0 +1,371 @@
 +﻿<?xml version="1.0" encoding="utf-8"?>
-+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
++<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 +  <ItemGroup Label="ProjectConfigurations">
 +    <ProjectConfiguration Include="Debug|Win32">
 +      <Configuration>Debug</Configuration>
@@ -73,34 +73,33 @@ index 0000000..385734f
 +    <ProjectGuid>{8FBDA743-F364-430E-BC7E-207D7469215A}</ProjectGuid>
 +    <Keyword>Win32Proj</Keyword>
 +    <RootNamespace>Scintilla</RootNamespace>
-+    <VCTargetsPath Condition="'$(VCTargetsPath11)' != '' and '$(VSVersion)' == '' and $(VisualStudioVersion) == ''">$(VCTargetsPath11)</VCTargetsPath>
 +  </PropertyGroup>
 +  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
 +    <ConfigurationType>DynamicLibrary</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
 +    <CharacterSet>Unicode</CharacterSet>
-+    <PlatformToolset>v110_xp</PlatformToolset>
++    <PlatformToolset>v120_xp</PlatformToolset>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
 +    <ConfigurationType>DynamicLibrary</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
 +    <CharacterSet>Unicode</CharacterSet>
-+    <PlatformToolset>v110_xp</PlatformToolset>
++    <PlatformToolset>v120_xp</PlatformToolset>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
 +    <ConfigurationType>DynamicLibrary</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
-+    <PlatformToolset>v110_xp</PlatformToolset>
++    <PlatformToolset>v120_xp</PlatformToolset>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
 +    <ConfigurationType>DynamicLibrary</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
-+    <PlatformToolset>v110_xp</PlatformToolset>
++    <PlatformToolset>v120_xp</PlatformToolset>
 +  </PropertyGroup>
 +  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
 +  <ImportGroup Label="ExtensionSettings">
@@ -311,6 +310,7 @@ index 0000000..385734f
 +    <ClCompile Include="lexers\LexCsound.cxx" />
 +    <ClCompile Include="lexers\LexCSS.cxx" />
 +    <ClCompile Include="lexers\LexD.cxx" />
++    <ClCompile Include="lexers\LexDMAP.cxx" />
 +    <ClCompile Include="lexers\LexECL.cxx" />
 +    <ClCompile Include="lexers\LexEiffel.cxx" />
 +    <ClCompile Include="lexers\LexErlang.cxx" />
@@ -324,6 +324,7 @@ index 0000000..385734f
 +    <ClCompile Include="lexers\LexHTML.cxx" />
 +    <ClCompile Include="lexers\LexInno.cxx" />
 +    <ClCompile Include="lexers\LexKix.cxx" />
++    <ClCompile Include="lexers\LexKVIrc.cxx" />
 +    <ClCompile Include="lexers\LexLaTeX.cxx" />
 +    <ClCompile Include="lexers\LexLisp.cxx" />
 +    <ClCompile Include="lexers\LexLout.cxx" />
@@ -356,6 +357,7 @@ index 0000000..385734f
 +    <ClCompile Include="lexers\LexR.cxx" />
 +    <ClCompile Include="lexers\LexRebol.cxx" />
 +    <ClCompile Include="lexers\LexRuby.cxx" />
++    <ClCompile Include="lexers\LexRust.cxx" />
 +    <ClCompile Include="lexers\LexScriptol.cxx" />
 +    <ClCompile Include="lexers\LexSmalltalk.cxx" />
 +    <ClCompile Include="lexers\LexSML.cxx" />
@@ -421,10 +423,10 @@ index 0000000..385734f
 \ No newline at end of file
 diff --git a/scintilla/Scintilla.vcxproj.filters b/scintilla/Scintilla.vcxproj.filters
 new file mode 100644
-index 0000000..8266563
+index 0000000..9767395
 --- /dev/null
 +++ b/scintilla/Scintilla.vcxproj.filters
-@@ -0,0 +1,562 @@
+@@ -0,0 +1,571 @@
 +﻿<?xml version="1.0" encoding="utf-8"?>
 +<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 +  <ItemGroup>
@@ -985,15 +987,24 @@ index 0000000..8266563
 +    <ClCompile Include="src\CaseFolder.cxx">
 +      <Filter>Source Files</Filter>
 +    </ClCompile>
++    <ClCompile Include="lexers\LexDMAP.cxx">
++      <Filter>Source Files</Filter>
++    </ClCompile>
++    <ClCompile Include="lexers\LexKVIrc.cxx">
++      <Filter>Source Files</Filter>
++    </ClCompile>
++    <ClCompile Include="lexers\LexRust.cxx">
++      <Filter>Source Files</Filter>
++    </ClCompile>
 +  </ItemGroup>
 +</Project>
 \ No newline at end of file
 diff --git a/scintilla/include/SciLexer.h b/scintilla/include/SciLexer.h
-index 18cdb98..2d742cb 100644
+index 7cdb9c3..a997081 100644
 --- a/scintilla/include/SciLexer.h
 +++ b/scintilla/include/SciLexer.h
-@@ -1649,4 +1649,28 @@
- #define SCE_STTXT_PRAGMAS 18
+@@ -1702,4 +1702,28 @@
+ #define SCE_DMAP_WORD3 10
  /* --Autogenerated -- end of section automatically generated from Scintilla.iface */
  
 +#define SCLEX_AHK1 200
@@ -2420,10 +2431,10 @@ index 0000000..2ed789e
 +	}
 +}
 diff --git a/scintilla/src/Catalogue.cxx b/scintilla/src/Catalogue.cxx
-index 1a56304..1439eb8 100644
+index b7f816d..2c4bc6c 100644
 --- a/scintilla/src/Catalogue.cxx
 +++ b/scintilla/src/Catalogue.cxx
-@@ -84,6 +84,8 @@ int Scintilla_LinkLexers() {
+@@ -79,6 +79,8 @@ int Scintilla_LinkLexers() {
  	LINK_LEXER(lmA68k);
  	LINK_LEXER(lmAbaqus);
  	LINK_LEXER(lmAda);
@@ -2433,7 +2444,7 @@ index 1a56304..1439eb8 100644
  	LINK_LEXER(lmAsm);
  	LINK_LEXER(lmAsn1);
 diff --git a/scintilla/win32/ScintRes.rc b/scintilla/win32/ScintRes.rc
-index cb3c982..fb438a9 100644
+index d81b574..a546040 100644
 --- a/scintilla/win32/ScintRes.rc
 +++ b/scintilla/win32/ScintRes.rc
 @@ -25,11 +25,11 @@ BEGIN
@@ -2452,10 +2463,10 @@ index cb3c982..fb438a9 100644
  			VALUE	"ProductVersion",	VERSION_SCINTILLA "\0"
  		END
 diff --git a/scintilla/win32/deps.mak b/scintilla/win32/deps.mak
-index a9466cd..9f3b619 100644
+index 8580b27..e964110 100644
 --- a/scintilla/win32/deps.mak
 +++ b/scintilla/win32/deps.mak
-@@ -115,6 +115,10 @@ LexAbaqus.o: ../lexers/LexAbaqus.cxx ../include/ILexer.h \
+@@ -123,6 +123,10 @@ LexAbaqus.o: ../lexers/LexAbaqus.cxx ../include/ILexer.h \
   ../include/Scintilla.h ../include/SciLexer.h ../lexlib/WordList.h \
   ../lexlib/LexAccessor.h ../lexlib/Accessor.h ../lexlib/StyleContext.h \
   ../lexlib/CharacterSet.h ../lexlib/LexerModule.h
@@ -2468,12 +2479,12 @@ index a9466cd..9f3b619 100644
   ../lexlib/Accessor.h ../lexlib/StyleContext.h ../lexlib/CharacterSet.h \
 diff --git a/scite/SciTE.vcxproj b/scite/SciTE.vcxproj
 new file mode 100644
-index 0000000..acdbe54
+index 0000000..604c914
 --- /dev/null
 +++ b/scite/SciTE.vcxproj
-@@ -0,0 +1,299 @@
+@@ -0,0 +1,302 @@
 +﻿<?xml version="1.0" encoding="utf-8"?>
-+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
++<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 +  <ItemGroup Label="ProjectConfigurations">
 +    <ProjectConfiguration Include="Debug|Win32">
 +      <Configuration>Debug</Configuration>
@@ -2496,34 +2507,33 @@ index 0000000..acdbe54
 +    <ProjectGuid>{2DC33974-65FD-4DAF-B522-ACA7A7AC9721}</ProjectGuid>
 +    <Keyword>Win32Proj</Keyword>
 +    <RootNamespace>SciTE</RootNamespace>
-+    <VCTargetsPath Condition="'$(VCTargetsPath11)' != '' and '$(VSVersion)' == '' and $(VisualStudioVersion) == ''">$(VCTargetsPath11)</VCTargetsPath>
 +  </PropertyGroup>
 +  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
 +    <CharacterSet>Unicode</CharacterSet>
-+    <PlatformToolset>v110_xp</PlatformToolset>
++    <PlatformToolset>v120_xp</PlatformToolset>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
 +    <CharacterSet>Unicode</CharacterSet>
-+    <PlatformToolset>v110_xp</PlatformToolset>
++    <PlatformToolset>v120_xp</PlatformToolset>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
-+    <PlatformToolset>v110_xp</PlatformToolset>
++    <PlatformToolset>v120_xp</PlatformToolset>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
-+    <PlatformToolset>v110_xp</PlatformToolset>
++    <PlatformToolset>v120_xp</PlatformToolset>
 +  </PropertyGroup>
 +  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
 +  <ImportGroup Label="ExtensionSettings">
@@ -2698,10 +2708,12 @@ index 0000000..acdbe54
 +    <ClInclude Include="src\SString.h" />
 +    <ClInclude Include="src\StringHelpers.h" />
 +    <ClInclude Include="src\StringList.h" />
++    <ClInclude Include="src\StyleDefinition.h" />
 +    <ClInclude Include="src\StyleWriter.h" />
 +    <ClInclude Include="src\Utf8_16.h" />
 +    <ClInclude Include="win32\DirectorExtension.h" />
 +    <ClInclude Include="win32\SciTEWin.h" />
++    <ClInclude Include="win32\Strips.h" />
 +    <ClInclude Include="win32\UniqueInstance.h" />
 +  </ItemGroup>
 +  <ItemGroup>
@@ -2753,6 +2765,7 @@ index 0000000..acdbe54
 +    <ClCompile Include="src\SciTEProps.cxx" />
 +    <ClCompile Include="src\StringHelpers.cxx" />
 +    <ClCompile Include="src\StringList.cxx" />
++    <ClCompile Include="src\StyleDefinition.cxx" />
 +    <ClCompile Include="src\StyleWriter.cxx" />
 +    <ClCompile Include="src\Utf8_16.cxx" />
 +    <ClCompile Include="win32\DirectorExtension.cxx" />
@@ -2761,6 +2774,7 @@ index 0000000..acdbe54
 +    <ClCompile Include="win32\SciTEWin.cxx" />
 +    <ClCompile Include="win32\SciTEWinBar.cxx" />
 +    <ClCompile Include="win32\SciTEWinDlg.cxx" />
++    <ClCompile Include="win32\Strips.cxx" />
 +    <ClCompile Include="win32\UniqueInstance.cxx" />
 +    <ClCompile Include="win32\WinMutex.cxx" />
 +  </ItemGroup>
@@ -2774,10 +2788,10 @@ index 0000000..acdbe54
 \ No newline at end of file
 diff --git a/scite/SciTE.vcxproj.filters b/scite/SciTE.vcxproj.filters
 new file mode 100644
-index 0000000..6709b29
+index 0000000..e30dab2
 --- /dev/null
 +++ b/scite/SciTE.vcxproj.filters
-@@ -0,0 +1,332 @@
+@@ -0,0 +1,344 @@
 +﻿<?xml version="1.0" encoding="utf-8"?>
 +<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 +  <ItemGroup>
@@ -2931,6 +2945,12 @@ index 0000000..6709b29
 +      <Filter>Header Files</Filter>
 +    </ClInclude>
 +    <ClInclude Include="src\Cookie.h">
++      <Filter>Header Files</Filter>
++    </ClInclude>
++    <ClInclude Include="src\StyleDefinition.h">
++      <Filter>Header Files</Filter>
++    </ClInclude>
++    <ClInclude Include="win32\Strips.h">
 +      <Filter>Header Files</Filter>
 +    </ClInclude>
 +  </ItemGroup>
@@ -3105,6 +3125,12 @@ index 0000000..6709b29
 +    <ClCompile Include="win32\MessagePump.cxx">
 +      <Filter>Source Files</Filter>
 +    </ClCompile>
++    <ClCompile Include="win32\Strips.cxx">
++      <Filter>Source Files</Filter>
++    </ClCompile>
++    <ClCompile Include="src\StyleDefinition.cxx">
++      <Filter>Source Files</Filter>
++    </ClCompile>
 +  </ItemGroup>
 +  <ItemGroup>
 +    <None Include="win32\SciTE.exe.manifest" />
@@ -3112,10 +3138,10 @@ index 0000000..6709b29
 +</Project>
 \ No newline at end of file
 diff --git a/scite/src/Credits.cxx b/scite/src/Credits.cxx
-index d9a6e93..a45384e 100644
+index 2d5c2b4..f857d8c 100644
 --- a/scite/src/Credits.cxx
 +++ b/scite/src/Credits.cxx
-@@ -396,7 +396,11 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
+@@ -407,22 +407,28 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
  		wsci.Send(SCI_STYLESETSIZE, 0, fontSize);
  		wsci.Send(SCI_STYLESETBACK, 0, ColourRGB(0, 0, 0x80));
  		AddStyledText(wsci, appTitle, 0);
@@ -3128,9 +3154,7 @@ index d9a6e93..a45384e 100644
  		SetAboutStyle(wsci, 1, ColourRGB(0, 0, 0));
  		int trsSty = 5; // define the stylenumber to assign font for translators.
  		SString translator = GetTranslationToAbout("TranslationCredit", false);
-@@ -416,16 +420,18 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
- 		}
- #endif
+ 		SetAboutStyle(wsci, trsSty, ColourRGB(0, 0, 0));
  		AddStyledText(wsci, GetTranslationToAbout("Version").c_str(), trsSty);
 -		AddStyledText(wsci, " " VERSION_SCITE "\n", 1);
 +		AddStyledText(wsci, " " VERSION_SCITE " - Based on SciTE " VERSION_ORGSCITE "\n", 1);
@@ -3165,7 +3189,7 @@ index c44fb49..733833b 100644
  	virtual bool OnUserListSelection(int, const char *) { return false; }
  
 diff --git a/scite/src/IFaceTable.cxx b/scite/src/IFaceTable.cxx
-index 48aaf79..944f5b9 100644
+index 3a29f07..f8f0524 100644
 --- a/scite/src/IFaceTable.cxx
 +++ b/scite/src/IFaceTable.cxx
 @@ -402,6 +402,27 @@ static IFaceConstant ifaceConstants[] = {
@@ -3196,7 +3220,7 @@ index 48aaf79..944f5b9 100644
  	{"SCE_APDL_ARGUMENT",11},
  	{"SCE_APDL_COMMAND",8},
  	{"SCE_APDL_COMMENT",1},
-@@ -2248,6 +2269,7 @@ static IFaceConstant ifaceConstants[] = {
+@@ -2303,6 +2324,7 @@ static IFaceConstant ifaceConstants[] = {
  	{"SCLEX_A68K",100},
  	{"SCLEX_ABAQUS",84},
  	{"SCLEX_ADA",20},
@@ -3204,13 +3228,13 @@ index 48aaf79..944f5b9 100644
  	{"SCLEX_APDL",61},
  	{"SCLEX_ASM",34},
  	{"SCLEX_ASN1",63},
-@@ -3063,7 +3085,7 @@ static IFaceProperty ifaceProperties[] = {
+@@ -3127,7 +3149,7 @@ static IFaceProperty ifaceProperties[] = {
  
  enum {
- 	ifaceFunctionCount = 281,
--	ifaceConstantCount = 2427,
+ 	ifaceFunctionCount = 283,
+-	ifaceConstantCount = 2485,
 +	ifaceConstantCount = sizeof(ifaceConstants) / sizeof(IFaceConstant),
- 	ifacePropertyCount = 210
+ 	ifacePropertyCount = 214
  };
  
 diff --git a/scite/src/LuaExtension.cxx b/scite/src/LuaExtension.cxx
@@ -3284,23 +3308,21 @@ index 4886e00..3f3d6eb 100644
  	virtual bool OnUserListSelection(int, const char *);
  
 diff --git a/scite/src/SciTE.h b/scite/src/SciTE.h
-index 0c89fe7..5126da3 100644
+index 980fdb4..640236c 100644
 --- a/scite/src/SciTE.h
 +++ b/scite/src/SciTE.h
-@@ -9,9 +9,10 @@
+@@ -9,8 +9,9 @@
  #define SCITE_H
  
  // Version numbers and dates
--#define VERSION_SCITE "3.3.4"
--#define VERSION_WORDS 3, 3, 4, 0
--#define COPYRIGHT_DATES "December 1998-July 2013"
-+#define VERSION_SCITE "3.0.04"
-+#define VERSION_ORGSCITE "3.3.4"
-+#define VERSION_WORDS 3, 0, 4, 0
-+#define COPYRIGHT_DATES "December 1998-August 2013"
+-#define VERSION_SCITE "3.3.7"
+-#define VERSION_WORDS 3, 3, 7, 0
++#define VERSION_SCITE "3.0.04.01"
++#define VERSION_ORGSCITE "3.3.7"
++#define VERSION_WORDS 3, 0, 4, 1
+ #define COPYRIGHT_DATES "December 1998-December 2013"
  #define COPYRIGHT_YEARS "1998-2013"
  
- // Menu IDs.
 @@ -269,4 +270,8 @@
  #define IDBM_BACKSLASH 104
  #define IDBM_AROUND 105
@@ -3311,10 +3333,10 @@ index 0c89fe7..5126da3 100644
 +// fincs-edit
 +#define IDI_MAINICON 500
 diff --git a/scite/src/SciTEBase.cxx b/scite/src/SciTEBase.cxx
-index 4b5f665..f1e56fa 100644
+index dee5395..5f49145 100644
 --- a/scite/src/SciTEBase.cxx
 +++ b/scite/src/SciTEBase.cxx
-@@ -170,6 +170,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
+@@ -171,6 +171,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
  	bracesCheck = true;
  	bracesSloppy = false;
  	bracesStyle = 0;
@@ -3322,7 +3344,7 @@ index 4b5f665..f1e56fa 100644
  	braceCount = 0;
  
  	indentationWSVisible = true;
-@@ -177,6 +178,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
+@@ -178,6 +179,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
  	autoCompleteIgnoreCase = false;
  	callTipUseEscapes = false;
  	callTipIgnoreCase = false;
@@ -3330,7 +3352,7 @@ index 4b5f665..f1e56fa 100644
  	autoCCausedByOnlyOne = false;
  	startCalltipWord = 0;
  	currentCallTip = 0;
-@@ -520,6 +522,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
+@@ -521,6 +523,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
  		return false;
  
  	int bracesStyleCheck = editor ? bracesStyle : 0;
@@ -3338,7 +3360,7 @@ index 4b5f665..f1e56fa 100644
  	int caretPos = win.Call(SCI_GETCURRENTPOS, 0, 0);
  	braceAtCaret = -1;
  	braceOpposite = -1;
-@@ -536,7 +539,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
+@@ -537,7 +540,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
  	}
  	// Priority goes to character before caret
  	if (charBefore && IsBrace(charBefore) &&
@@ -3347,7 +3369,7 @@ index 4b5f665..f1e56fa 100644
  		braceAtCaret = caretPos - 1;
  	}
  	bool colonMode = false;
-@@ -552,7 +555,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
+@@ -553,7 +556,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
  		if (win.Send(SCI_POSITIONAFTER, caretPos) == (caretPos + 1)) {
  			char charAfter = acc[caretPos];
  			char styleAfter = static_cast<char>(acc.StyleAt(caretPos) & maskStyle);
@@ -3356,7 +3378,7 @@ index 4b5f665..f1e56fa 100644
  				braceAtCaret = caretPos;
  				isAfter = false;
  			}
-@@ -1390,10 +1393,18 @@ void SciTEBase::ToggleOutputVisible() {
+@@ -1395,10 +1398,18 @@ void SciTEBase::ToggleOutputVisible() {
  		WindowSetFocus(wEditor);
  	} else {
  		if (previousHeightOutput < 20) {
@@ -3375,7 +3397,7 @@ index 4b5f665..f1e56fa 100644
  			previousHeightOutput = heightOutput;
  		} else {
  			heightOutput = NormaliseSplit(previousHeightOutput);
-@@ -1469,10 +1480,12 @@ void SciTEBase::Redraw() {
+@@ -1474,10 +1485,12 @@ void SciTEBase::Redraw() {
  }
  
  char *SciTEBase::GetNearestWords(const char *wordStart, size_t searchLen,
@@ -3390,7 +3412,7 @@ index 4b5f665..f1e56fa 100644
  		separators++;
  	}
  	return words;
-@@ -1484,7 +1497,7 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
+@@ -1489,7 +1502,7 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
  	}
  	if (apis) {
  		char *words = GetNearestWords(currentCallTipWord.c_str(), currentCallTipWord.length(),
@@ -3399,7 +3421,7 @@ index 4b5f665..f1e56fa 100644
  		if (!words)
  			return;
  		// Counts how many call tips
-@@ -1498,7 +1511,7 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
+@@ -1503,7 +1516,7 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
  
  		// Should get current api definition
  		const char *word = apis.GetNearestWord(currentCallTipWord.c_str(), currentCallTipWord.length(),
@@ -3408,7 +3430,7 @@ index 4b5f665..f1e56fa 100644
  		if (word) {
  			functionDefinition = word;
  			if (maxCallTips > 1) {
-@@ -1607,7 +1620,7 @@ void SciTEBase::ContinueCallTip() {
+@@ -1612,7 +1625,7 @@ void SciTEBase::ContinueCallTip() {
  			commas--;
  		// If it reached the end of the argument list it means that the user typed in more
  		// arguments than the ones listed in the calltip
@@ -3417,7 +3439,7 @@ index 4b5f665..f1e56fa 100644
  			commas = 0;
  		else
  			startHighlight++;
-@@ -1678,7 +1691,8 @@ bool SciTEBase::StartAutoComplete() {
+@@ -1683,7 +1696,8 @@ bool SciTEBase::StartAutoComplete() {
  	SString root = line.substr(startword, current - startword);
  	if (apis) {
  		char *words = GetNearestWords(root.c_str(), root.length(),
@@ -3427,7 +3449,7 @@ index 4b5f665..f1e56fa 100644
  		if (words) {
  			EliminateDuplicateWords(words);
  			wEditor.Call(SCI_AUTOCSETSEPARATOR, ' ');
-@@ -3999,7 +4013,7 @@ void SciTEBase::Notify(SCNotification *notification) {
+@@ -4005,7 +4019,7 @@ void SciTEBase::Notify(SCNotification *notification) {
  
  	case SCN_MARGINCLICK: {
  			if (extender)
@@ -3437,10 +3459,10 @@ index 4b5f665..f1e56fa 100644
  				if (notification->margin == 2) {
  					MarginClick(notification->position, notification->modifiers);
 diff --git a/scite/src/SciTEBase.h b/scite/src/SciTEBase.h
-index f6bc98f..b42e378 100644
+index c71fc9d..fa8cbe7 100644
 --- a/scite/src/SciTEBase.h
 +++ b/scite/src/SciTEBase.h
-@@ -214,6 +214,7 @@ public:
+@@ -210,6 +210,7 @@ public:
  
  enum {
      heightTools = 24,
@@ -3448,7 +3470,7 @@ index f6bc98f..b42e378 100644
      heightTab = 24,
      heightStatus = 20,
      statusPosWidth = 256
-@@ -471,7 +472,7 @@ protected:
+@@ -443,7 +444,7 @@ protected:
  	bool twoPhaseDraw;
  	bool bracesCheck;
  	bool bracesSloppy;
@@ -3457,7 +3479,7 @@ index f6bc98f..b42e378 100644
  	int braceCount;
  
  	bool indentationWSVisible;
-@@ -485,6 +486,7 @@ protected:
+@@ -457,6 +458,7 @@ protected:
  	SString calltipParametersEnd;
  	SString calltipParametersSeparators;
  	SString calltipEndDefinition;
@@ -3465,7 +3487,7 @@ index f6bc98f..b42e378 100644
  	SString autoCompleteStartCharacters;
  	SString autoCompleteFillUpCharacters;
  	SString wordCharacters;
-@@ -738,7 +740,8 @@ protected:
+@@ -712,7 +714,8 @@ protected:
  	void GoMessage(int dir);
  	virtual bool StartCallTip();
  	char *GetNearestWords(const char *wordStart, size_t searchLen,
@@ -3476,10 +3498,10 @@ index f6bc98f..b42e378 100644
  	void ContinueCallTip();
  	virtual void EliminateDuplicateWords(char *words);
 diff --git a/scite/src/SciTEBuffers.cxx b/scite/src/SciTEBuffers.cxx
-index 5864fff..6c0e108 100644
+index 6248fcd..171939a 100644
 --- a/scite/src/SciTEBuffers.cxx
 +++ b/scite/src/SciTEBuffers.cxx
-@@ -823,6 +823,7 @@ void SciTEBase::SetIndentSettings() {
+@@ -824,6 +824,7 @@ void SciTEBase::SetIndentSettings() {
  	int useTabs = props.GetInt("use.tabs", 1);
  	int tabSize = props.GetInt("tabsize");
  	int indentSize = props.GetInt("indent.size");
@@ -3488,10 +3510,10 @@ index 5864fff..6c0e108 100644
  	SString fileNameForExtension = ExtensionFileName();
  	SString useTabsChars = props.GetNewExpand("use.tabs.",
 diff --git a/scite/src/SciTEProps.cxx b/scite/src/SciTEProps.cxx
-index 68494ac..7f75b5c 100644
+index 4363929..4d029d0 100644
 --- a/scite/src/SciTEProps.cxx
 +++ b/scite/src/SciTEProps.cxx
-@@ -1004,6 +1004,8 @@ void SciTEBase::ReadProperties() {
+@@ -862,6 +862,8 @@ void SciTEBase::ReadProperties() {
  	char bracesStyleKey[200];
  	sprintf(bracesStyleKey, "braces.%s.style", language.c_str());
  	bracesStyle = props.GetInt(bracesStyleKey, 0);
@@ -3500,7 +3522,7 @@ index 68494ac..7f75b5c 100644
  
  	char key[200];
  	SString sval;
-@@ -1021,6 +1023,9 @@ void SciTEBase::ReadProperties() {
+@@ -879,6 +881,9 @@ void SciTEBase::ReadProperties() {
  
  	calltipEndDefinition = FindLanguageProperty("calltip.*.end.definition");
  
@@ -3510,7 +3532,7 @@ index 68494ac..7f75b5c 100644
  	sprintf(key, "autocomplete.%s.start.characters", language.c_str());
  	autoCompleteStartCharacters = props.GetExpanded(key);
  	if (autoCompleteStartCharacters == "")
-@@ -1488,6 +1493,11 @@ void SciTEBase::SetPropertiesInitial() {
+@@ -1352,6 +1357,11 @@ void SciTEBase::SetPropertiesInitial() {
  	foldMargin = foldMarginWidth;
  	if (foldMarginWidth == 0)
  		foldMarginWidth = foldMarginWidthDefault;
@@ -3522,7 +3544,7 @@ index 68494ac..7f75b5c 100644
  
  	matchCase = props.GetInt("find.replace.matchcase");
  	regExp = props.GetInt("find.replace.regexp");
-@@ -1572,7 +1582,12 @@ void SciTEBase::ReadPropertiesInitial() {
+@@ -1436,7 +1446,12 @@ void SciTEBase::ReadPropertiesInitial() {
  		(splitVertical && (sizeHorizontal > 0) && (heightOutput < sizeHorizontal))) {
  		previousHeightOutput = splitVertical ? sizeHorizontal : sizeVertical;
  		if (!hideOutput) {
@@ -3536,10 +3558,10 @@ index 68494ac..7f75b5c 100644
  			Redraw();
  		}
 diff --git a/scite/src/StringList.cxx b/scite/src/StringList.cxx
-index 4c4f8ab..b48ca0f 100644
+index 498d2ed..f1832ec 100644
 --- a/scite/src/StringList.cxx
 +++ b/scite/src/StringList.cxx
-@@ -199,7 +199,7 @@ bool StringList::InList(const char *s) {
+@@ -201,7 +201,7 @@ bool StringList::InList(const char *s) {
   * The length of the word to compare is passed too.
   * Letter case can be ignored or preserved (default).
   */
@@ -3548,7 +3570,7 @@ index 4c4f8ab..b48ca0f 100644
  	int start = 0; // lower bound of the api array block to search
  	int end = len - 1; // upper bound of the api array block to search
  	int pivot; // index of api array element just being compared
-@@ -233,6 +233,12 @@ const char *StringList::GetNearestWord(const char *wordStart, size_t searchLen,
+@@ -235,6 +235,12 @@ const char *StringList::GetNearestWord(const char *wordStart, size_t searchLen,
  				for (pivot = start; pivot <= end; pivot++) {
  					word = wordsNoCase[pivot];
  					if (!word[searchLen] || !wordCharacters.contains(word[searchLen])) {
@@ -3561,7 +3583,7 @@ index 4c4f8ab..b48ca0f 100644
  						if (wordIndex <= 0) // Checks if a specific index was requested
  							return word; // result must not be freed with free()
  						wordIndex--;
-@@ -271,6 +277,12 @@ const char *StringList::GetNearestWord(const char *wordStart, size_t searchLen,
+@@ -273,6 +279,12 @@ const char *StringList::GetNearestWord(const char *wordStart, size_t searchLen,
  				while (pivot <= end) {
  					word = words[pivot];
  					if (!word[searchLen] || !wordCharacters.contains(word[searchLen])) {
@@ -3574,7 +3596,7 @@ index 4c4f8ab..b48ca0f 100644
  						if (wordIndex <= 0) // Checks if a specific index was requested
  							return word; // result must not be freed with free()
  						wordIndex--;
-@@ -294,7 +306,7 @@ const char *StringList::GetNearestWord(const char *wordStart, size_t searchLen,
+@@ -296,7 +308,7 @@ const char *StringList::GetNearestWord(const char *wordStart, size_t searchLen,
   * there may be extra spaces after the identifier that should not be
   * counted in the length.
   */
@@ -3583,7 +3605,7 @@ index 4c4f8ab..b48ca0f 100644
  	const char *endWord = 0;
  	// Find an otherSeparator
  	if (otherSeparator)
-@@ -302,7 +314,7 @@ static unsigned int LengthWord(const char *word, char otherSeparator) {
+@@ -304,7 +316,7 @@ static unsigned int LengthWord(const char *word, char otherSeparator) {
  	// Find a '('. If that fails go to the end of the string.
  	if (!endWord)
  		endWord = strchr(word, '(');
@@ -3592,7 +3614,7 @@ index 4c4f8ab..b48ca0f 100644
  		endWord = word + strlen(word);
  	// Last case always succeeds so endWord != 0
  
-@@ -332,7 +344,8 @@ char *StringList::GetNearestWords(
+@@ -334,7 +346,8 @@ char *StringList::GetNearestWords(
      size_t searchLen,
      bool ignoreCase /*= false*/,
      char otherSeparator /*= '\0'*/,
@@ -3602,7 +3624,7 @@ index 4c4f8ab..b48ca0f 100644
  	unsigned int wordlen; // length of the word part (before the '(' brace) of the api array element
  	SString wordsNear;
  	wordsNear.setsizegrowth(1000);
-@@ -362,7 +375,7 @@ char *StringList::GetNearestWords(
+@@ -364,7 +377,7 @@ char *StringList::GetNearestWords(
  				while ((pivot <= end) &&
  					(0 == CompareNCaseInsensitive(wordStart,
  						wordsNoCase[pivot], searchLen))) {
@@ -3611,7 +3633,7 @@ index 4c4f8ab..b48ca0f 100644
  					++pivot;
  					if (exactLen && wordlen != LengthWord(wordStart, otherSeparator) + 1)
  						continue;
-@@ -394,7 +407,7 @@ char *StringList::GetNearestWords(
+@@ -396,7 +409,7 @@ char *StringList::GetNearestWords(
  				while ((pivot <= end) &&
  					(0 == strncmp(wordStart,
  						words[pivot], searchLen))) {
@@ -3882,10 +3904,10 @@ index 66423ed..ac9fb85 100644
  		END
  	END
 diff --git a/scite/win32/SciTEWin.cxx b/scite/win32/SciTEWin.cxx
-index d2c9c90..b76483a 100644
+index 06a6d28..848391f 100644
 --- a/scite/win32/SciTEWin.cxx
 +++ b/scite/win32/SciTEWin.cxx
-@@ -53,9 +53,9 @@
+@@ -23,9 +23,9 @@
  #endif
  
  #ifdef STATIC_BUILD
@@ -3897,7 +3919,7 @@ index d2c9c90..b76483a 100644
  #endif
  
  static GUI::gui_string GetErrorMessage(DWORD nRet) {
-@@ -213,6 +213,11 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
+@@ -187,6 +187,11 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
  	// System type properties are also stored in the embedded properties.
  	propsEmbed.Set("PLAT_WIN", "1");
  	propsEmbed.Set("PLAT_WINNT", "1");
@@ -3909,7 +3931,7 @@ index d2c9c90..b76483a 100644
  
  	HRSRC handProps = ::FindResource(hInstance, TEXT("Embedded"), TEXT("Properties"));
  	if (handProps) {
-@@ -274,12 +279,14 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
+@@ -248,12 +253,14 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
  
  	// Register the frame window
  	className = TEXT("SciTEWindow");
@@ -3926,7 +3948,7 @@ index d2c9c90..b76483a 100644
  	wndclass.hCursor = NULL;
  	wndclass.hbrBackground = NULL;
  	wndclass.lpszMenuName = resourceName;
-@@ -426,10 +433,51 @@ FilePath SciTEWin::GetSciteDefaultHome() {
+@@ -400,10 +407,51 @@ FilePath SciTEWin::GetSciteDefaultHome() {
  	return GetSciTEPath(home);
  }
  
@@ -3979,7 +4001,7 @@ index d2c9c90..b76483a 100644
  	return GetSciTEPath(home);
  }
  
-@@ -588,6 +636,10 @@ HWND SciTEWin::MainHWND() {
+@@ -553,6 +601,10 @@ HWND SciTEWin::MainHWND() {
  	return HwndOf(wSciTE);
  }
  
@@ -3990,7 +4012,7 @@ index d2c9c90..b76483a 100644
  void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
  	int cmdID = ControlIDOfWParam(wParam);
  	if (wParam & 0x10000) {
-@@ -1466,6 +1518,18 @@ void SciTEWin::Run(const GUI::gui_char *cmdLine) {
+@@ -1420,6 +1472,18 @@ void SciTEWin::Run(const GUI::gui_char *cmdLine) {
  		return;	// Don't do anything else
  	}
  
@@ -4009,7 +4031,7 @@ index d2c9c90..b76483a 100644
  	// OK, the instance will be displayed
  	SizeSubWindows();
  	wSciTE.Show();
-@@ -1897,6 +1961,10 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
+@@ -1851,6 +1915,10 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
  			WorkerCommand(static_cast<int>(wParam), reinterpret_cast<Worker *>(lParam));
  			break;
  
@@ -4020,7 +4042,7 @@ index d2c9c90..b76483a 100644
  		case WM_NOTIFY:
  			Notify(reinterpret_cast<SCNotification *>(lParam));
  			break;
-@@ -1990,6 +2058,15 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
+@@ -1944,6 +2012,15 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
  		case WM_COPYDATA:
  			return uniqueInstance.CopyData(reinterpret_cast<COPYDATASTRUCT *>(lParam));
  
@@ -4036,9 +4058,9 @@ index d2c9c90..b76483a 100644
  		default:
  			return ::DefWindowProcW(MainHWND(), iMessage, wParam, lParam);
  		}
-@@ -3858,6 +3935,20 @@ uptr_t SciTEWin::EventLoop() {
- 	return msg.wParam;
- }
+@@ -2143,6 +2220,20 @@ uptr_t SciTEWin::EventLoop() {
+ #pragma warning(disable: 28251)
+ #endif
  
 +// fincs-edit START
 +
@@ -4057,27 +4079,11 @@ index d2c9c90..b76483a 100644
  int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
  
  	typedef BOOL (WINAPI *SetDllDirectorySig)(LPCTSTR lpPathName);
-@@ -3887,13 +3978,12 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
- #endif
- 
- 	SciTEWin::Register(hInstance);
--#ifdef STATIC_BUILD
- 
-+#ifdef STATIC_BUILD
- 	Scintilla_LinkLexers();
- 	Scintilla_RegisterClasses(hInstance);
- #else
--
--	HMODULE hmod = ::LoadLibrary(TEXT("SciLexer.DLL"));
-+	HMODULE hmod = ::LoadLibrary(TEXT("SciLexer.dll"));
- 	if (hmod == NULL)
- 		::MessageBox(NULL, TEXT("The Scintilla DLL could not be loaded.  SciTE will now close"),
- 			TEXT("Error loading Scintilla"), MB_OK | MB_ICONERROR);
 diff --git a/scite/win32/SciTEWin.h b/scite/win32/SciTEWin.h
-index 6e44d17..e871b0e 100644
+index 2e126ad..032189b 100644
 --- a/scite/win32/SciTEWin.h
 +++ b/scite/win32/SciTEWin.h
-@@ -50,12 +50,13 @@ typedef void *HTHEME;
+@@ -51,12 +51,13 @@ typedef void *HTHEME;
  #endif
  #include <commctrl.h>
  #include <richedit.h>
@@ -4092,7 +4098,7 @@ index 6e44d17..e871b0e 100644
  #ifdef _MSC_VER
  #include <direct.h>
  #endif
-@@ -506,6 +507,7 @@ protected:
+@@ -314,6 +315,7 @@ protected:
  	void FullScreenToggle();
  	void Command(WPARAM wParam, LPARAM lParam);
  	HWND MainHWND();
@@ -4101,10 +4107,10 @@ index 6e44d17..e871b0e 100644
  	virtual void UserStripShow(const char *description);
  	virtual void UserStripSet(int control, const char *value);
 diff --git a/scite/win32/SciTEWinBar.cxx b/scite/win32/SciTEWinBar.cxx
-index 26e1354..1526f4d 100644
+index 89fb45d..1c60164 100644
 --- a/scite/win32/SciTEWinBar.cxx
 +++ b/scite/win32/SciTEWinBar.cxx
-@@ -869,6 +869,11 @@ void SciTEWin::Creation() {
+@@ -875,6 +875,11 @@ void SciTEWin::Creation() {
  	wOutput.Call(SCI_USEPOPUP, 0);
  	::DragAcceptFiles(MainHWND(), true);
  
@@ -4116,7 +4122,7 @@ index 26e1354..1526f4d 100644
  	HWND hwndToolBar = ::CreateWindowEx(
  	               0,
  	               TOOLBARCLASSNAME,
-@@ -876,7 +881,7 @@ void SciTEWin::Creation() {
+@@ -882,7 +887,7 @@ void SciTEWin::Creation() {
  	               WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
  	               TBSTYLE_FLAT | TBSTYLE_TOOLTIPS | CCS_NORESIZE,
  	               0, 0,
@@ -4125,7 +4131,7 @@ index 26e1354..1526f4d 100644
  	               MainHWND(),
  	               reinterpret_cast<HMENU>(IDM_TOOLWIN),
  	               hInstance,
-@@ -884,10 +889,11 @@ void SciTEWin::Creation() {
+@@ -890,10 +895,11 @@ void SciTEWin::Creation() {
  	wToolBar = hwndToolBar;
  
  	::SendMessage(hwndToolBar, TB_BUTTONSTRUCTSIZE, sizeof(TBBUTTON), 0);
@@ -4139,7 +4145,7 @@ index 26e1354..1526f4d 100644
  	::SendMessage(hwndToolBar, TB_ADDBITMAP, 1, (LPARAM)&addbmp);
  
  	TBBUTTON tbb[ELEMENTS(bbs)];
-@@ -1036,7 +1042,7 @@ void SciTEWin::Creation() {
+@@ -1042,7 +1048,7 @@ void SciTEWin::Creation() {
  	              SB_SETPARTS, 1,
  	              reinterpret_cast<LPARAM>(widths));
  
@@ -4149,10 +4155,10 @@ index 26e1354..1526f4d 100644
  	bands.push_back(Band(true, 100, true, wContent));
  	bands.push_back(Band(true, userStrip.Height(), false, userStrip));
 diff --git a/scite/win32/SciTEWinDlg.cxx b/scite/win32/SciTEWinDlg.cxx
-index 27383e0..6318061 100644
+index 0874eda..1d904af 100644
 --- a/scite/win32/SciTEWinDlg.cxx
 +++ b/scite/win32/SciTEWinDlg.cxx
-@@ -242,6 +242,11 @@ bool SciTEWin::OpenDialog(FilePath directory, const GUI::gui_char *filter) {
+@@ -243,6 +243,11 @@ bool SciTEWin::OpenDialog(FilePath directory, const GUI::gui_char *filter) {
  	if (props.GetInt("open.dialog.in.file.directory")) {
  		ofn.lpstrInitialDir = directory.AsInternal();
  	}
@@ -4164,7 +4170,7 @@ index 27383e0..6318061 100644
  	ofn.Flags = OFN_HIDEREADONLY;
  
  	if (buffers.size > 1) {
-@@ -291,6 +296,11 @@ FilePath SciTEWin::ChooseSaveName(FilePath directory, const char *title, const G
+@@ -292,6 +297,11 @@ FilePath SciTEWin::ChooseSaveName(FilePath directory, const char *title, const G
  		ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
  		ofn.lpstrFilter = filter;
  		ofn.lpstrInitialDir = directory.AsInternal();
@@ -4176,7 +4182,7 @@ index 27383e0..6318061 100644
  
  		dialogsOnScreen++;
  		if (::GetSaveFileNameW(&ofn)) {
-@@ -1668,7 +1678,7 @@ BOOL SciTEWin::AboutMessage(HWND hDlg, UINT message, WPARAM wParam) {
+@@ -1671,7 +1681,7 @@ BOOL SciTEWin::AboutMessage(HWND hDlg, UINT message, WPARAM wParam) {
  		LONG_PTR subclassedProc = ::SetWindowLongPtr(hwndCredits, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(CreditsWndProc));
  		::SetWindowLongPtr(hwndCredits, GWLP_USERDATA, subclassedProc);
  		ss.SetID(hwndCredits);

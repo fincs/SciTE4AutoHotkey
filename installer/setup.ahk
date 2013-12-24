@@ -311,6 +311,15 @@ Btn_PerformInstall()
 	targetFolderObj.CopyHere(sourceFolderObj.Items, 16 | 2048)
 	FileCopy, %A_AhkPath%, %installDir%\, 1
 	FileCopy, %A_ScriptFullPath%, %installDir%\, 1
+	if (winVer < 6)
+	{
+		; Fix up Windows XP/2003's lack of Consolas font
+		_tmpf := installDir "\newuser\_config.properties"
+		FileRead, _tmp, %_tmpf%
+		StringReplace, _tmp, _tmp, VisualStudio, Classic
+		FileDelete, %_tmpf%
+		FileAppend, % _tmp, %_tmpf%
+	}
 	
 	uninstallProg = %installDir%\%intlAhkName%
 	uninstallArgs = /CP65001 "%installDir%\%A_ScriptName%"

@@ -260,6 +260,7 @@ local forPat = "[fF][oO][rR]"
 local elsePat = "[eE][lL][sS][eE]"
 local tryPat = "[tT][rR][yY]"
 local catchPat = "[cC][aA][tT][cC][hH]"
+local finallyPat = "[fF][iI][nN][aA][lL][lL][yY]"
 
 -- Functions to detect certain types of statements
 
@@ -343,13 +344,26 @@ function isCatchAllowClosingBrace(line)
 end
 
 function isCatchLineAllowBraces(line)
-	return isCatchLine(line) or isCatchAllowClosingBrace(line)
+	return isCatchAllowClosingBrace(line)
 		or string.find(line, "^%s*"..catchPat.."%s*{%s*$") ~= nil
 		or string.find(line, "^%s*"..catchPat.."%s+"..varCharPat.."+%s*{%s*$") ~= nil
 		or string.find(line, "^%s*}%s*"..catchPat.."%s*{%s*$") ~= nil
 		or string.find(line, "^%s*}%s*"..catchPat.."%s+"..varCharPat.."+%s*{%s*$") ~= nil
 end
 
+function isFinallyLine(line)
+	return string.find(line, "^%s*"..finallyPat.."%s*$") ~= nil
+end
+
+function isFinallyAllowClosingBrace(line)
+	return isFinallyLine(line)
+		or string.find(line, "^%s*}%s*"..finallyPat.."%s*$") ~= nil
+end
+
+function isFinallyAllowBraces(line)
+	return isFinallyAllowClosingBrace(line)
+		or string.find(line, "^%s*}%s*"..finallyPat.."%s*{%s*$") ~= nil
+end
 
 function isFuncDef(line)
 	return string.find(line, "^%s*"..varCharPat.."+%(.*%)%s*{%s*$") ~= nil
@@ -358,19 +372,19 @@ end
 function isSingleLineIndentStatement(line)
 	return isIfLineNoBraces(line) or isElseLine(line) or isElseWithClosingBrace(line)
 		or isWhileLine(line) or isForLine(line) or isLoopLine(line)
-		or isTryLine(line) or isCatchAllowClosingBrace(line)
+		or isTryLine(line) or isCatchAllowClosingBrace(line) or isFinallyAllowClosingBrace(line)
 end
 
 function isIndentStatement(line)
 	return isOpenBraceLine(line) or isIfLine(line) or isWhileLine(line) or isForLine(line)
 		or isLoopLineAllowBraces(line) or isElseLineAllowBraces(line) or isFuncDef(line)
-		or isTryLineAllowBraces(line) or isCatchLineAllowBraces(line)
+		or isTryLineAllowBraces(line) or isCatchLineAllowBraces(line) or isFinallyAllowBraces(line)
 end
 
 function isStartBlockStatement(line)
 	return isIfLine(line) or isWhileLine(line) or isLoopLine(line)  or isForLine(line)
 		or isElseLine(line) or isElseWithClosingBrace(line)
-		or isTryLine(line) or isCatchLineAllowBraces(line)
+		or isTryLine(line) or isCatchLineAllowBraces(line) or isFinallyAllowBraces(line)
 end
 
 -- This function is called when the user presses {Enter}

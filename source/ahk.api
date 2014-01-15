@@ -91,6 +91,7 @@ FileSelectFile , OutputVar [, Options, RootDir[\\DefaultFilename], Prompt, Filte
 FileSelectFolder , OutputVar [, *StartingFolder, Options, Prompt]
 FileSetAttrib , Attributes(+-^RASHNOT) [, FilePattern, OperateOnFolders?, Recurse?]
 FileSetTime [, YYYYMMDDHH24MISS, FilePattern, WhichTime (M|C|A), OperateOnFolders?, Recurse?]
+finally
 for key [,val] in obj
 FormatTime , OutputVar [, YYYYMMDDHH24MISS, Format]
 GetKeyState , OutputVar, WhichKey [, Mode (P|T)]

@@ -14,7 +14,6 @@
 #Include ProfileUpdate.ahk
 #Include Extensions.ahk
 SetWorkingDir, %A_ScriptDir%
-DetectHiddenWindows, On
 SetBatchLines, -1
 
 ; CLSID and APPID for this script: don't reuse, please!
@@ -61,6 +60,8 @@ IfWinNotExist, ahk_class SciTEWindow
 		ExitApp
 	}
 }
+
+DetectHiddenWindows, On
 
 ; Activate it
 WinActivate

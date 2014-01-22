@@ -586,12 +586,9 @@ GetSciTEOpenedFile()
 	else
 	{
 		WinGetTitle, sctitle, ahk_id %scitehwnd%
-		if !RegExMatch(sctitle, "^(.+?) [-*] SciTE", o)
-		{
-			MsgBox, 16, SciTE4AutoHotkey Toolbar, Bad SciTE window!
-			ExitApp
-		}else
+		if RegExMatch(sctitle, "^(.+?) [-*] SciTE", o)
 			return o1
+		return "?ERROR"
 	}
 }
 

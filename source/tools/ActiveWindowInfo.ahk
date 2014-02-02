@@ -19,7 +19,7 @@ txtFrozen := "(Win+A to unfreeze display)"
 
 Gui, New, hwndhGui AlwaysOnTop
 Gui, Add, Text,, Window Title and Class:
-Gui, Add, Edit, w320 r2 ReadOnly vCtrl_Title
+Gui, Add, Edit, w320 r2 ReadOnly -Wrap vCtrl_Title
 Gui, Add, Text,, Mouse Position:
 Gui, Add, Edit, w320 r3 ReadOnly vCtrl_MousePos
 Gui, Add, Text,, Control Under Mouse Position:

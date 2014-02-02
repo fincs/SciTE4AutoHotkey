@@ -12,14 +12,13 @@ CoordMode, Pixel, Screen
 IfExist, ..\toolicon.icl ; Seems useful enough to support standalone operation.
 	Menu, Tray, Icon, ..\toolicon.icl, 9
 
-VarSetCapacity(rect, 16)
 isUpd := true
 txtNotFrozen := "(Win+A to freeze display)"
 txtFrozen := "(Win+A to unfreeze display)"
 
-Gui, New, hwndhGui AlwaysOnTop
-Gui, Add, Text,, Window Title and Class:
-Gui, Add, Edit, w320 r2 ReadOnly -Wrap vCtrl_Title
+Gui, New, hwndhGui AlwaysOnTop Resize MinSize
+Gui, Add, Text,, Window Title, Class and Process:
+Gui, Add, Edit, w320 r3 ReadOnly -Wrap vCtrl_Title
 Gui, Add, Text,, Mouse Position:
 Gui, Add, Edit, w320 r3 ReadOnly vCtrl_MousePos
 Gui, Add, Text,, Control Under Mouse Position:
@@ -35,7 +34,19 @@ Gui, Add, Text,, All Text:
 Gui, Add, Edit, w320 r2 ReadOnly vCtrl_AllText
 Gui, Add, Text, w320 r1 vCtrl_Freeze, % txtNotFrozen
 Gui, Show,, Active Window Info
+GetClientSize(hGui, temp)
+horzMargin := temp*96//A_ScreenDPI - 320
 SetTimer, Update, 250
+return
+
+GuiSize:
+Gui %hGui%:Default
+if !horzMargin
+	return
+ctrlW := A_GuiWidth - horzMargin
+list = Title,MousePos,MouseCur,Pos,SBText,VisText,AllText,Freeze
+Loop, Parse, list, `,
+	GuiControl, Move, Ctrl_%A_LoopField%, w%ctrlW%
 return
 
 Update:
@@ -45,7 +56,8 @@ if (curWin = hGui)
 	return
 WinGetTitle, t1
 WinGetClass, t2
-GuiControl,, Ctrl_Title, % t1 "`nahk_class " t2
+WinGet, t3, ProcessName
+GuiControl,, Ctrl_Title, % t1 "`nahk_class " t2 "`nahk_exe " t3
 CoordMode, Mouse, Screen
 MouseGetPos, msX, msY, msWin, msCtrlHwnd, 2
 CoordMode, Mouse, Relative
@@ -63,9 +75,7 @@ if (curWin = msWin)
 } else mText := "`n" mText
 GuiControl,, Ctrl_MouseCur, % mText
 WinGetPos, wX, wY, wW, wH
-DllCall("GetClientRect", "ptr", curWin, "ptr", &rect)
-wcW := NumGet(rect, 8, "int")
-wcH := NumGet(rect, 12, "int")
+GetClientSize(curWin, wcW, wcH)
 GuiControl,, Ctrl_Pos, % "x: " wX "`ty: " wY "`tw: " wW "`th: " wH "`nClient:`t`tw: " wcW "`th: " wcH
 sbTxt := ""
 Loop
@@ -89,6 +99,14 @@ return
 
 GuiClose:
 ExitApp
+
+GetClientSize(hWnd, ByRef w := "", ByRef h := "")
+{
+	VarSetCapacity(rect, 16)
+	DllCall("GetClientRect", "ptr", hWnd, "ptr", &rect)
+	w := NumGet(rect, 8, "int")
+	h := NumGet(rect, 12, "int")
+}
 
 textMangle(x)
 {

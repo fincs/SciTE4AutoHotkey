@@ -79,19 +79,19 @@ Util_FileWriteStr(f, ByRef str)
 	Util_FileAlign(f)
 }
 
-Util_DirTree(dir, bd := "")
+Util_DirTree(dir)
 {
-	data := [], bd := bd ? bd : dir, lbd := StrLen(bd)+1
+	data := [], ldir := StrLen(dir)+1
 	Loop, %dir%\*.*, 1
 	{
-		StringTrimLeft, name, A_LoopFileFullPath, %lbd%
+		StringTrimLeft, name, A_LoopFileFullPath, %ldir%
 		e := { name: name, fullPath: A_LoopFileLongPath }
-		if SubStr(name, 0) = "~" || SubStr(name, -3) = ".bak"
+		if SubStr(name, 0) = "~" || SubStr(name, -3) = ".bak" || name = "package.json"
 			continue
 		IfInString, A_LoopFileAttrib, D
 		{
 			e.isDir := true
-			e.contents := Util_DirTree(A_LoopFileFullPath, bd)
+			e.contents := Util_DirTree(A_LoopFileFullPath)
 		}
 		data.Insert(e)
 	}

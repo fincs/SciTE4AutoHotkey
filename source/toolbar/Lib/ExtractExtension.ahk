@@ -20,12 +20,12 @@ ExtractExtension(dir, extFile, ByRef outExtId)
 		, "ptr", pData, "uint", &data + dataSize - pData, "uint*", finalSize) != 0
 		return "Decompression error"
 	
-	return Util_ExtractTree(&uncompData, dir)
+	return Util_ExtractTree(&uncompData, dir) ? "OK" : "FAIL"
 }
 
 Util_ExtractTree(ptr, dir)
 {
-	FileCreateDir, %dir%
+	try FileCreateDir, %dir%
 	nElems := NumGet(ptr+0, "UInt"), ptr += 4
 	Loop, %nElems%
 	{
@@ -34,23 +34,22 @@ Util_ExtractTree(ptr, dir)
 		if (size = 0xFFFFFFFF)
 		{
 			; Directory
-			ret := Util_ExtractTree(ptr, name)
-			if ret != OK
-				return ret
+			if not ptr := Util_ExtractTree(ptr, name)
+				break
 		} else
 		{
 			f := FileOpen(name, "w", "UTF-8-RAW")
 			f.RawWrite(ptr+0, size)
 			f := ""
-			ptr := (ptr+size+3)&~3
+			ptr += (size+3) &~ 3
 		}
 	}
-	return "OK"
+	return ptr
 }
 
 Util_ReadLenStr(ptr, ByRef endPtr)
 {
 	len := NumGet(ptr+0, "UInt")
-	endPtr := (ptr+len+7)&~3
+	endPtr := ptr + ((len+7)&~3)
 	return StrGet(ptr+4, len, "UTF-8")
 }

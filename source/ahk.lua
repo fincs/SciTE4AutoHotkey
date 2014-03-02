@@ -19,9 +19,6 @@ local savedbk = nil
 -- ================================================== --
 
 function OnClear()
-	-- This function only works with the AutoHotkey lexer
-	--if editor.Lexer ~= SCLEX_AHK1 then return false end
-	
 	if not prepared then
 		-- Remove the current line markers.
 		ClearAllMarkers()
@@ -36,12 +33,17 @@ end
 -- ====================================== --
 
 function OnChar(curChar)
-	local ignoreStyles = {SCE_AHK_COMMENTLINE, SCE_AHK_COMMENTBLOCK, SCE_AHK_STRING, SCE_AHK_ERROR, SCE_AHK_ESCAPE}
+	local ignoreStylesTable = {
+		[SCLEX_AHK1] = {SCE_AHK_COMMENTLINE, SCE_AHK_COMMENTBLOCK, SCE_AHK_STRING, SCE_AHK_ERROR, SCE_AHK_ESCAPE},
+		[SCLEX_AHK2] = {SCE_AHK2_COMMENTLINE, SCE_AHK2_COMMENTBLOCK, SCE_AHK2_STRING, SCE_AHK2_ERROR, SCE_AHK2_ESCAPE},
+	}
 	
 	-- This function should only run when the Editor pane is focused.
 	if not editor.Focus then return false end
 	-- This function only works with the AutoHotkey lexer
-	if editor.Lexer ~= SCLEX_AHK1 then return false end
+	if not InAHKLexer() then return false end
+	
+	local ignoreStyles = ignoreStylesTable[editor.Lexer]
 
 	if curChar == "\n" then
 		local prevStyle = editor.StyleAt[getPrevLinePos()]
@@ -66,7 +68,7 @@ function OnChar(curChar)
 		if isInTable(ignoreStyles, curStyle) then
 			-- ... but allow it in variable %dereferences% (which are set to 'error'
 			-- when they are typed because of the missing closing percent sign.
-			if curStyle == SCE_AHK_ERROR and editor.CharAt[pos-1] == 37
+			if not IsAHKv2() and curStyle == SCE_AHK_ERROR and editor.CharAt[pos-1] == 37
 			  and not isInTable(ignoreStyles, editor.StyleAt[pos-1]) then
 				return false
 			end
@@ -90,7 +92,7 @@ end
 
 function OnMarginClick(position, margin)
 	-- This function only works with the AutoHotkey lexer
-	if editor.Lexer ~= SCLEX_AHK1 then return false end
+	if not InAHKLexer() then return false end
 	
 	if margin == 1 then
 		if prepared then
@@ -389,9 +391,11 @@ end
 
 -- This function is called when the user presses {Enter}
 function AutoIndent_OnNewLine()
+	local cmtLineStyle = IsAHKv2() and SCE_AHK2_COMMENTLINE or SCE_AHK_COMMENTLINE
+	local cmtBlockStyle = IsAHKv2() and SCE_AHK2_COMMENTBLOCK or SCE_AHK_COMMENTBLOCK
 	local prevprevPos = editor:LineFromPosition(editor.CurrentPos) - 2
 	local prevPos = editor:LineFromPosition(editor.CurrentPos) - 1
-	local prevLine = GetFilteredLine(prevPos, SCE_AHK_COMMENTLINE, SCE_AHK_COMMENTBLOCK)
+	local prevLine = GetFilteredLine(prevPos, cmtLineStyle, cmtBlockStyle)
 	local curPos = prevPos + 1
 	local curLine = editor:GetLine(curPos)
 	
@@ -402,7 +406,7 @@ function AutoIndent_OnNewLine()
 		editor:Tab()
 		editor:LineEnd()
 	elseif prevprevPos >= 0 then
-		local prevprevLine = GetFilteredLine(prevprevPos, SCE_AHK_COMMENTLINE, SCE_AHK_COMMENTBLOCK)
+		local prevprevLine = GetFilteredLine(prevprevPos, cmtLineStyle, cmtBlockStyle)
 		local reqLvl = editor.LineIndentation[prevprevPos] + editor.Indent
 		local prevLvl = editor.LineIndentation[prevPos]
 		local curLvl = editor.LineIndentation[curPos]
@@ -418,14 +422,16 @@ end
 
 -- This function is called when the user presses {
 function AutoIndent_OnOpeningBrace()
+	local cmtLineStyle = IsAHKv2() and SCE_AHK2_COMMENTLINE or SCE_AHK_COMMENTLINE
+	local cmtBlockStyle = IsAHKv2() and SCE_AHK2_COMMENTBLOCK or SCE_AHK_COMMENTBLOCK
 	local prevPos = editor:LineFromPosition(editor.CurrentPos) - 1
 	local curPos = prevPos+1
 	if prevPos == -1 then return false end
 	
 	if editor.LineIndentation[curPos] == 0 then return false end
 	
-	local prevLine = GetFilteredLine(prevPos, SCE_AHK_COMMENTLINE, SCE_AHK_COMMENTBLOCK)
-	local curLine = GetFilteredLine(curPos, SCE_AHK_COMMENTLINE, SCE_AHK_COMMENTBLOCK)
+	local prevLine = GetFilteredLine(prevPos, cmtLineStyle, cmtBlockStyle)
+	local curLine = GetFilteredLine(curPos, cmtLineStyle, cmtBlockStyle)
 	
 	if string.find(curLine, "^%s*{%s*$") and isStartBlockStatement(prevLine)
 		and (editor.LineIndentation[curPos] > editor.LineIndentation[prevPos]) then
@@ -437,8 +443,10 @@ end
 
 -- This function is called when the user presses }
 function AutoIndent_OnClosingBrace()
+	local cmtLineStyle = IsAHKv2() and SCE_AHK2_COMMENTLINE or SCE_AHK_COMMENTLINE
+	local cmtBlockStyle = IsAHKv2() and SCE_AHK2_COMMENTBLOCK or SCE_AHK_COMMENTBLOCK
 	local curPos = editor:LineFromPosition(editor.CurrentPos)
-	local curLine = GetFilteredLine(curPos, SCE_AHK_COMMENTLINE, SCE_AHK_COMMENTBLOCK)
+	local curLine = GetFilteredLine(curPos, cmtLineStyle, cmtBlockStyle)
 	local prevPos = curPos - 1
 	local prevprevPos = prevPos - 1
 	local secondChance = false
@@ -447,7 +455,7 @@ function AutoIndent_OnClosingBrace()
 	if editor.LineIndentation[curPos] == 0 then return false end
 	
 	if prevprevPos >= 0 then
-		local prevprevLine = GetFilteredLine(prevprevPos, SCE_AHK_COMMENTLINE, SCE_AHK_COMMENTBLOCK)
+		local prevprevLine = GetFilteredLine(prevprevPos, cmtLineStyle, cmtBlockStyle)
 		local lowLvl = editor.LineIndentation[prevprevPos]
 		local highLvl = lowLvl + editor.Indent
 		local prevLvl = editor.LineIndentation[prevPos]
@@ -472,7 +480,7 @@ end
 
 function OnBeforeSave(filename)
 	-- This function only works with the AutoHotkey lexer
-	if editor.Lexer ~= SCLEX_AHK1 then return false end
+	if not InAHKLexer() then return false end
 	
 	if props['make.backup'] == "1" then
 		os.remove(filename .. ".bak")
@@ -486,7 +494,7 @@ end
 
 function OpenInclude()
 	-- This function only works with the AutoHotkey lexer
-	if editor.Lexer ~= SCLEX_AHK1 then return false end
+	if not InAHKLexer() then return false end
 	
 	local CurrentLine = editor:GetLine(editor:LineFromPosition(editor.CurrentPos))
 	if not string.find(CurrentLine, "^%s*%#[Ii][Nn][Cc][Ll][Uu][Dd][Ee]") then
@@ -556,6 +564,14 @@ end
 -- Helper Functions --
 -- ================ --
 
+function InAHKLexer()
+	return editor.Lexer == SCLEX_AHK1 or editor.Lexer == SCLEX_AHK2
+end
+
+function IsAHKv2()
+	return editor.Lexer == SCLEX_AHK2
+end
+
 function GetWord(pos)
 	from = editor:WordStartPosition(pos, true)
 	to = editor:WordEndPosition(pos, true)
@@ -578,6 +594,7 @@ function getPrevLinePos()
 end
 
 function isInTable(table, elem)
+	if table == null then return false end
 	for k,i in ipairs(table) do
 		if i == elem then
 			return true

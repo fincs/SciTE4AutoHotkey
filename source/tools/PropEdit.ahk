@@ -42,6 +42,13 @@ p_backup := FindProp("make\.backup=([01])", 1)
 p_savepos := FindProp("save\.position=([01])", 1)
 p_zoom := FindProp("magnification=(-?\d+)", -1)
 
+if 1 = /regenerate
+{
+	regenMode := true
+	gosub Update2
+	ExitApp
+}
+
 org_locale := p_locale
 org_zoom := p_zoom
 
@@ -79,6 +86,7 @@ ExitApp
 
 Update:
 Gui, Submit, NoHide
+Update2:
 
 p_encoding := GetItem(cplist_v, p_encoding)
 
@@ -136,7 +144,7 @@ FileAppend, %UserProps%, %UserPropsFile%
 ; Reload properties
 scite.ReloadProps()
 
-if scite && (p_locale != org_locale || p_zoom != org_zoom)
+if !regenMode && (p_locale != org_locale || p_zoom != org_zoom)
 {
 	Gui, +OwnDialogs
 	MsgBox, 52, SciTE properties editor, Changing the language or the zoom value requires restarting SciTE.`nReopen SciTE?

@@ -327,6 +327,9 @@ if FirstTime
 	MsgBox, 64, SciTE4AutoHotkey, Welcome to SciTE4AutoHotkey!
 	Run, "%A_AhkPath%" "%SciTEDir%\tools\PropEdit.ahk"
 }
+
+if regenerateUserProps
+	Run, "%A_AhkPath%" "%SciTEDir%\tools\PropEdit.ahk" /regenerate
 return
 
 ; Toolbar event handler

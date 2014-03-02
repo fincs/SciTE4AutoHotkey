@@ -954,7 +954,7 @@ A_LoopRegName
 A_LoopRegSubkey
 A_LoopRegTimeModified
 A_LoopRegType
-A_MDAY
+A_MDay
 A_Min
 A_MM
 A_MMM
@@ -1010,7 +1010,7 @@ A_WinDelay
 A_WinDir
 A_WorkingDir
 A_YDay
-A_YEAR
+A_Year
 A_YWeek
 A_YYYY
 Clipboard

@@ -17,6 +17,8 @@ if !scite
 	ExitApp
 }
 
+scite_hwnd := scite.GetSciTEHandle()
+
 LocalSciTEPath := scite.UserDir
 
 UserPropsFile = %LocalSciTEPath%\_config.properties
@@ -80,6 +82,41 @@ Gui, Submit, NoHide
 
 p_encoding := GetItem(cplist_v, p_encoding)
 
+FileRead, qvar, %LocalSciTEPath%\Styles\%p_style%.style.properties
+p_extra := ""
+if RegExMatch(qvar, "`am)^s4ahk\.style=1$")
+	p_extra =
+	(LTrim
+	style.ahk1.0=$(s4ahk.style.default)
+	style.ahk1.1=$(s4ahk.style.comment.line)
+	style.ahk1.2=$(s4ahk.style.comment.block)
+	style.ahk1.3=$(s4ahk.style.escape)
+	style.ahk1.4=$(s4ahk.style.operator)
+	style.ahk1.5=$(s4ahk.style.operator)
+	style.ahk1.6=$(s4ahk.style.string)
+	style.ahk1.7=$(s4ahk.style.number)
+	style.ahk1.8=$(s4ahk.style.var)
+	style.ahk1.9=$(s4ahk.style.var)
+	style.ahk1.10=$(s4ahk.style.label)
+	style.ahk1.11=$(s4ahk.style.flow)
+	style.ahk1.12=$(s4ahk.style.bif)
+	style.ahk1.13=$(s4ahk.style.func)
+	style.ahk1.14=$(s4ahk.style.directive)
+	style.ahk1.15=$(s4ahk.style.old.key)
+	style.ahk1.16=$(s4ahk.style.biv)
+	style.ahk1.17=$(s4ahk.style.wordop)
+	style.ahk1.18=$(s4ahk.style.old.user)
+	style.ahk1.19=$(s4ahk.style.biv)
+	style.ahk1.20=$(s4ahk.style.error)
+	if s4ahk.style.old.synop
+	`tstyle.ahk1.4=$(s4ahk.style.old.synop)
+	if s4ahk.style.old.deref
+	`tstyle.ahk1.9=$(s4ahk.style.old.deref)
+	if s4ahk.style.old.bivderef
+	`tstyle.ahk1.19=$(s4ahk.style.old.bivderef)
+
+	)
+
 UserProps =
 (
 # THIS FILE IS SCRIPT-GENERATED - DON'T TOUCH
@@ -90,11 +127,11 @@ output.code.page=%p_encoding%
 save.position=%p_savepos%
 magnification=%p_zoom%
 import Styles\%p_style%.style
-import _extensions
+%p_extra%import _extensions
 )
 
 FileDelete, %UserPropsFile%
-FileAppend, %UserProps%, *%UserPropsFile%
+FileAppend, %UserProps%, %UserPropsFile%
 
 ; Reload properties
 scite.ReloadProps()
@@ -106,18 +143,17 @@ if scite && (p_locale != org_locale || p_zoom != org_zoom)
 	IfMsgBox, Yes
 	{
 		Gui, Destroy
-		;WinClose, ahk_id %scite%
-		WinClose, % "ahk_id " scite.GetSciTEHandle()
+		WinClose, ahk_id %scite_hwnd%
 		WinWaitClose,,, 10
 		if !ErrorLevel
-			Run, %A_ScriptDir%\..\SciTE.exe
+			Run, "%A_ScriptDir%\..\SciTE.exe"
 		ExitApp
 	}
 }
 
 return
 
-FindProp(regex, default="")
+FindProp(regex, default := "")
 {
 	global UserProps
 	return RegExMatch(UserProps, "`am)^" regex "$", o) ? o1 : default

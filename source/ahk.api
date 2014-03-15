@@ -250,136 +250,136 @@ WinWaitActive [, WinTitle, WinText, Seconds, ExcludeTitle, ExcludeText]
 WinWaitClose , WinTitle, WinText, Seconds [, ExcludeTitle, ExcludeText]
 WinWaitNotActive [, WinTitle, WinText, Seconds, ExcludeTitle, ExcludeText]
 
-Abs (Number)
-ACos (Number)
-Asc (String)
-ASin (Number)
-ATan (Number)
-Ceil (Number)
-Chr (Number)
-Cos (Number)
-DllCall ("[DllFile\\]Function" [, Type1, Arg1, Type2, Arg2, ..., "Cdecl ReturnType"])
-Exception (message [, what, extra])
-Exp (Number)
-FileExist ("FilePattern")
-Floor (Number)
-GetKeyState (KeyName [, "P" or "T"])
-IL_Add (ImageListID, Filename [, IconNumber, ResizeNonIcon?])
-IL_Create ([InitialCount, GrowCount, LargeIcons?])
-IL_Destroy (ImageListID)
-InStr (Haystack, Needle [, CaseSensitive?, StartingPos, Occurrence])
-IsFunc (FunctionName)
-IsLabel (LabelName)
-Ln (Number)
-Log (Number)
-LV_Add ([Options, Col1, Col2, ...])
-LV_Delete ([RowNumber])
-LV_DeleteCol (ColumnNumber)
-LV_GetCount (["S|C"])
-LV_GetNext ([StartingRowNumber, "C|F"])
-LV_GetText (OutputVar, RowNumber [, ColumnNumber])
-LV_Insert (RowNumber [, Options, Col1, Col2, ...])
-LV_InsertCol (ColumnNumber [, Options, ColumnTitle])
-LV_Modify (RowNumber, Options [, NewCol1, NewCol2, ...])
-LV_ModifyCol ([ColumnNumber, Options, ColumnTitle])
-LV_SetImageList (ImageListID [, 0|1|2])
-Mod (Dividend, Divisor)
-NumGet (VarOrAddress [, Offset := 0] [, Type := "UPtr"])
-NumPut (Number, VarOrAddress [, Offset := 0] [, Type := "UPtr"])
-OnMessage (MsgNumber [, "FunctionName"])
-RegExMatch (Haystack, NeedleRegEx [, UnquotedOutputVar := "", StartingPos := 1])
-RegExReplace (Haystack, NeedleRegEx [, Replacement := "", OutputVarCount := "", Limit := -1, StartingPos := 1])
-RegisterCallback ("FunctionName" [, Options := "", ParamCount := FormalCount, EventInfo := Address])
-Round (Number [, Places])
-SB_SetIcon (Filename [, IconNumber, PartNumber])
-SB_SetParts ([Width1, Width2, ... Width255])
-SB_SetText (NewText [, PartNumber, Style])
-Sin (Number)
-Sqrt (Number)
-StrLen (String)
-SubStr (String, StartingPos [, Length])
-StrSplit (String [, Delimiters, OmitChars])
-Tan (Number)
-TV_Add (Name, [ParentItemID, Options])
-TV_Delete ([ItemID])
-TV_GetChild (ParentItemID)
-TV_GetCount ()
-TV_GetNext ([ItemID, "Checked | Full"])
-TV_Get (ItemID, "Expand | Check | Bold")
-TV_GetParent (ItemID)
-TV_GetPrev (ItemID)
-TV_GetSelection ()
-TV_GetText (OutputVar, ItemID)
-TV_Modify (ItemID [, Options, NewName])
-TV_SetImageList (ImageList [, 0|2])
-VarSetCapacity (Var [, RequestedCapacity, FillByte])
-WinActive (["WinTitle", "WinText", "ExcludeTitle", "ExcludeText"])
-WinExist (["WinTitle" , "WinText", "ExcludeTitle", "ExcludeText"])
+Abs(Number)
+ACos(Number)
+Asc(String)
+ASin(Number)
+ATan(Number)
+Ceil(Number)
+Chr(Number)
+Cos(Number)
+DllCall("[DllFile\\]Function" [, Type1, Arg1, Type2, Arg2, ..., "Cdecl ReturnType"])
+Exception(message [, what, extra])
+Exp(Number)
+FileExist("FilePattern")
+Floor(Number)
+GetKeyState(KeyName [, "P" or "T"])
+IL_Add(ImageListID, Filename [, IconNumber, ResizeNonIcon?])
+IL_Create([InitialCount, GrowCount, LargeIcons?])
+IL_Destroy(ImageListID)
+InStr(Haystack, Needle [, CaseSensitive?, StartingPos, Occurrence])
+IsFunc(FunctionName)
+IsLabel(LabelName)
+Ln(Number)
+Log(Number)
+LV_Add([Options, Col1, Col2, ...])
+LV_Delete([RowNumber])
+LV_DeleteCol(ColumnNumber)
+LV_GetCount(["S|C"])
+LV_GetNext([StartingRowNumber, "C|F"])
+LV_GetText(OutputVar, RowNumber [, ColumnNumber])
+LV_Insert(RowNumber [, Options, Col1, Col2, ...])
+LV_InsertCol(ColumnNumber [, Options, ColumnTitle])
+LV_Modify(RowNumber, Options [, NewCol1, NewCol2, ...])
+LV_ModifyCol([ColumnNumber, Options, ColumnTitle])
+LV_SetImageList(ImageListID [, 0|1|2])
+Mod(Dividend, Divisor)
+NumGet(VarOrAddress [, Offset := 0] [, Type := "UPtr"])
+NumPut(Number, VarOrAddress [, Offset := 0] [, Type := "UPtr"])
+OnMessage(MsgNumber [, "FunctionName"])
+RegExMatch(Haystack, NeedleRegEx [, UnquotedOutputVar := "", StartingPos := 1])
+RegExReplace(Haystack, NeedleRegEx [, Replacement := "", OutputVarCount := "", Limit := -1, StartingPos := 1])
+RegisterCallback("FunctionName" [, Options := "", ParamCount := FormalCount, EventInfo := Address])
+Round(Number [, Places])
+SB_SetIcon(Filename [, IconNumber, PartNumber])
+SB_SetParts([Width1, Width2, ... Width255])
+SB_SetText(NewText [, PartNumber, Style])
+Sin(Number)
+Sqrt(Number)
+StrLen(String)
+SubStr(String, StartingPos [, Length])
+StrSplit(String [, Delimiters, OmitChars])
+Tan(Number)
+TV_Add(Name, [ParentItemID, Options])
+TV_Delete([ItemID])
+TV_GetChild(ParentItemID)
+TV_GetCount()
+TV_GetNext([ItemID, "Checked | Full"])
+TV_Get(ItemID, "Expand | Check | Bold")
+TV_GetParent(ItemID)
+TV_GetPrev(ItemID)
+TV_GetSelection()
+TV_GetText(OutputVar, ItemID)
+TV_Modify(ItemID [, Options, NewName])
+TV_SetImageList(ImageList [, 0|2])
+VarSetCapacity(Var [, RequestedCapacity, FillByte])
+WinActive(["WinTitle", "WinText", "ExcludeTitle", "ExcludeText"])
+WinExist(["WinTitle" , "WinText", "ExcludeTitle", "ExcludeText"])
 
-Trim (string [, omitchars := " `t"]) \nTrims characters from the beginning and end of a string.
-LTrim (string [, omitchars := " `t"]) \nTrims characters from the beginning of a string.
-RTrim (string [, omitchars := " `t"]) \nTrims characters from the end of a string.
+Trim(string [, omitchars := " `t"]) \nTrims characters from the beginning and end of a string.
+LTrim(string [, omitchars := " `t"]) \nTrims characters from the beginning of a string.
+RTrim(string [, omitchars := " `t"]) \nTrims characters from the end of a string.
 
-FileOpen (file, mode[, encoding]) \nOpens a file and returns a new file object.
-StrGet (address [, max][, encoding]) \nRetrieves the null-terminated string at the specified address.
-StrPut (string [, encoding]) \nRetrieves the amount of characters (not bytes) that a string copy requires.
-StrPut (string, address [, max] [, encoding]) \nCopies a string to the specified location.
+FileOpen(file, mode[, encoding]) \nOpens a file and returns a new file object.
+StrGet(address [, max][, encoding]) \nRetrieves the null-terminated string at the specified address.
+StrPut(string [, encoding]) \nRetrieves the amount of characters (not bytes) that a string copy requires.
+StrPut(string, address [, max] [, encoding]) \nCopies a string to the specified location.
 
-GetKeyName (key)
-GetKeyVK (key)
-GetKeySC (key)
-IsByRef (var)
+GetKeyName(key)
+GetKeyVK(key)
+GetKeySC(key)
+IsByRef(var)
 
-Object ([key, value, [key2, value2...]]) \nCreates a scriptable object which is also an associative array.
-Object (obj) \nRetrieves an interface pointer from an object reference or vice versa.
-Array ([values...]) \nCreates an array.
-IsObject (param) \nTests if the parameter is an object.
-ObjInsert (obj, index, values...)
-ObjInsert (obj, value)
-ObjInsert (obj, key, value)
-ObjRemove (obj, key)
-ObjRemove (obj, first, last)
-ObjRemove (obj, intkey, "")
-ObjMinIndex (obj)
-ObjMaxIndex (obj)
-ObjSetCapacity (obj, maxitems)
-ObjSetCapacity (obj, key, bytesize)
-ObjGetCapacity (obj[, key])
-ObjGetAddress (obj, key)
-ObjNewEnum (obj)
-ObjAddRef (address)
-ObjRelease (address)
-ObjHasKey (obj, key)
-ObjClone (obj)
+Object([key, value, [key2, value2...]]) \nCreates a scriptable object which is also an associative array.
+Object(obj) \nRetrieves an interface pointer from an object reference or vice versa.
+Array([values...]) \nCreates an array.
+IsObject(param) \nTests if the parameter is an object.
+ObjInsert(obj, index, values...)
+ObjInsert(obj, value)
+ObjInsert(obj, key, value)
+ObjRemove(obj, key)
+ObjRemove(obj, first, last)
+ObjRemove(obj, intkey, "")
+ObjMinIndex(obj)
+ObjMaxIndex(obj)
+ObjSetCapacity(obj, maxitems)
+ObjSetCapacity(obj, key, bytesize)
+ObjGetCapacity(obj[, key])
+ObjGetAddress(obj, key)
+ObjNewEnum(obj)
+ObjAddRef(address)
+ObjRelease(address)
+ObjHasKey(obj, key)
+ObjClone(obj)
 
-__Get ([params...])
-__Set ([params...,] value)
-__Call ([params...])
-__Delete ()
-__New ([params...])
+__Get([params...])
+__Set([params...,] value)
+__Call([params...])
+__Delete()
+__New([params...])
 
-_NewEnum () \nObject method which returns an enumerator object, required by the for command.
+_NewEnum() \nObject method which returns an enumerator object, required by the for command.
 
 class ClassName [extends ClassName]
 new
 extends
 
-ComObjCreate (ProgIdOrCLSID [, IID]) \nCreates a COM object.
-ComObjGet (name) \nReturns a reference to an object provided by a COM component.
-ComObjConnect (obj [, funcPrefixOrObj])  \nListens to events from a ComObject (omit the 2nd parameter to stop listening).
-ComObjError ([Enable])\nEnables or disables notification of COM errors. If Enable is omitted, the current setting is returned.
-ComObjActive (ProgIdOrCLSID) \nRetrieves a running object that has been registered with OLE.
-ComObjEnwrap (pdisp) \nWraps a raw IDispatch pointer in a usable object.
-ComObjUnwrap (obj) \nUnwraps a raw IDispatch pointer in a usable object.
-ComObjParameter (vt, val [, flags]) \nPacks type and value information in a single parameter.
-ComObjType (obj [, "Name|IID"]) \nRetrieves type information for a COM object.
-ComObjValue (obj) \nRetrieves the raw 64-bit signed integer stored in a ComObject wrapper.
-ComObjMissing () \nCreates an object for use in place of an optional parameter's default value when calling a COM object.
-ComObjArray (VarType, Count1 [, Count2, ... Count8]) \nCreates a SAFEARRAY for use with COM.
-ComObjQuery (ComObject [, SID], IID) \nQueries a COM object for an interface or service.
-ComObjFlags (ComObject [, NewFlags, Mask]) \nRetrieves or changes flags which control a COM wrapper object's behaviour.
+ComObjCreate(ProgIdOrCLSID [, IID]) \nCreates a COM object.
+ComObjGet(name) \nReturns a reference to an object provided by a COM component.
+ComObjConnect(obj [, funcPrefixOrObj])  \nListens to events from a ComObject (omit the 2nd parameter to stop listening).
+ComObjError([Enable])\nEnables or disables notification of COM errors. If Enable is omitted, the current setting is returned.
+ComObjActive(ProgIdOrCLSID) \nRetrieves a running object that has been registered with OLE.
+ComObjEnwrap(pdisp) \nWraps a raw IDispatch pointer in a usable object.
+ComObjUnwrap(obj) \nUnwraps a raw IDispatch pointer in a usable object.
+ComObjParameter(vt, val [, flags]) \nPacks type and value information in a single parameter.
+ComObjType(obj [, "Name|IID"]) \nRetrieves type information for a COM object.
+ComObjValue(obj) \nRetrieves the raw 64-bit signed integer stored in a ComObject wrapper.
+ComObjMissing() \nCreates an object for use in place of an optional parameter's default value when calling a COM object.
+ComObjArray(VarType, Count1 [, Count2, ... Count8]) \nCreates a SAFEARRAY for use with COM.
+ComObjQuery(ComObject [, SID], IID) \nQueries a COM object for an interface or service.
+ComObjFlags(ComObject [, NewFlags, Mask]) \nRetrieves or changes flags which control a COM wrapper object's behaviour.
 
-Func (funcname)
+Func(funcname)
 
 Shift
 LShift

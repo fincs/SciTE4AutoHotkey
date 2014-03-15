@@ -22,6 +22,7 @@
 #MenuMaskKey keyname
 #MustDeclare [On|Off]
 #NoTrayIcon
+#Persistent
 #SingleInstance [Force|Ignore|Off]
 #UseHook [On|Off]
 #Warn [WarningType, WarningMode]
@@ -29,7 +30,7 @@
 
 if Expression\n{\n	commands\n}
 else \n{\n	commands\n}
-Loop [, Count]\nLoop, Files, FilePattern [, F|D|R]\nLoop, Parse, InputVar [, Delimiters, OmitChars]\nLoop, Read, InputFile [, OutputFile]\nLoop, Reg, RootKey\Key [, V|K|R]\n{\n	commands\n}
+Loop [, Count]\nLoop Files, FilePattern [, F|D|R]\nLoop Parse, InputVar [, Delimiters, OmitChars]\nLoop Read, InputFile [, OutputFile]\nLoop Reg, RootKey\Key [, V|K|R]\n{\n	commands\n}
 while Expression\n{\n	commands\n}
 until Expression
 for key [,val] in obj\n{\n	commands\n}

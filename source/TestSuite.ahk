@@ -1,8 +1,8 @@
 /*
- ***************************************************
- * SciTE4AutoHotkey v3 syntax highlighting demo    *
- * August 19, 2010 - fincs                         *
- ***************************************************
+ *
+ * SciTE4AutoHotkey Syntax Highlighting Demo
+ * - by fincs
+ *
 */
 
 ; Normal comment
@@ -36,14 +36,14 @@ if true
 Loop, 3
 	MsgBox Repetition #%A_Index%
 
-; Built-in-function call
+; Built-in function call
 MsgBox % SubStr("blaHello Worldbla", 4, 11)
 
 if false
 {
 	; Keys and buttons
 	Send, {F1}
-	; Syntax errors (the following is fake, but to show you)
+	; Syntax errors
 	MyVar = "This is a test
 }
 

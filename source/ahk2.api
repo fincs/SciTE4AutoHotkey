@@ -66,6 +66,7 @@ A_AhkPath
 A_AhkVersion
 A_AppData
 A_AppDataCommon
+A_Args
 A_CaretX
 A_CaretY
 A_ComputerName

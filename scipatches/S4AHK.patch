@@ -1572,10 +1572,10 @@ index 0000000..b002e3f
 +LexerModule lmAHK1(SCLEX_AHK1, ColouriseAHK1Doc, "ahk1", FoldAHK1Doc, ahkWordListDesc);
 diff --git a/scintilla/lexers/LexAHK2.cxx b/scintilla/lexers/LexAHK2.cxx
 new file mode 100644
-index 0000000..8a0e2e3
+index 0000000..2e4da82
 --- /dev/null
 +++ b/scintilla/lexers/LexAHK2.cxx
-@@ -0,0 +1,1444 @@
+@@ -0,0 +1,1469 @@
 +// Scintilla source code edit control
 +/** @file LexAHK2.cxx
 + ** Lexer for AutoHotkey v2
@@ -2210,7 +2210,8 @@ index 0000000..8a0e2e3
 +					curInfo->bIsIf = strcmp(wordbuf, "if") == 0;
 +				} else if (bifList.InList(wordbuf))
 +					sc.ChangeState(SCE_AHK2_BIF);
-+			}
++			} else if (sc.state == SCE_AHK2_ESCAPE)
++				sc.SetState(SCE_AHK2_STRING);
 +
 +			if (curInfo->type == LINE_CONTSECT)
 +			{
@@ -2526,6 +2527,8 @@ index 0000000..8a0e2e3
 +						sc.ChangeState(SCE_AHK2_BIF);
 +
 +					sc.SetState(SCE_AHK2_OPERATOR);
++					sc.Forward();
++					sc.SetState(SCE_AHK2_STRING);
 +
 +					if (bIsFOC)
 +					{
@@ -2533,7 +2536,8 @@ index 0000000..8a0e2e3
 +						curInfo->context = LINE_EXPR;
 +					}
 +					
-+					continue;
++					ch = sc.ch;
++					goto _loopHead;
 +				} else if (ch == '(')
 +				{
 +					// Function call or definition
@@ -2559,12 +2563,23 @@ index 0000000..8a0e2e3
 +					continue;
 +				} else if (ch == ':' && sc.chNext != ':')
 +				{
-+					// Label
++					if (sc.chNext != '=')
++					{
++						// Label
++						bKnowType = true;
++						curInfo->type = LINE_LABEL;
++						curInfo->context = LINE_BLANK; // hack
++						sc.ChangeState(SCE_AHK2_LABEL);
++						sc.SetState(SCE_AHK2_OPERATOR);
++						continue;
++					}
++					// Assignment
 +					bKnowType = true;
-+					curInfo->type = LINE_LABEL;
-+					curInfo->context = LINE_BLANK; // hack
-+					sc.ChangeState(SCE_AHK2_LABEL);
++					curInfo->type = LINE_EXPR;
++					curInfo->context = LINE_EXPR;
++					sc.ChangeState(bivList.InList(wordbuf) ? SCE_AHK2_BIV : SCE_AHK2_VAR);
 +					sc.SetState(SCE_AHK2_OPERATOR);
++					sc.Forward();
 +					continue;
 +				} else if (ch && !isWhitespace(ch))
 +				{
@@ -2664,8 +2679,15 @@ index 0000000..8a0e2e3
 +
 +		// Catch-all escape handler
 +		if (sc.state == SCE_AHK2_ESCAPE)
-+			sc.SetState(SCE_AHK2_STRING);
-+		else
++		{
++			if (ch != '`')
++				sc.SetState(SCE_AHK2_STRING);
++			else
++			{
++				sc.Forward();
++				continue;
++			}
++		} else
 +
 +		// Catch-all identifier handler
 +		if (sc.state == SCE_AHK2_VAR)
@@ -2717,7 +2739,10 @@ index 0000000..8a0e2e3
 +				if (ch == ',' && !curInfo->bLiteralComma)
 +				{
 +					sc.SetState(SCE_AHK2_OPERATOR);
-+					continue;
++					sc.Forward();
++					sc.SetState(SCE_AHK2_STRING);
++					ch = sc.ch;
++					goto _loopHead;
 +				}
 +
 +				if (sc.state == SCE_AHK2_DEFAULT)
@@ -2935,7 +2960,7 @@ index 0000000..8a0e2e3
 +				curInfo->bIsIf = strcmp(wordbuf, "if") == 0;
 +			} else if (bifList.InList(wordbuf))
 +				sc.ChangeState(SCE_AHK2_BIF);
-+		} else if (sc.state == SCE_AHK2_STRING)
++		} else if (sc.state == SCE_AHK2_STRING || sc.state == SCE_AHK2_ESCAPE)
 +			curInfo->bEndedInStr = true;
 +	}
 +

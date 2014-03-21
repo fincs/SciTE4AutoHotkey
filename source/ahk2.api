@@ -58,6 +58,302 @@ in
 extends
 new
 
+__Call([params...]) 'Call' meta-function of a class or object.
+__Delete() Destructor method of a class or object.
+__Get([params...]) 'Get' meta-function of a class or object.
+__New([params...]) Constructor method of a class or object.
+__Set([params...,] value) 'Set' meta-function of a class or object.
+_NewEnum() Object method which returns an enumerator object, required by the for command.
+Abs(Number) Returns the absolute value of Number.
+ACos(Number) Returns the arcosine in radians.
+Array([Item1, Item2, ..., ItemN]) Creates a simple sequential array.
+ASin(Number) Returns the arcsine in radians.
+ATan(Number) Returns the arctangent in radians.
+BlockInput(true|false|"Send|Mouse|SendAndMouse|Default|MouseMove|MouseMoveOff") Disables or reenables the user's ability to interact with the computer via keyboard and mouse.
+Ceil(Number) Returns Number rounded up to the nearest integer.
+Chr(Number) Returns the single character corresponding to the character code indicated by Number.
+Click([Parameters]) Simulates clicks and other mouse operations.
+ClipWait([SecondsToWait, 1]) Waits until the clipboard contains data.
+ComObjActive(ProgIdOrCLSID) Retrieves a running object that has been registered with OLE.
+ComObjArray(VarType, Count1 [, Count2, ... Count8]) Creates a SafeArray for use with COM.
+ComObjConnect(obj [, funcPrefixOrObj]) Listens to events from a COM object (omit the 2nd parameter to stop listening).
+ComObjCreate(ProgIdOrCLSID [, IID]) Creates a COM object.
+ComObject(VarType, Value [, Flags]) Wraps a value, SafeArray or COM object for use by the script or for passing to a COM method.
+ComObject(DispPtr) Wraps or unwraps a raw IDispatch pointer for use by the script.
+ComObjError([Enable]) Enables or disables notification of COM errors. If Enable is omitted, the current setting is returned.
+ComObjFlags(ComObject [, NewFlags, Mask]) Retrieves or changes flags which control a COM wrapper object's behaviour.
+ComObjGet(name) Returns a reference to an object provided by a COM component.
+ComObjQuery(ComObject [, SID], IID) Queries a COM object for an interface or service.
+ComObjType(ComObject [, "Name|IID"]) Retrieves type information for a COM object.
+ComObjValue(ComObject) Retrieves the value or pointer stored in a COM wrapper object.
+Control(Cmd [, Value, Control, WinTitle, WinText, ExcludeTitle, ExcludeText]) Makes a variety of changes to a control.
+ControlClick
+ControlFocus
+ControlGet
+ControlGetFocus
+ControlGetPos
+ControlGetText
+ControlMove
+ControlSend
+ControlSendRaw
+ControlSetText
+CoordMode
+Cos
+Critical
+DateAdd
+DateSub
+Deref
+DetectHiddenText
+DetectHiddenWindows
+DirCopy
+DirCreate
+DirDelete
+DirExist
+DirMove
+DirSelect
+DllCall
+Download
+Drive
+DriveGet
+Edit
+EnvGet
+EnvSet
+Exception
+Exit
+ExitApp
+Exp
+FileAppend
+FileCopy
+FileCreateShortcut
+FileDelete
+FileEncoding
+FileExist
+FileGetAttrib
+FileGetShortcut
+FileGetSize
+FileGetTime
+FileGetVersion
+FileInstall
+FileMove
+FileOpen
+FileRead
+FileRecycle
+FileRecycleEmpty
+FileSelect
+FileSetAttrib
+FileSetTime
+Floor
+FormatTime
+Func
+GetKeyName
+GetKeySC
+GetKeyState
+GetKeyVK
+GroupActivate
+GroupAdd
+GroupClose
+GroupDeactivate
+Gui
+GuiControl
+GuiControlGet
+Hotkey
+IL_Add
+IL_Create
+IL_Destroy
+ImageSearch
+IniDelete
+IniRead
+IniWrite
+Input
+InputBox
+InStr
+IsByRef
+IsFunc
+IsLabel
+IsObject
+KeyHistory
+KeyWait
+ListHotkeys
+ListLines
+ListVars
+Ln
+Log
+LTrim
+LV_Add
+LV_Delete
+LV_DeleteCol
+LV_GetCount
+LV_GetNext
+LV_GetText
+LV_Insert
+LV_InsertCol
+LV_Modify
+LV_ModifyCol
+LV_SetImageList
+Menu
+MenuSelect
+Mod
+MonitorGet
+MonitorGetCount
+MonitorGetName
+MonitorGetPrimary
+MonitorGetWorkArea
+MouseClick
+MouseClickDrag
+MouseGetPos
+MouseMove
+MsgBox
+NumGet
+NumPut
+ObjAddRef
+ObjClone
+Object
+ObjGetAddress
+ObjGetCapacity
+ObjHasKey
+ObjInsert
+ObjMaxIndex
+ObjMinIndex
+ObjNewEnum
+ObjRelease
+ObjRemove
+ObjSetCapacity
+OnMessage
+Ord
+OutputDebug
+PixelGetColor
+PixelSearch
+PostMessage
+ProcessClose
+ProcessExist
+ProcessList
+ProcessSetPriority
+ProcessWait
+ProcessWaitClose
+Random
+RegDelete
+RegExMatch
+RegExReplace
+RegisterCallback
+RegRead
+RegWrite
+Reload
+Round
+RTrim
+Run
+Runas
+RunWait
+SB_SetIcon
+SB_SetParts
+SB_SetText
+Send
+SendEvent
+SendInput
+SendLevel
+SendMessage
+SendMode
+SendPlay
+SendRaw
+SetCapsLockState
+SetControlDelay
+SetDefaultMouseSpeed
+SetKeyDelay
+SetMouseDelay
+SetNumLockState
+SetRegView
+SetScrollLockState
+SetStoreCapsLockMode
+SetTitleMatchMode
+SetWinDelay
+SetWorkingDir
+Shutdown
+Sin
+Sort
+SoundBeep
+SoundGet
+SoundPlay
+SoundSet
+SplitPath
+Sqrt
+StatusBarGetText
+StatusBarWait
+StrGet
+StringCaseSense
+StrLen
+StrLower
+StrPut
+StrReplace
+StrSplit
+StrUpper
+SubStr
+SysGet
+Tan
+Thread
+ToolTip
+TrayTip
+Trim
+TV_Add
+TV_Delete
+TV_Get
+TV_GetChild
+TV_GetCount
+TV_GetNext
+TV_GetParent
+TV_GetPrev
+TV_GetSelection
+TV_GetText
+TV_Modify
+TV_SetImageList
+Type
+VarSetCapacity
+WinActivate
+WinActivateBottom
+WinActive
+WinClose
+WinExist
+WinGetClass
+WinGetControls
+WinGetControlsHwnd
+WinGetCount
+WinGetExStyle
+WinGetID
+WinGetIDLast
+WinGetList
+WinGetMinMax
+WinGetPID
+WinGetPos
+WinGetProcessName
+WinGetProcessPath
+WinGetStyle
+WinGetText
+WinGetTitle
+WinGetTransColor
+WinGetTransparent
+WinHide
+WinKill
+WinMaximize
+WinMinimize
+WinMinimizeAll
+WinMinimizeAllUndo
+WinMove
+WinMoveBottom
+WinMoveTop
+WinRedraw
+WinRestore
+WinSetAlwaysOnTop
+WinSetEnabled
+WinSetExStyle
+WinSetRegion
+WinSetStyle
+WinSetTitle
+WinSetTransColor
+WinSetTransparent
+WinShow
+WinWait
+WinWaitActive
+WinWaitClose
+WinWaitNotactive
+
 A_AhkPath
 A_AhkVersion
 A_AppData

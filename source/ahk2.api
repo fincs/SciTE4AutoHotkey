@@ -42,8 +42,6 @@ return Expression
 class ClassName [extends BaseClassName] \n{\n	definitions\n}
 break [LoopLabelOrNestIndex]
 continue [LoopLabelOrNestIndex]
-Exit [, ExitCode]
-ExitApp [, ExitCode]
 gosub Label
 goto Label
 static [Variable := Expression]
@@ -59,8 +57,6 @@ contains
 in
 extends
 new
-this
-base
 
 A_AhkPath
 A_AhkVersion
@@ -197,8 +193,10 @@ A_YDay
 A_Year
 A_YWeek
 A_YYYY
+base
 Clipboard
 ClipboardAll
 ErrorLevel
 false
+this
 true

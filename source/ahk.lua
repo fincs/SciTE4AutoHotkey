@@ -523,6 +523,7 @@ function OpenInclude()
 	
 	-- Replace variables
 	IncFile = string.gsub(IncFile, "%%[Aa]_[Ss][Cc][Rr][Ii][Pp][Tt][Dd][Ii][Rr]%%", props['FileDir'])
+	IncFile = string.gsub(IncFile, "%%[Aa]_[Ll][Ii][Nn][Ee][Ff][Ii][Ll][Ee]%%", props['FilePath'])
 	
 	a,b,IncLib = string.find(IncFile, "^<(.+)>$")
 	

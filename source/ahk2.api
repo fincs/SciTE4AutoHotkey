@@ -111,7 +111,7 @@ DirDelete
 DirExist
 DirMove
 DirSelect
-DllCall
+DllCall("[DllFile\]Function" [, Type1, Arg1, Type2, Arg2, ..., "Cdecl ReturnType"]) Calls a function inside a DLL, such as a standard Windows API function.
 Download
 Drive
 DriveGet
@@ -119,13 +119,13 @@ Edit
 EnvGet
 EnvSet
 Exception
-Exit
-ExitApp
+Exit([ExitCode]) Exits the current thread.
+ExitApp([ExitCode]) Terminates the script unconditionally.
 Exp
-FileAppend
+FileAppend([Text, Filename, Encoding]) Writes text to the end of a file (first creating the file, if necessary).
 FileCopy
 FileCreateShortcut
-FileDelete
+FileDelete(FilePattern) Deletes one or more files.
 FileEncoding
 FileExist
 FileGetAttrib
@@ -135,11 +135,11 @@ FileGetTime
 FileGetVersion
 FileInstall
 FileMove
-FileOpen
-FileRead
+FileOpen(Filename, Flags [, Encoding]) Opens a file.\nAccess flags: r|w|a|rw|h\nSharing flags: -rwa\nUse * to disable EOL translations.
+FileRead(Filename) Reads a file's contents.
 FileRecycle
 FileRecycleEmpty
-FileSelect
+FileSelect([Options, "RootDir\Filename", Prompt, Filter]) Displays a standard dialog that allows the user to open or save file(s).
 FileSetAttrib
 FileSetTime
 Floor
@@ -153,9 +153,9 @@ GroupActivate
 GroupAdd
 GroupClose
 GroupDeactivate
-Gui
-GuiControl
-GuiControlGet
+Gui(SubCommand [, Param2, Param3, Param4]) Creates and manages windows and controls. Such windows can be used as data entry forms or custom user interfaces.
+GuiControl(SubCommand, ControlID [, Param3]) Makes a variety of changes to a control in a GUI window.
+GuiControlGet([SubCommand, ControlID, Param3]) Retrieves various types of information about a control in a GUI window. 
 Hotkey
 IL_Add
 IL_Create
@@ -165,7 +165,7 @@ IniDelete
 IniRead
 IniWrite
 Input
-InputBox
+InputBox([Title, Prompt, Options, Default]) Displays an input box to ask the user to enter a string.
 InStr
 IsByRef
 IsFunc
@@ -200,14 +200,15 @@ MonitorGetPrimary
 MonitorGetWorkArea
 MouseClick
 MouseClickDrag
-MouseGetPos
+MouseGetPos([OutputVarX, OutputVarY, OutputVarWin, OutputVarControl, 1|2|3]) Retrieves the current position of the mouse cursor, and optionally which window and control it is hovering over.
 MouseMove
-MsgBox
+MsgBox([Options, Title, Text, Timeout]) Displays the specified text in a small window containing one or more buttons (such as Yes and No).
+MsgBox(Text) Displays the specified text in a small window containing one or more buttons (such as Yes and No).
 NumGet
 NumPut
 ObjAddRef
 ObjClone
-Object
+Object([Key1, Value1, Key2, Value2, ...]) Creates a scriptable associative array.
 ObjGetAddress
 ObjGetCapacity
 ObjHasKey
@@ -232,28 +233,28 @@ ProcessWait
 ProcessWaitClose
 Random
 RegDelete
-RegExMatch
-RegExReplace
+RegExMatch(Haystack, RegEx [, OutputVar, StartingPosition := 1]) Determines whether a string contains a pattern (regular expression).
+RegExReplace(Haystack, NeedleRegEx [, Replacement := "", OutputVarCount := "", Limit := -1, StartingPosition := 1]) Replaces occurrences of a pattern (regular expression) inside a string.
 RegisterCallback
 RegRead
 RegWrite
 Reload
 Round
 RTrim
-Run
-Runas
-RunWait
+Run(Target [, WorkingDir, "Max|Min|Hide|UseErrorLevel", OutputVarPID]) Runs an external program.
+RunAs
+RunWait(Target [, WorkingDir, "Max|Min|Hide|UseErrorLevel", OutputVarPID]) Runs an external program and waits until it finishes before continuing.
 SB_SetIcon
 SB_SetParts
 SB_SetText
-Send
-SendEvent
-SendInput
+Send(Keys) Sends simulated keystrokes and mouse clicks to the active window.
+SendEvent(Keys) Sends simulated keystrokes and mouse clicks to the active window.
+SendInput(Keys) Sends simulated keystrokes and mouse clicks to the active window.
 SendLevel
 SendMessage
-SendMode
-SendPlay
-SendRaw
+SendMode("Input|Play|Event|InputThenPlay") Sets the default Send mode.
+SendPlay(Keys) Sends simulated keystrokes and mouse clicks to the active window.
+SendRaw(Keys) Sends simulated keystrokes and mouse clicks to the active window.
 SetCapsLockState
 SetControlDelay
 SetDefaultMouseSpeed
@@ -263,29 +264,31 @@ SetNumLockState
 SetRegView
 SetScrollLockState
 SetStoreCapsLockMode
-SetTitleMatchMode
-SetWinDelay
+SetTimer([Label, PeriodMS|"On"|"Off", Priority]) Causes a subroutine to be launched automatically and repeatedly at a specified time interval.
+SetTitleMatchMode(1|2|3|"Fast"|"Slow") Sets the matching behavior of the WinTitle parameter in commands such as WinWait.
+SetWinDelay(Delay) Sets the delay that will occur after each windowing command, such as WinActivate.
 SetWorkingDir
 Shutdown
 Sin
+Sleep(Milliseconds) Waits the specified amount of time before continuing.
 Sort
 SoundBeep
 SoundGet
 SoundPlay
 SoundSet
-SplitPath
+SplitPath(Path [, OutFileName, OutDir, OutExtension, OutNameNoExt, OutDrive]) Separates a file name or URL into its name, directory, extension, and drive.
 Sqrt
 StatusBarGetText
 StatusBarWait
 StrGet
 StringCaseSense
-StrLen
+StrLen(String) Returns the length of String.
 StrLower
 StrPut
-StrReplace
+StrReplace(Haystack, SearchText [, ReplaceText, OutputVarCount, Limit := -1]) Replaces the specified substring with a new string.
 StrSplit
 StrUpper
-SubStr
+SubStr(String, StartingPos [, Length]) Copies a substring from String.
 SysGet
 Tan
 Thread
@@ -306,11 +309,11 @@ TV_Modify
 TV_SetImageList
 Type
 VarSetCapacity
-WinActivate
+WinActivate([WinTitle, WinText, ExcludeTitle, ExcludeText]) Activates the specified window (makes it foremost).
 WinActivateBottom
 WinActive
-WinClose
-WinExist
+WinClose([WinTitle, WinText, SecondsToWait, ExcludeTitle, ExcludeText]) Closes the specified window.
+WinExist([WinTitle, WinText, ExcludeTitle, ExcludeText]) Checks if a matching window exists. WinExist() returns the Unique ID (HWND) of the first matching window.
 WinGetClass
 WinGetControls
 WinGetControlsHwnd
@@ -326,16 +329,17 @@ WinGetProcessName
 WinGetProcessPath
 WinGetStyle
 WinGetText
-WinGetTitle
+WinGetTitle([WinTitle, WinText, ExcludeTitle, ExcludeText]) Retrieves the title of the specified window.
 WinGetTransColor
 WinGetTransparent
-WinHide
+WinHide([WinTitle, WinText, ExcludeTitle, ExcludeText]) Hides the specified window.
 WinKill
-WinMaximize
-WinMinimize
+WinMaximize([WinTitle, WinText, ExcludeTitle, ExcludeText]) Enlarges the specified window to its maximum size.
+WinMinimize([WinTitle, WinText, ExcludeTitle, ExcludeText]) Collapses the specified window into a button on the task bar.
 WinMinimizeAll
 WinMinimizeAllUndo
-WinMove
+WinMove(WinTitle, WinText, X, Y [, Width, Height, ExcludeTitle, ExcludeText]) Changes the position and/or size of the specified window.
+WinMove(X, Y) Changes the position and/or size of the specified window.
 WinMoveBottom
 WinMoveTop
 WinRedraw
@@ -349,10 +353,10 @@ WinSetTitle
 WinSetTransColor
 WinSetTransparent
 WinShow
-WinWait
-WinWaitActive
-WinWaitClose
-WinWaitNotactive
+WinWait([WinTitle, WinText, Seconds, ExcludeTitle, ExcludeText]) Waits until the specified window exists.
+WinWaitActive([WinTitle, WinText, Seconds, ExcludeTitle, ExcludeText]) Waits until the specified window is active.
+WinWaitClose([WinTitle, WinText, Seconds, ExcludeTitle, ExcludeText]) Waits until the specified window does not exist.
+WinWaitNotActive([WinTitle, WinText, Seconds, ExcludeTitle, ExcludeText]) Waits until the specified window is not active.
 
 A_AhkPath
 A_AhkVersion

@@ -87,76 +87,78 @@ ComObjQuery(ComObject [, SID], IID) Queries a COM object for an interface or ser
 ComObjType(ComObject [, "Name|IID"]) Retrieves type information for a COM object.
 ComObjValue(ComObject) Retrieves the value or pointer stored in a COM wrapper object.
 Control(Cmd [, Value, Control, WinTitle, WinText, ExcludeTitle, ExcludeText]) Makes a variety of changes to a control.
-ControlClick
-ControlFocus
-ControlGet
-ControlGetFocus
-ControlGetPos
-ControlGetText
-ControlMove
-ControlSend
-ControlSendRaw
-ControlSetText
-CoordMode
+ControlClick([ControlOrPos, WinTitle, WinText, WhichButton, ClickCount, Options, ExcludeTitle, ExcludeText]) Sends a mouse button or mouse wheel event to a control.
+ControlFocus([Control, WinTitle, WinText, ExcludeTitle, ExcludeText]) Sets input focus to a given control on a window.
+ControlGet(Cmd [, Value, Control, WinTitle, WinText, ExcludeTitle, ExcludeText]) Retrieves various types of information about a control.
+ControlGetFocus([WinTitle, WinText, ExcludeTitle, ExcludeText]) Retrieves which control of the target window has input focus, if any.
+ControlGetPos([OutputVarX, OutputVarY, OutputVarWidth, OutputVarHeight, Control, WinTitle, WinText, ExcludeTitle, ExcludeText]) Retrieves the position and size of a control.
+ControlGetText([Control, WinTitle, WinText, ExcludeTitle, ExcludeText]) Retrieves text from a control.
+ControlMove(Control, X, Y, Width, Height [, WinTitle, WinText, ExcludeTitle, ExcludeText]) Moves or resizes a control.
+ControlSend([Control, Keys, WinTitle, WinText, ExcludeTitle, ExcludeText]) Sends simulated keystrokes to a window or control.
+ControlSendRaw([Control, Keys, WinTitle, WinText, ExcludeTitle, ExcludeText]) Sends simulated keystrokes to a window or control.
+ControlSetText([Control, NewText, WinTitle, WinText, ExcludeTitle, ExcludeText]) Changes the text of a control.
+CoordMode("ToolTip|Pixel|Mouse|Caret|Menu" [, "Screen|Window|Client"]) Sets coordinate mode for various commands to be relative to either the active window or the screen.
 Cos(Angle) Returns the cosine of the specified angle (in radians).
-Critical
-DateAdd
-DateSub
-Deref
-DetectHiddenText
-DetectHiddenWindows
-DirCopy
-DirCreate
-DirDelete
+Critical([Param]) Prevents the current thread from being interrupted by other threads.
+DateAdd(DateTime, Time, TimeUnits) Adds or subtract time from a date-time value.
+DateDiff(DateTime1, DateTime2, TimeUnits) Compares two date-time values and returns the difference.
+Deref(String) Expands variable references and escape sequences contained inside other variables.
+DetectHiddenText(true|false) Determines whether invisible text in a window is "seen" for the purpose of finding the window. This affects commands such as WinExist and WinActivate.
+DetectHiddenWindows(true|false) Determines whether invisible windows are "seen" by the script.
+DirCopy(Source, Dest [, Overwrite := false]) Copies a folder along with all its sub-folders and files (similar to xcopy).
+DirCreate(DirName) Creates a directory/folder.
+DirDelete(DirName [, Recurse := false]) Deletes a folder.
 DirExist(FilePattern) Equivalent to FileExist(), but returns a blank value if FilePattern is not a directory.
-DirMove
-DirSelect
+DirMove(Source, Dest [, Flag := 0]) Moves a folder along with all its sub-folders and files. It can also rename a folder.
+DirSelect([StartingFolder, Options, Prompt]) Displays a standard dialog that allows the user to select a folder.
 DllCall("[DllFile\]Function" [, Type1, Arg1, Type2, Arg2, ..., "Cdecl ReturnType"]) Calls a function inside a DLL, such as a standard Windows API function.
-Download
-Drive
-DriveGet
-Edit
-EnvGet
-EnvSet
-Exception
+Download(URL, Filename) Downloads a file from the Internet.
+Drive(SubCommand [, Drive, Value]) Performs operations on a drive.
+DriveGet(Cmd [, Value]) Retrieves various types of information about the computer's drive(s).
+Edit() Opens the current script for editing in the associated editor.
+EnvGet(EnvVarName) Retrieves an environment variable.
+EnvSet(EnvVarName, Value) Writes a value to a variable contained in the environment.
+Exception(Message [, What, Extra]) Creates an Exception object.
 Exit([ExitCode]) Exits the current thread.
 ExitApp([ExitCode]) Terminates the script unconditionally.
 Exp(N) Returns the mathematical constant e raised to the specified number.
 FileAppend([Text, Filename, Encoding]) Writes text to the end of a file (first creating the file, if necessary).
-FileCopy
-FileCreateShortcut
+FileCopy(SourcePattern, DestPattern [, Overwrite := false]) Copies one or more files.
+FileCreateShortcut(Target, LinkFile [, WorkingDir, Args, Description, IconFile, ShortcutKey, IconNumber, RunState]) Creates a shortcut (.lnk) file.
 FileDelete(FilePattern) Deletes one or more files.
-FileEncoding
+FileEncoding("UTF-8|UTF-8-RAW|UTF-16|UTF-16-RAW|CPnnn") Sets the default encoding for FileRead, Loop Read, FileAppend, and FileOpen.
 FileExist(FilePattern) Checks whether FilePattern exists, returning its attributes (RASHNDOCT) if it does.
-FileGetAttrib
-FileGetShortcut
-FileGetSize
-FileGetTime
-FileGetVersion
-FileInstall
-FileMove
+FileGetAttrib(Filename) Same as FileExist().
+FileGetShortcut(LinkFile [, OutTarget, OutDir, OutArgs, OutDescription, OutIcon, OutIconNum, OutRunState]) Retrieves information about a shortcut (.lnk) file, such as its target file.
+FileGetSize([Filename, Units]) Retrieves the size of a file.
+FileGetTime([Filename, "M|C|A"]) Retrieves the datetime stamp of a file or folder.
+FileGetVersion([Filename]) Retrieves the version of a file.
+FileInstall(Source, Dest [, Overwrite := false]) Includes the specified file inside the compiled version of the script.
+FileMove(SourcePattern, DestPattern [, Overwrite := false]) Moves or renames one or more files.
 FileOpen(Filename, Flags [, Encoding]) Opens a file.\nAccess flags: r|w|a|rw|h\nSharing flags: -rwa\nUse * to disable EOL translations.
 FileRead(Filename) Reads a file's contents.
-FileRecycle
-FileRecycleEmpty
+FileRecycle(FilePattern) Sends a file or directory to the recycle bin, if possible.
+FileRecycleEmpty([DriveLetter]) Empties the recycle bin.
 FileSelect([Options, "RootDir\Filename", Prompt, Filter]) Displays a standard dialog that allows the user to open or save file(s).
-FileSetAttrib
-FileSetTime
+FileSetAttrib(Attributes [, FilePattern, OperateOnFolders := 0, Recurse := false]) Changes the attributes of one or more files or folders. Wildcards are supported.
+FileSetTime([YYYYMMDDHH24MISS, FilePattern, "M|C|A", OperateOnFolders := 0, Recurse := false]) Changes the datetime stamp of one or more files or folders. Wildcards are supported.
 Floor(Number) Returns Number rounded down to the nearest integer.
-FormatTime
+FormatTime([YYYYMMDDHH24MISS, Format]) Transforms a YYYYMMDDHH24MISS timestamp into the specified date/time format.
 Func(FuncName) Returns a reference to the specified function if it exists.
 GetKeyName(Key) Retrieves the name/text of a key.
 GetKeySC(Key) Retrieves the scan code of a key.
 GetKeyState(KeyName [, Mode]) Checks if a keyboard key or mouse/joystick button is down or up. Also retrieves joystick status.
 GetKeyVK(Key) Retrieves the virtual key code of a key.
-GroupActivate
-GroupAdd
-GroupClose
-GroupDeactivate
+GroupActivate(GroupName [, "R"]) Activates the next window in a window group that was defined with GroupAdd.
+GroupAdd(GroupName [, WinTitle, WinText, ExcludeTitle, ExcludeText]) Adds a window specification to a window group, creating the group if necessary.
+GroupClose(GroupName [, "A|R"]) Closes the active window if it was just activated by GroupActivate or GroupDeactivate. It then activates the next window in the series. It can also close all windows in a group.
+GroupDeactivate(GroupName [, "R"]) Similar to GroupActivate except activates the next window not in the group.
 Gui(SubCommand [, Param2, Param3, Param4]) Creates and manages windows and controls. Such windows can be used as data entry forms or custom user interfaces.
 GuiControl(SubCommand, ControlID [, Param3]) Makes a variety of changes to a control in a GUI window.
 GuiControlGet([SubCommand, ControlID, Param3]) Retrieves various types of information about a control in a GUI window. 
-Hotkey
+Hotkey(KeyName [, LabelName, Options]) Creates, modifies, enables, or disables a hotkey while the script is running.
+Hotkey("IfWinActive|IfWinExist" [, WinTitle, WinText]) Specifies or removes an #IfWinActive|#IfWinExist filter for subsequent Hotkey() calls.
+Hotkey("If" [, Expression]) Specifies or removes an #If filter for subsequent Hotkey() calls.
 IL_Add
 IL_Create
 IL_Destroy

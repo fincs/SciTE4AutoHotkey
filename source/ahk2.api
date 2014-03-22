@@ -159,74 +159,79 @@ GuiControlGet([SubCommand, ControlID, Param3]) Retrieves various types of inform
 Hotkey(KeyName [, LabelName, Options]) Creates, modifies, enables, or disables a hotkey while the script is running.
 Hotkey("IfWinActive|IfWinExist" [, WinTitle, WinText]) Specifies or removes an #IfWinActive|#IfWinExist filter for subsequent Hotkey() calls.
 Hotkey("If" [, Expression]) Specifies or removes an #If filter for subsequent Hotkey() calls.
-IL_Add
-IL_Create
-IL_Destroy
-ImageSearch
-IniDelete
-IniRead
-IniWrite
-Input
+IL_Add(ImageListID, Filename [, IconNumber, ResizeNonIcon]) Adds an icon or picture to the specified ImageListID and returns the new icon's index.
+IL_Create([InitialCount := 2, GrowCount := 5, LargeIcons := false]) Creates a new ImageList, initially empty, and returns the unique ID of the ImageList (or 0 upon failure).
+IL_Destroy(ImageListID) Deletes the specified ImageList.
+ImageSearch(OutputVarX, OutputVarY, X1, Y1, X2, Y2, ImageFile) Searches a region of the screen for an image.
+IniDelete(Filename, Section [, Key]) Deletes a value from a standard format .ini file.
+IniRead(Filename [, Section, Key, Default := ""]) Reads a value from a standard format .ini file.
+IniWrite(Value, Filename, Section [, Key]) Writes a value to a standard format .ini file.
+Input([Options, EndKeys, MatchList]) Waits for the user to type a string.
 InputBox([Title, Prompt, Options, Default]) Displays an input box to ask the user to enter a string.
 InStr(Haystack, Needle [, CaseSensitive := false, StartingPos := 1, Occurrence := 1]) Returns the position of an occurrence of the string Needle in the string Haystack.
 IsByRef(Var) Checks whether the specified Var is a ByRef parameter and the caller supplied a variable.
 IsFunc(FuncName) Checks whether the specified function exists in the script. If so, it returns one plus its number of minimum parameters.
 IsLabel(LabelName) Checks whether the specified function exists in the script.
 IsObject(Value) Checks whether the specified value is an object.
-KeyHistory
-KeyWait
-ListHotkeys
-ListLines
-ListVars
+KeyHistory() Displays script info and a history of the most recent keystrokes and mouse clicks.
+KeyWait(KeyName [, Options]) Waits for a key or mouse/joystick button to be released or pressed down.
+ListHotkeys() Displays the hotkeys in use by the current script, whether their subroutines are currently running, and whether or not they use the keyboard or mouse hook.
+ListLines(true|false|"On"|"Off") Enables or disables line logging.
+ListLines() Displays the script lines most recently executed.
+ListVars() Displays the script's variables: their names and current contents.
 Ln(N) Returns the natural (base-e) logarithm of the specified number.
 Log(N) Returns the base-10 logarithm of the specified number.
 LTrim(String [, OmitChars := " `t"]) Trims characters from the beginning of a string.
-LV_Add
-LV_Delete
-LV_DeleteCol
-LV_GetCount
-LV_GetNext
-LV_GetText
-LV_Insert
-LV_InsertCol
-LV_Modify
-LV_ModifyCol
-LV_SetImageList
-Menu
-MenuSelect
+LV_Add([Options, Field1, Field2, ...]) Adds a new row to the bottom of the ListView.
+LV_Delete([RowNumber]) Deletes the specified row in the ListView. If the parameter is omitted, all rows are deleted.
+LV_DeleteCol(ColumnNumber) Deletes the specified column in the ListView and all of the contents beneath it.
+LV_GetCount(["Selected|Column"]) Returns the number of rows, selected rows or columns in the ListView.
+LV_GetNext([StartingRowNumber, "Checked|Focused"]) Returns the row number of the next selected, checked, or focused row.
+LV_GetText(OutputVar, RowNumber [, ColumnNumber := 1]) Retrieves the text at the specified RowNumber and ColumnNumber and stores it in OutputVar.
+LV_Insert(RowNumber [, Options, Col1, Col2, ...]) Inserts a new row as the specified RowNumber.
+LV_InsertCol(ColumnNumber [, Options, ColumnTitle]) Inserts a new column as the specified ColumnNumber.
+LV_Modify(RowNumber, Options [, NewCol1, NewCol2, ...]) Modifies the attributes and/or text of a row.
+LV_ModifyCol([ColumnNumber, Options, ColumnTitle]) Modifies the attributes and/or text of the specified column and its header.
+LV_SetImageList(ImageListID [, 0|1|2]) This function is normally called prior to adding any rows to the ListView.
+Menu(MenuName, Cmd [, P3, P4, P5]) Performs various operations on a script-defined Menu.
+MenuSelect(WinTitle, WinText, Menu [, SubMenu1, SubMenu2, SubMenu3, SubMenu4, SubMenu5, SubMenu6, ExcludeTitle, ExcludeText]) Invokes a menu item from the menu bar of the specified window.
 Mod(Dividend, Divisor): Performs the modulo operation (division remainder).
 MonitorGet([N, Left, Top, Right, Bottom]) Retrieves the bounding coordinates of monitor number N (or the primary monitor if omitted).
 MonitorGetCount() Retrieves the total number of monitors.
 MonitorGetName([N]) Retrieves the operating system's name for monitor number N (or the primary monitor if omitted).
 MonitorGetPrimary() Retrieves the number of the primary monitor, which will be 1 in a single-monitor system.
 MonitorGetWorkArea(N [, Left, Top, Right, Bottom]) Retrieves the working area of monitor number N (or the primary monitor if omitted).
-MouseClick
-MouseClickDrag
+MouseClick([WhichButton, X, Y, ClickCount, Speed, "D|U", "R"]) Clicks or holds down a mouse button, or turns the mouse wheel.
+MouseClickDrag(WhichButton, X1, Y1, X2, Y2 [, Speed, "R"]) Clicks and holds the specified mouse button, moves the mouse to the destination coordinates, then releases the button.
 MouseGetPos([OutputVarX, OutputVarY, OutputVarWin, OutputVarControl, 1|2|3]) Retrieves the current position of the mouse cursor, and optionally which window and control it is hovering over.
-MouseMove
+MouseMove(X, Y [, Speed, "R"]) Moves the mouse cursor.
 MsgBox([Options, Title, Text, Timeout]) Displays the specified text in a small window containing one or more buttons (such as Yes and No).
 MsgBox(Text) Displays the specified text in a small window containing one or more buttons (such as Yes and No).
 NumGet(VarOrAddress [, Offset := 0][, Type := "UPtr"]) Returns the binary number stored at the specified address+offset.
 NumPut(Number, VarOrAddress [, Offset := 0][, Type := "UPtr"]) Stores a number in binary format at the specified address+offset.
-ObjAddRef
-ObjClone
+ObjAddRef(Ptr) Increments an object's reference count.
+ObjClone(obj) Returns a shallow copy of the object.
 Object([Key1, Value1, Key2, Value2, ...]) Creates a scriptable associative array.
-ObjGetAddress
-ObjGetCapacity
-ObjHasKey
-ObjInsert
-ObjMaxIndex
-ObjMinIndex
-ObjNewEnum
-ObjRelease
-ObjRemove
-ObjSetCapacity
+ObjGetAddress(obj, Key) Returns the current address of the field's string buffer, if it has one.
+ObjGetCapacity(obj [, Key]) Returns the current capacity of an object or one of its fields.
+ObjHasKey(obj, Key) Returns true if Key is associated with a value (even "") within Object, otherwise false.
+ObjInsert(obj, Value) Inserts key-value pairs into the object, automatically adjusting existing keys if appropriate.
+ObjInsert(obj, Key, Value) Inserts key-value pairs into the object, automatically adjusting existing keys if appropriate.
+ObjInsert(obj, Index, Value1 [, Value2, ..., ValueN]) Inserts key-value pairs into the object, automatically adjusting existing keys if appropriate.
+ObjMaxIndex(obj) If any integer keys are present, returns the lowest. Otherwise an empty string is returned.
+ObjMinIndex(obj) If any integer keys are present, returns the highest. Otherwise an empty string is returned.
+ObjNewEnum(obj) Returns a new enumerator to enumerate this object's key-value pairs.
+ObjRelease(Ptr) Decrements an object's reference count.
+ObjRemove(obj, Key := MaxIndex()) Removes a key-value pair from an object, returning the value.
+ObjRemove(obj, FirstKey, LastKey) Removes key-value pairs from an object.
+ObjSetCapacity(obj, Key, ByteSize) Adjusts the capacity of an object field.
+ObjSetCapacity(obj, MaxItems) Adjusts the capacity of an object.
 OnMessage(MsgNumber [, FunctionNameOrRef]) Monitors a message/event.
 Ord(String) Returns the ordinal value of the first Unicode character in String.
-OutputDebug
-PixelGetColor
-PixelSearch
-PostMessage
+OutputDebug(Text) Sends a string to the debugger (if any) for display.
+PixelGetColor(X, Y [, "Alt"|"Slow"]) Retrieves the color of the pixel at the specified x,y coordinates.
+PixelSearch(OutputVarX, OutputVarY, X1, Y1, X2, Y2, ColorID [, Variation, "Fast"]) Searches a region of the screen for a pixel of the specified color.
+PostMessage(Msg [, wParam, lParam, Control, WinTitle, WinText, ExcludeTitle, ExcludeText]) Posts a message to a window or control.
 ProcessClose
 ProcessExist
 ProcessList

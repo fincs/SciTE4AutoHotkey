@@ -71,7 +71,7 @@ ASin(Number) Returns the arcsine in radians.
 ATan(Number) Returns the arctangent in radians.
 BlockInput(true|false|"Send|Mouse|SendAndMouse|Default|MouseMove|MouseMoveOff") Disables or reenables the user's ability to interact with the computer via keyboard and mouse.
 Ceil(Number) Returns Number rounded up to the nearest integer.
-Chr(Number) Returns the single character corresponding to the character code indicated by Number.
+Chr(Number) Returns the character corresponding to the Unicode character code indicated by Number.
 Click([Parameters]) Simulates clicks and other mouse operations.
 ClipWait([SecondsToWait, 1]) Waits until the clipboard contains data.
 ComObjActive(ProgIdOrCLSID) Retrieves a running object that has been registered with OLE.
@@ -98,7 +98,7 @@ ControlSend
 ControlSendRaw
 ControlSetText
 CoordMode
-Cos
+Cos(Angle) Returns the cosine of the specified angle (in radians).
 Critical
 DateAdd
 DateSub
@@ -108,7 +108,7 @@ DetectHiddenWindows
 DirCopy
 DirCreate
 DirDelete
-DirExist
+DirExist(FilePattern) Equivalent to FileExist(), but returns a blank value if FilePattern is not a directory.
 DirMove
 DirSelect
 DllCall("[DllFile\]Function" [, Type1, Arg1, Type2, Arg2, ..., "Cdecl ReturnType"]) Calls a function inside a DLL, such as a standard Windows API function.
@@ -121,13 +121,13 @@ EnvSet
 Exception
 Exit([ExitCode]) Exits the current thread.
 ExitApp([ExitCode]) Terminates the script unconditionally.
-Exp
+Exp(N) Returns the mathematical constant e raised to the specified number.
 FileAppend([Text, Filename, Encoding]) Writes text to the end of a file (first creating the file, if necessary).
 FileCopy
 FileCreateShortcut
 FileDelete(FilePattern) Deletes one or more files.
 FileEncoding
-FileExist
+FileExist(FilePattern) Checks whether FilePattern exists, returning its attributes (RASHNDOCT) if it does.
 FileGetAttrib
 FileGetShortcut
 FileGetSize
@@ -142,13 +142,13 @@ FileRecycleEmpty
 FileSelect([Options, "RootDir\Filename", Prompt, Filter]) Displays a standard dialog that allows the user to open or save file(s).
 FileSetAttrib
 FileSetTime
-Floor
+Floor(Number) Returns Number rounded down to the nearest integer.
 FormatTime
-Func
-GetKeyName
-GetKeySC
-GetKeyState
-GetKeyVK
+Func(FuncName) Returns a reference to the specified function if it exists.
+GetKeyName(Key) Retrieves the name/text of a key.
+GetKeySC(Key) Retrieves the scan code of a key.
+GetKeyState(KeyName [, Mode]) Checks if a keyboard key or mouse/joystick button is down or up. Also retrieves joystick status.
+GetKeyVK(Key) Retrieves the virtual key code of a key.
 GroupActivate
 GroupAdd
 GroupClose
@@ -166,19 +166,19 @@ IniRead
 IniWrite
 Input
 InputBox([Title, Prompt, Options, Default]) Displays an input box to ask the user to enter a string.
-InStr
-IsByRef
-IsFunc
-IsLabel
-IsObject
+InStr(Haystack, Needle [, CaseSensitive := false, StartingPos := 1, Occurrence := 1]) Returns the position of an occurrence of the string Needle in the string Haystack.
+IsByRef(Var) Checks whether the specified Var is a ByRef parameter and the caller supplied a variable.
+IsFunc(FuncName) Checks whether the specified function exists in the script. If so, it returns one plus its number of minimum parameters.
+IsLabel(LabelName) Checks whether the specified function exists in the script.
+IsObject(Value) Checks whether the specified value is an object.
 KeyHistory
 KeyWait
 ListHotkeys
 ListLines
 ListVars
-Ln
-Log
-LTrim
+Ln(N) Returns the natural (base-e) logarithm of the specified number.
+Log(N) Returns the base-10 logarithm of the specified number.
+LTrim(String [, OmitChars := " `t"]) Trims characters from the beginning of a string.
 LV_Add
 LV_Delete
 LV_DeleteCol
@@ -192,20 +192,20 @@ LV_ModifyCol
 LV_SetImageList
 Menu
 MenuSelect
-Mod
-MonitorGet
-MonitorGetCount
-MonitorGetName
-MonitorGetPrimary
-MonitorGetWorkArea
+Mod(Dividend, Divisor): Performs the modulo operation (division remainder).
+MonitorGet([N, Left, Top, Right, Bottom]) Retrieves the bounding coordinates of monitor number N (or the primary monitor if omitted).
+MonitorGetCount() Retrieves the total number of monitors.
+MonitorGetName([N]) Retrieves the operating system's name for monitor number N (or the primary monitor if omitted).
+MonitorGetPrimary() Retrieves the number of the primary monitor, which will be 1 in a single-monitor system.
+MonitorGetWorkArea(N [, Left, Top, Right, Bottom]) Retrieves the working area of monitor number N (or the primary monitor if omitted).
 MouseClick
 MouseClickDrag
 MouseGetPos([OutputVarX, OutputVarY, OutputVarWin, OutputVarControl, 1|2|3]) Retrieves the current position of the mouse cursor, and optionally which window and control it is hovering over.
 MouseMove
 MsgBox([Options, Title, Text, Timeout]) Displays the specified text in a small window containing one or more buttons (such as Yes and No).
 MsgBox(Text) Displays the specified text in a small window containing one or more buttons (such as Yes and No).
-NumGet
-NumPut
+NumGet(VarOrAddress [, Offset := 0][, Type := "UPtr"]) Returns the binary number stored at the specified address+offset.
+NumPut(Number, VarOrAddress [, Offset := 0][, Type := "UPtr"]) Stores a number in binary format at the specified address+offset.
 ObjAddRef
 ObjClone
 Object([Key1, Value1, Key2, Value2, ...]) Creates a scriptable associative array.
@@ -219,8 +219,8 @@ ObjNewEnum
 ObjRelease
 ObjRemove
 ObjSetCapacity
-OnMessage
-Ord
+OnMessage(MsgNumber [, FunctionNameOrRef]) Monitors a message/event.
+Ord(String) Returns the ordinal value of the first Unicode character in String.
 OutputDebug
 PixelGetColor
 PixelSearch
@@ -235,12 +235,12 @@ Random
 RegDelete
 RegExMatch(Haystack, RegEx [, OutputVar, StartingPosition := 1]) Determines whether a string contains a pattern (regular expression).
 RegExReplace(Haystack, NeedleRegEx [, Replacement := "", OutputVarCount := "", Limit := -1, StartingPosition := 1]) Replaces occurrences of a pattern (regular expression) inside a string.
-RegisterCallback
+RegisterCallback(FunctionName [, Options, ParamCount, EventInfo]) Creates a machine-code address that when called, redirects the call to a function in the script.
 RegRead
 RegWrite
 Reload
-Round
-RTrim
+Round(Number [, N := 0]) Rounds a number to the specified decimal place (can be negative)
+RTrim(String [, OmitChars := " `t"]) Trims characters from the end of a string.
 Run(Target [, WorkingDir, "Max|Min|Hide|UseErrorLevel", OutputVarPID]) Runs an external program.
 RunAs
 RunWait(Target [, WorkingDir, "Max|Min|Hide|UseErrorLevel", OutputVarPID]) Runs an external program and waits until it finishes before continuing.
@@ -269,7 +269,7 @@ SetTitleMatchMode(1|2|3|"Fast"|"Slow") Sets the matching behavior of the WinTitl
 SetWinDelay(Delay) Sets the delay that will occur after each windowing command, such as WinActivate.
 SetWorkingDir
 Shutdown
-Sin
+Sin(Angle) Returns the sine of the specified angle (in radians).
 Sleep(Milliseconds) Waits the specified amount of time before continuing.
 Sort
 SoundBeep
@@ -277,24 +277,24 @@ SoundGet
 SoundPlay
 SoundSet
 SplitPath(Path [, OutFileName, OutDir, OutExtension, OutNameNoExt, OutDrive]) Separates a file name or URL into its name, directory, extension, and drive.
-Sqrt
+Sqrt(N) Returns the square root of the specified number.
 StatusBarGetText
 StatusBarWait
-StrGet
+StrGet(Address [, Length][, Encoding]) Copies a string from a memory address, optionally converting it between code pages.
 StringCaseSense
 StrLen(String) Returns the length of String.
 StrLower
-StrPut
+StrPut(String Address [, Length][, Encoding]) Copies a string to a memory address, optionally converting it between code pages.
 StrReplace(Haystack, SearchText [, ReplaceText, OutputVarCount, Limit := -1]) Replaces the specified substring with a new string.
-StrSplit
+StrSplit(String [, Delimiters, OmitChars]) Separates a string into an array of substrings using the specified delimiters.
 StrUpper
 SubStr(String, StartingPos [, Length]) Copies a substring from String.
 SysGet
-Tan
+Tan(Angle) Returns the tangent of the specified angle (in radians).
 Thread
 ToolTip
 TrayTip
-Trim
+Trim(String [, OmitChars := " `t"]) Trims characters from the beginning and end of a string.
 TV_Add
 TV_Delete
 TV_Get
@@ -308,12 +308,12 @@ TV_GetText
 TV_Modify
 TV_SetImageList
 Type
-VarSetCapacity
+VarSetCapacity(Var [, RequestedCapacity, FillByte]) Enlarges a variable's holding capacity or frees its memory.
 WinActivate([WinTitle, WinText, ExcludeTitle, ExcludeText]) Activates the specified window (makes it foremost).
 WinActivateBottom
-WinActive
+WinActive([WinTitle, WinText, ExcludeTitle, ExcludeText]) Checks if a matching window is active. Returns the Unique ID (HWND) of the first matching window.
 WinClose([WinTitle, WinText, SecondsToWait, ExcludeTitle, ExcludeText]) Closes the specified window.
-WinExist([WinTitle, WinText, ExcludeTitle, ExcludeText]) Checks if a matching window exists. WinExist() returns the Unique ID (HWND) of the first matching window.
+WinExist([WinTitle, WinText, ExcludeTitle, ExcludeText]) Checks if a matching window exists. Returns the Unique ID (HWND) of the first matching window.
 WinGetClass
 WinGetControls
 WinGetControlsHwnd

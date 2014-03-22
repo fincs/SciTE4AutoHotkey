@@ -1572,10 +1572,10 @@ index 0000000..b002e3f
 +LexerModule lmAHK1(SCLEX_AHK1, ColouriseAHK1Doc, "ahk1", FoldAHK1Doc, ahkWordListDesc);
 diff --git a/scintilla/lexers/LexAHK2.cxx b/scintilla/lexers/LexAHK2.cxx
 new file mode 100644
-index 0000000..2e4da82
+index 0000000..1de3b4c
 --- /dev/null
 +++ b/scintilla/lexers/LexAHK2.cxx
-@@ -0,0 +1,1469 @@
+@@ -0,0 +1,1518 @@
 +// Scintilla source code edit control
 +/** @file LexAHK2.cxx
 + ** Lexer for AutoHotkey v2
@@ -2043,9 +2043,45 @@ index 0000000..2e4da82
 +	if (buf[0] == '#')
 +		return LINE_DIRECTIVE;
 +
-+	// Check for type 2 continuation section
++	// If this is not a potential type 2 continuation section...
 +	if (buf[0] != '(')
++	{
++		// Check for Loop subcommands
++		if (buf[0] == 'l' && buf[1] == 'o' && buf[2] == 'o' && buf[3] == 'p') do
++		{
++			char* pos = buf+4;
++			bool alreadyHadComma = false;
++			if (*pos == ',') pos++, alreadyHadComma = true;
++			else if (!*pos || !isWhitespace(*pos)) break;
++			for (; *pos && isWhitespace(*pos); pos++);
++			if (!*pos) break;
++			if (*pos == ',' && !alreadyHadComma)
++			{
++				pos++;
++				for (; *pos && isWhitespace(*pos); pos++);
++				if (!*pos) break;
++			}
++
++			int wl = 0;
++			if (strncmp("files", pos, 5) == 0 || strncmp("parse", pos, 5) == 0)
++				wl = 5;
++			else if (strncmp("read", pos, 4) == 0)
++				wl = 4;
++			else if (strncmp("reg", pos, 3) == 0)
++				wl = 3;
++			else
++				break;
++
++			for (pos += wl; *pos && isWhitespace(*pos); pos++);
++
++			if (*pos == ',')
++				// This is indeed a Loop subcommand
++				return LINE_COMMAND;
++		} while(0);
++
++		// Let the normal rules process this line
 +		return LINE_NODATA;
++	}
 +
 +	// Before assuring that this is a type 2 continuation section,
 +	// we must check that there are no )'s (except inside the Join option)
@@ -2365,6 +2401,9 @@ index 0000000..2e4da82
 +						sc.Forward();
 +					}
 +					break;
++				case LINE_COMMAND:
++					sc.SetState(SCE_AHK2_FLOW);
++					break;
 +				case LINE_EXPR:
 +					sc.SetState(SCE_AHK2_DEFAULT);
 +					goto _loopHead;
@@ -2528,13 +2567,13 @@ index 0000000..2e4da82
 +
 +					sc.SetState(SCE_AHK2_OPERATOR);
 +					sc.Forward();
-+					sc.SetState(SCE_AHK2_STRING);
 +
 +					if (bIsFOC)
 +					{
 +						curInfo->type = LINE_EXPR;
 +						curInfo->context = LINE_EXPR;
-+					}
++					} else
++						sc.SetState(SCE_AHK2_STRING);
 +					
 +					ch = sc.ch;
 +					goto _loopHead;
@@ -2724,6 +2763,16 @@ index 0000000..2e4da82
 +
 +			// Let it fall down
 +			sc.SetState(SCE_AHK2_DEFAULT);
++		}else
++
++		// This is only triggered by Loop subcommands
++		if (sc.state == SCE_AHK2_FLOW)
++		{
++			if (ch == ' ')
++				sc.SetState(SCE_AHK2_STRING);
++			else if (ch == ',')
++				sc.SetState(SCE_AHK2_OPERATOR);
++			continue;
 +		}else
 +
 +		// End operator state

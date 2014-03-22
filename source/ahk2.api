@@ -232,134 +232,136 @@ OutputDebug(Text) Sends a string to the debugger (if any) for display.
 PixelGetColor(X, Y [, "Alt"|"Slow"]) Retrieves the color of the pixel at the specified x,y coordinates.
 PixelSearch(OutputVarX, OutputVarY, X1, Y1, X2, Y2, ColorID [, Variation, "Fast"]) Searches a region of the screen for a pixel of the specified color.
 PostMessage(Msg [, wParam, lParam, Control, WinTitle, WinText, ExcludeTitle, ExcludeText]) Posts a message to a window or control.
-ProcessClose
-ProcessExist
-ProcessList
-ProcessSetPriority
-ProcessWait
-ProcessWaitClose
-Random
-RegDelete
+ProcessClose(PidOrName) Terminates a process.
+ProcessExist([PidOrName]) Returns the PID of the specified process (or the script's own process if omitted) if exists, 0 otherwise.
+ProcessList() This function does not exist. Meow.
+ProcessSetPriority(Priority [, PidOrName]) Sets the priority of the specified process (or the script's own process if omitted).
+ProcessWait(Name [, Timeout := -1]) Waits until either the process exists or the timeout expires.
+ProcessWaitClose(PidOrName [, Timeout := -1]) Waits until either the process ceases to exist or the timeout expires.
+Random([Min, Max]) Generates a pseudo-random number.
+RegDelete("RootKey\SubKey" [, ValueName]) Deletes a subkey or value from the registry.
 RegExMatch(Haystack, RegEx [, OutputVar, StartingPosition := 1]) Determines whether a string contains a pattern (regular expression).
 RegExReplace(Haystack, NeedleRegEx [, Replacement := "", OutputVarCount := "", Limit := -1, StartingPosition := 1]) Replaces occurrences of a pattern (regular expression) inside a string.
 RegisterCallback(FunctionName [, Options, ParamCount, EventInfo]) Creates a machine-code address that when called, redirects the call to a function in the script.
-RegRead
-RegWrite
-Reload
+RegRead("RootKey\SubKey" [, ValueName]) Reads a value from the registry.
+RegWrite("REG_SZ|REG_EXPAND_SZ|REG_MULTI_SZ|REG_DWORD|REG_BINARY", "RootKey\SubKey" [, ValueName, Value]) Writes a value to the registry.
+Reload() Replaces the currently running instance of the script with a new one.
 Round(Number [, N := 0]) Rounds a number to the specified decimal place (can be negative)
 RTrim(String [, OmitChars := " `t"]) Trims characters from the end of a string.
 Run(Target [, WorkingDir, "Max|Min|Hide|UseErrorLevel", OutputVarPID]) Runs an external program.
-RunAs
+RunAs([User, Password, Domain]) Specifies a set of user credentials to use for all subsequent uses of Run and RunWait.
 RunWait(Target [, WorkingDir, "Max|Min|Hide|UseErrorLevel", OutputVarPID]) Runs an external program and waits until it finishes before continuing.
-SB_SetIcon
-SB_SetParts
-SB_SetText
+SB_SetIcon(Filename [, IconNumber, PartNumber := 1]) Displays a small icon to the left of the text in the specified part.
+SB_SetParts([Width1, Width2, ..., Width255]) Divides the bar into multiple sections according to the specified widths (in pixels).
+SB_SetText(NewText [, PartNumber := 1, Style := 0]) Displays NewText in the specified part of the status bar.
 Send(Keys) Sends simulated keystrokes and mouse clicks to the active window.
 SendEvent(Keys) Sends simulated keystrokes and mouse clicks to the active window.
 SendInput(Keys) Sends simulated keystrokes and mouse clicks to the active window.
-SendLevel
-SendMessage
+SendLevel(Level) Controls which artificial keyboard and mouse events are ignored by hotkeys and hotstrings.
+SendMessage(Msg [, wParam, lParam, Control, WinTitle, WinText, ExcludeTitle, ExcludeText, Timeout]) Sends a message to a window or control and waits for acknowledgement.
 SendMode("Input|Play|Event|InputThenPlay") Sets the default Send mode.
 SendPlay(Keys) Sends simulated keystrokes and mouse clicks to the active window.
 SendRaw(Keys) Sends simulated keystrokes and mouse clicks to the active window.
-SetCapsLockState
-SetControlDelay
-SetDefaultMouseSpeed
-SetKeyDelay
-SetMouseDelay
-SetNumLockState
-SetRegView
-SetScrollLockState
-SetStoreCapsLockMode
+SetCapsLockState([State]) Sets the state of the CapsLock. Can also force the key to stay on or off.
+SetControlDelay(Delay) Sets the delay that will occur after each control-modifying command.
+SetDefaultMouseSpeed(Speed) Sets the mouse speed that will be used if unspecified in Click and MouseMove/Click/Drag.
+SetKeyDelay(Delay, PressDuration, Play]) Sets the delay that will occur after each keystroke sent by Send and ControlSend.
+SetMouseDelay(Delay [, Play]) Sets the delay that will occur after each mouse movement or click.
+SetNumLockState([State]) Sets the state of the NumLock key. Can also force the key to stay on or off.
+SetRegView("32|64|Default") Sets the registry view used by RegRead, RegWrite, RegDelete and registry loops.
+SetScrollLockState([State]) Sets the state of the ScrollLock key. Can also force the key to stay on or off.
+SetStoreCapsLockMode(true|false|"On"|"Off") Whether to restore the state of CapsLock after a Send.
 SetTimer([Label, PeriodMS|"On"|"Off", Priority]) Causes a subroutine to be launched automatically and repeatedly at a specified time interval.
 SetTitleMatchMode(1|2|3|"Fast"|"Slow") Sets the matching behavior of the WinTitle parameter in commands such as WinWait.
 SetWinDelay(Delay) Sets the delay that will occur after each windowing command, such as WinActivate.
-SetWorkingDir
-Shutdown
+SetWorkingDir(DirName) Changes the script's current working directory.
+Shutdown(Code) Shuts down, restarts, or logs off the system.
 Sin(Angle) Returns the sine of the specified angle (in radians).
 Sleep(Milliseconds) Waits the specified amount of time before continuing.
-Sort
-SoundBeep
-SoundGet
-SoundPlay
-SoundSet
+Sort(String [, Options]) Arranges a variable's contents in alphabetical, numerical, or random order (optionally removing duplicates).
+SoundBeep([Frequency, Duration]) Emits a tone from the PC speaker.
+SoundGet([ComponentType, ControlType, DeviceNumber]) Retrieves various settings from a sound device (master mute, master volume, etc.)
+SoundPlay(Filename [, wait := false]) Plays a sound, video, or other supported file type.
+SoundSet(NewSetting [, ComponentType, ControlType, DeviceNumber]) Changes various settings of a sound device (master mute, master volume, etc.)
 SplitPath(Path [, OutFileName, OutDir, OutExtension, OutNameNoExt, OutDrive]) Separates a file name or URL into its name, directory, extension, and drive.
 Sqrt(N) Returns the square root of the specified number.
-StatusBarGetText
-StatusBarWait
+StatusBarGetText(PartN, WinTitle, WinText, ExcludeTitle, ExcludeText]) Retrieves the text from a standard status bar control.
+StatusBarWait([BarText, Seconds, PartN, WinTitle, WinText, Interval, ExcludeTitle, ExcludeText]) Waits until a window's status bar contains the specified string.
 StrGet(Address [, Length][, Encoding]) Copies a string from a memory address, optionally converting it between code pages.
-StringCaseSense
+StringCaseSense("On|Off|Locale") Determines whether string comparisons are case sensitive (default is case insensitive).
 StrLen(String) Returns the length of String.
-StrLower
+StrLower(String [, "T"]) Converts a string to lowercase.
 StrPut(String Address [, Length][, Encoding]) Copies a string to a memory address, optionally converting it between code pages.
 StrReplace(Haystack, SearchText [, ReplaceText, OutputVarCount, Limit := -1]) Replaces the specified substring with a new string.
 StrSplit(String [, Delimiters, OmitChars]) Separates a string into an array of substrings using the specified delimiters.
-StrUpper
+StrUpper(String [, "T"]) Converts a string to uppercase.
 SubStr(String, StartingPos [, Length]) Copies a substring from String.
-SysGet
+SysGet(PropID) Retrieves screen resolution, multi-monitor info, dimensions of system objects, and other system properties.
 Tan(Angle) Returns the tangent of the specified angle (in radians).
-Thread
-ToolTip
-TrayTip
+Thread("NoTimers" [, value := true]) Prevents interruptions from any timers.
+Thread("Priority", N) Sets the current thread's priority.
+Thread("Interrupt" [, Duration, LineCount]) Sets the interruptability of the current thread.
+ToolTip([Text, X, Y, WhichToolTip]) Creates or destroys an always-on-top window anywhere on the screen.
+TrayTip([Title, Text, Seconds, Options]) Creates a balloon message window near the tray icon.
 Trim(String [, OmitChars := " `t"]) Trims characters from the beginning and end of a string.
-TV_Add
-TV_Delete
-TV_Get
-TV_GetChild
-TV_GetCount
-TV_GetNext
-TV_GetParent
-TV_GetPrev
-TV_GetSelection
-TV_GetText
-TV_Modify
-TV_SetImageList
-Type
+TV_Add(Name, [ParentItemID, Options]) Adds a new item to the TreeView and returns its unique Item ID number.
+TV_Delete([ItemId]) Deletes the specified item in a TreeView, or all if the parameter is omitted.
+TV_Get(ItemID, "Expand|Check|Bold") Checks whether the specified item has the specified attribute.
+TV_GetChild(ParentItemID) Returns the ID number of the specified item's first/top child (or 0 if none).
+TV_GetCount() Returns the total number of items in the control.
+TV_GetNext([ItemID, "Checked|Full"]) Gets the next element in a TreeView satisfying the appropriate condition.
+TV_GetParent(ItemID) Returns the specified item's parent as an item ID. Items at the top level have no parent and thus return 0.
+TV_GetPrev(ItemID) Returns the ID number of the sibling above the specified item (or 0 if none).
+TV_GetSelection() Returns the selected item's ID number.
+TV_GetText(OutputVar, ItemID) Retrieves the text/name of the specified ItemID and stores it in OutputVar.
+TV_Modify(ItemID [, Options, NewName]) Modifies the attributes and/or name of an item.
+TV_SetImageList(ImageListID [, 0|2]) Sets or replaces the TreeView's ImageList.
+Type(Value) Returns the exact type of a value: String, Integer, Float, Object, Func, FileObject, ComObject
 VarSetCapacity(Var [, RequestedCapacity, FillByte]) Enlarges a variable's holding capacity or frees its memory.
 WinActivate([WinTitle, WinText, ExcludeTitle, ExcludeText]) Activates the specified window (makes it foremost).
-WinActivateBottom
+WinActivateBottom([WinTitle, WinText, ExcludeTitle, ExcludeText]) Same as WinActivate except that it activates the bottommost (least recently active) matching window rather than the topmost.
 WinActive([WinTitle, WinText, ExcludeTitle, ExcludeText]) Checks if a matching window is active. Returns the Unique ID (HWND) of the first matching window.
 WinClose([WinTitle, WinText, SecondsToWait, ExcludeTitle, ExcludeText]) Closes the specified window.
 WinExist([WinTitle, WinText, ExcludeTitle, ExcludeText]) Checks if a matching window exists. Returns the Unique ID (HWND) of the first matching window.
-WinGetClass
-WinGetControls
-WinGetControlsHwnd
-WinGetCount
-WinGetExStyle
-WinGetID
-WinGetIDLast
-WinGetList
-WinGetMinMax
-WinGetPID
-WinGetPos
-WinGetProcessName
-WinGetProcessPath
-WinGetStyle
-WinGetText
+WinGetClass([WinTitle, WinText, ExcludeTitle, ExcludeText]) Retrieves the specified window's class name.
+WinGetControls([WinTitle, WinText, ExcludeTitle, ExcludeText]) Retrieves an array containing the control names for all controls in a window.
+WinGetControlsHwnd([WinTitle, WinText, ExcludeTitle, ExcludeText]) Retrieves an array containing the control HWNDs for all controls in a window.
+WinGetCount([WinTitle, WinText, ExcludeTitle, ExcludeText]) Retrieves the number of existing windows that match the specified arguments.
+WinGetExStyle([WinTitle, WinText, ExcludeTitle, ExcludeText]) Returns the extended style of a window.
+WinGetID([WinTitle, WinText, ExcludeTitle, ExcludeText]) Returns the HWND of the first matching window.
+WinGetIDLast([WinTitle, WinText, ExcludeTitle, ExcludeText]) Returns the HWND of the last matching window.
+WinGetList([WinTitle, WinText, ExcludeTitle, ExcludeText]) Retrieves the HWNDs of all existing windows that match the specified arguments.
+WinGetMinMax([WinTitle, WinText, ExcludeTitle, ExcludeText]) Retrieves the minimized/maximized state for a window.
+WinGetPID([WinTitle, WinText, ExcludeTitle, ExcludeText]) Retrieves the Process ID (PID) of the process owning a window.
+WinGetPos([OutputVarX, OutputVarY, OutputVarWidth, OutputVarHeight, WinTitle, WinText, ExcludeTitle, ExcludeText]) Retrieves the position and size of the specified window.
+WinGetProcessName([WinTitle, WinText, ExcludeTitle, ExcludeText]) Retrieves the name of the process that owns a window.
+WinGetProcessPath([WinTitle, WinText, ExcludeTitle, ExcludeText]) Retrieves the full path of the process that owns a window.
+WinGetStyle([WinTitle, WinText, ExcludeTitle, ExcludeText]) Returns the style of a window.
+WinGetText([WinTitle, WinText, ExcludeTitle, ExcludeText]) Retrieves the text from the specified window.
 WinGetTitle([WinTitle, WinText, ExcludeTitle, ExcludeText]) Retrieves the title of the specified window.
-WinGetTransColor
-WinGetTransparent
+WinGetTransColor([WinTitle, WinText, ExcludeTitle, ExcludeText]) Retrieves the color that is marked transparent in a window.
+WinGetTransparent([WinTitle, WinText, ExcludeTitle, ExcludeText]) Retrieves the degree of transparency of a window.
 WinHide([WinTitle, WinText, ExcludeTitle, ExcludeText]) Hides the specified window.
-WinKill
+WinKill([WinTitle, WinText, SecondsToWait, ExcludeTitle, ExcludeText]) Forces the specified window to close.
 WinMaximize([WinTitle, WinText, ExcludeTitle, ExcludeText]) Enlarges the specified window to its maximum size.
 WinMinimize([WinTitle, WinText, ExcludeTitle, ExcludeText]) Collapses the specified window into a button on the task bar.
-WinMinimizeAll
-WinMinimizeAllUndo
+WinMinimizeAll() Minimizes all windows.
+WinMinimizeAllUndo() Unminimizes all windows (i.e. undoes WinMinimizeAll).
 WinMove(WinTitle, WinText, X, Y [, Width, Height, ExcludeTitle, ExcludeText]) Changes the position and/or size of the specified window.
 WinMove(X, Y) Changes the position and/or size of the specified window.
-WinMoveBottom
-WinMoveTop
-WinRedraw
-WinRestore
-WinSetAlwaysOnTop
-WinSetEnabled
-WinSetExStyle
-WinSetRegion
-WinSetStyle
-WinSetTitle
-WinSetTransColor
-WinSetTransparent
-WinShow
+WinMoveBottom([WinTitle, WinText, ExcludeTitle, ExcludeText]) Sends a window to the bottom of stack; that is, beneath all other windows.
+WinMoveTop([WinTitle, WinText, ExcludeTitle, ExcludeText]) Brings a window to the top of the stack without explicitly activating it.
+WinRedraw([WinTitle, WinText, ExcludeTitle, ExcludeText]) Attempts to update the appearance/contents of a window by informing the OS that the window's rectangle needs to be redrawn.
+WinRestore([WinTitle, WinText, ExcludeTitle, ExcludeText]) Unminimizes or unmaximizes the specified window if it is minimized or maximized.
+WinSetAlwaysOnTop("On"|"Off"|"Toggle"|1|0|-1 [, WinTitle, WinText, ExcludeTitle, ExcludeText]) Makes a window stay on top of all other windows.
+WinSetEnabled("On"|"Off"|"Toggle"|1|0|-1 [, WinTitle, WinText, ExcludeTitle, ExcludeText]) Enables or disables a window.
+WinSetExStyle(ExStyle [, WinTitle, WinText, ExcludeTitle, ExcludeText]) Changes the extended style of a window.
+WinSetRegion([Options, WinTitle, WinText, ExcludeTitle, ExcludeText]) Changes the shape of a window to be the specified rectangle, ellipse, or polygon.
+WinSetStyle(Style [, WinTitle, WinText, ExcludeTitle, ExcludeText]) Changes the style of a window.
+WinSetTitle(WinTitle, WinText, NewTitle [, ExcludeTitle, ExcludeText]) Changes the title of the specified window.
+WinSetTransColor(Color [, WinTitle, WinText, ExcludeTitle, ExcludeText]) Makes all pixels of the chosen color invisible inside the target window.
+WinSetTransparent(Value [, WinTitle, WinText, ExcludeTitle, ExcludeText]) Makes a window semi-transparent.
+WinShow([WinTitle, WinText, ExcludeTitle, ExcludeText]) Unhides the specified window.
 WinWait([WinTitle, WinText, Seconds, ExcludeTitle, ExcludeText]) Waits until the specified window exists.
 WinWaitActive([WinTitle, WinText, Seconds, ExcludeTitle, ExcludeText]) Waits until the specified window is active.
 WinWaitClose([WinTitle, WinText, Seconds, ExcludeTitle, ExcludeText]) Waits until the specified window does not exist.

@@ -79,8 +79,10 @@ Gui Add, Text, ys w80 Center, Text color
 Gui Add, Text, ys w80 Center, Back color
 Gui Font, Bold
 Gui Add, Text, ys w25, B
+Gui Font
 Gui Font, Italic
 Gui Add, Text, ys w25, I
+Gui Font
 Gui Font, Underline
 Gui Add, Text, ys w25, U
 Gui Font

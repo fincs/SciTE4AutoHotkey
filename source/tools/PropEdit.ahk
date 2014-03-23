@@ -62,7 +62,7 @@ Gui, Add, Text, Section +Right w70, Language:
 Gui, Add, DDL, ys R10 Choose%ch2% vp_locale, %localelist%
 
 Gui, Add, Text, xs Section +Right w70, Style:
-Gui, Add, DDL, ys Choose%ch1% vp_style, %stylelist%
+Gui, Add, DDL, ys Choose%ch1% vp_style gDDL_Choose, %stylelist%|New...
 
 Gui, Add, Text, xs Section +Right w70, File codepage:
 Gui, Add, DDL, ys +AltSubmit Choose%p_encoding% vp_encoding, %cplist_n%
@@ -77,8 +77,50 @@ Gui, Add, CheckBox, ys Checked%p_backup% vp_backup
 Gui, Add, Text, xs Section +Right, Remember window position:
 Gui, Add, CheckBox, ys Checked%p_savepos% vp_savepos
 
-Gui, Add, Button, xs+70 gUpdate, Update
+Gui, Add, Button, xs+40 Section gUpdate, Update
+Gui, Add, Button, ys xs+70 gEditStyle, Edit style
 Gui, Show,, SciTE settings
+return
+
+DDL_Choose:
+Gui, +OwnDialogs
+GuiControlGet, n_style,, p_style
+if (n_style != "New...")
+{
+	p_style := n_style
+	return
+}
+GuiControl, ChooseString, p_style, %p_style%
+FileRead, qvar, %LocalSciTEPath%\Styles\%p_style%.style.properties
+if !RegExMatch(qvar, "`am)^s4ahk\.style=1$")
+	p_style := "Blank" ; cannot fork an old-format style
+InputBox, newStyleName, SciTE properties editor, Enter the name of the new style...,,,,,,,, %p_style%_Edited
+if ErrorLevel
+	return
+if not newStyleName := ValidateFilename(Trim(newStyleName))
+	return
+IfExist, %LocalSciTEPath%\Styles\%newStyleName%.style.properties
+{
+	MsgBox, 48, SciTE properties editor, The style already exists.
+	return
+}
+FileCopy, %LocalSciTEPath%\Styles\%p_style%.style.properties, %LocalSciTEPath%\Styles\%newStyleName%.style.properties
+if ErrorLevel
+{
+	MsgBox, 16, SciTE properties editor, Error copying style.
+	return
+}
+stylelist .= "|" newStyleName
+GuiControl,, p_style, |%stylelist%|New...
+GuiControl, ChooseString, p_style, %newStyleName%
+p_style := newStyleName
+goto EditStyle_
+
+EditStyle:
+Gui, +OwnDialogs
+GuiControlGet, n_style,, p_style
+EditStyle_:
+Run, "%A_AhkPath%" "%A_ScriptDir%\StyleEdit.ahk" "%LocalSciTEPath%\Styles\%p_style%.style.properties"
 return
 
 GuiClose:
@@ -223,4 +265,18 @@ GetItem(ByRef list, id, delim := "|")
 	Loop, Parse, list, %delim%
 		if (A_Index = id)
 			return A_LoopField
+}
+
+ValidateFilename(fn)
+{
+	StringReplace, fn, fn, \, _, All
+	StringReplace, fn, fn, /, _, All
+	StringReplace, fn, fn, :, _, All
+	StringReplace, fn, fn, *, _, All
+	StringReplace, fn, fn, ?, _, All
+	StringReplace, fn, fn, ", _, All
+	StringReplace, fn, fn, <, _, All
+	StringReplace, fn, fn, >, _, All
+	StringReplace, fn, fn, |, _, All
+	return fn
 }

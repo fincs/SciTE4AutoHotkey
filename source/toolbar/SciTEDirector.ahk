@@ -10,23 +10,6 @@ Director_Init()
 	global WM_COPYDATA, DirectorRecv, DirectorRetByArray, DirectorMsg, ATM_Director, scitehwnd, hwndgui, directorhwnd, DirectorReady
 	WM_COPYDATA := 0x4a, DirectorRecv := false, DirectorMsg := ""
 	
-	_Director_CreateTempWin()
-	OnMessage(ATM_DIRECTOR, "_Director_Ack")
-	PostMessage, 0x111, 1134, 0,, ahk_id %scitehwnd%
-	while directorhwnd = ""
-	{
-		if A_Index = 100
-			break
-		Sleep, 10
-	}
-	_Director_DestroyTempWin()
-	
-	if !directorhwnd
-	{
-		MsgBox, 16, Toolbar, Error trying to get the director interface!
-		return
-	}
-	
 	OnMessage(WM_COPYDATA, "_Director_Recv")
 	Director_Send("identity:" (hwndgui+0))
 	DirectorReady := true
@@ -54,24 +37,6 @@ Director_Send(msg, returns := false, onArray := false)
 		DirectorRetByArray := false
 		return DirectorMsg
 	}
-}
-
-_Director_CreateTempWin()
-{
-	Gui 99:+LastFound
-	hwnd := WinExist("")
-	DllCall("SetWindowText", "ptr", hwnd, "str", "scite4ahkToolbarTempWin")
-}
-
-_Director_DestroyTempWin()
-{
-	Gui 99:Destroy
-}
-
-_Director_Ack(wParam, lParam, msg, hwnd)
-{
-	global directorhwnd
-	directorhwnd := lParam
 }
 
 _Director_Recv(wParam, lParam, msg, hwnd)

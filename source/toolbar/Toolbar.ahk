@@ -13,8 +13,9 @@
 #Include SciTEMacros.ahk
 #Include ProfileUpdate.ahk
 #Include Extensions.ahk
-SetWorkingDir, %A_ScriptDir%
+SetWorkingDir, %A_ScriptDir%\..
 SetBatchLines, -1
+DetectHiddenWindows, On
 
 ; CLSID and APPID for this script: don't reuse, please!
 CLSID_SciTE4AHK := "{D7334085-22FB-416E-B398-B5038A5A0784}"
@@ -30,7 +31,12 @@ ATM_DRUNTOGGLE := ATM_OFFSET+4
 if !A_IsAdmin
 	runasverb := "*RunAs "
 
-SetWorkingDir, %A_ScriptDir%\..
+if 0 < 2
+{
+	MsgBox, 16, SciTE4AutoHotkey Toolbar, This script cannot be run independently.
+	ExitApp
+}
+
 SciTEDir := A_WorkingDir
 CurAhkExe := SciTEDir "\..\AutoHotkey.exe" ; Fallback AutoHotkey binary
 
@@ -48,27 +54,21 @@ IfNotExist, toolbar.properties
 	ExitApp
 }
 
-; Check if a SciTE window exists
-IfWinNotExist, ahk_class SciTEWindow
+; Get the HWND of the SciTE window
+scitehwnd = %1%
+IfWinNotExist, ahk_id %scitehwnd%
 {
-	; Five seconds to let SciTE start up
-	WinWait, ahk_class SciTEWindow,, 5
-	if ErrorLevel
-	{
-		; Now we can err.
-		MsgBox, 16, SciTE4AutoHotkey Toolbar, SciTE not found!
-		ExitApp
-	}
+	MsgBox, 16, SciTE4AutoHotkey Toolbar, SciTE not found!
+	ExitApp
 }
 
-DetectHiddenWindows, On
-
-; Activate it
-WinActivate
-WinWaitActive
-
-; Get the HWND of the SciTE window
-scitehwnd := WinExist()
+; Get the HWND of the SciTE director window
+directorhwnd = %2%
+IfWinNotExist, ahk_id %directorhwnd%
+{
+	MsgBox, 16, SciTE4AutoHotkey Toolbar, SciTE director window not found!
+	ExitApp
+}
 
 ; Get the HMENU of the "Files" menu
 scitemenu := DllCall("GetMenu", "ptr", scitehwnd, "ptr")
@@ -313,9 +313,7 @@ if DirectorReady
 	CurAhkExe := CoI_ResolveProp("", "AutoHotkey")
 
 ; Run the autorun script
-var1 = %1%
-var2 = %2%
-if (var1 != "/NoAutorun" && var2 != "/NoAutorun")
+if 3 != /NoAutorun
 	Run, "%A_AhkPath%" "%SciTEDir%\tools\Autorun.ahk"
 
 ; Safety SciTE window existance timer
@@ -411,7 +409,7 @@ return
 
 reloadtoolbarautorun:
 Director_Send("closing:")
-Reload
+_ReloadWithAutoRun()
 return
 
 check4scite:
@@ -578,7 +576,14 @@ Msg_DebugRunToggle()
 
 Msg_Reload()
 {
-	Run, "%A_AhkPath%" /restart "%A_ScriptFullPath%" /NoAutorun
+	global
+	Run, "%A_AhkPath%" /restart "%A_ScriptFullPath%" %scitehwnd% %directorhwnd% /NoAutorun
+}
+
+_ReloadWithAutoRun()
+{
+	global
+	Run, "%A_AhkPath%" /restart "%A_ScriptFullPath%" %scitehwnd% %directorhwnd%
 }
 
 GetSciTEOpenedFile()

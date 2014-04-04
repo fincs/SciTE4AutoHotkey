@@ -3108,7 +3108,7 @@ index 41d5d54..e70255b 100644
  	LINK_LEXER(lmAs);
  	LINK_LEXER(lmAsm);
 diff --git a/scintilla/win32/ScintRes.rc b/scintilla/win32/ScintRes.rc
-index 5bc5fb7..1d932bf 100644
+index a3cea3c..1edfe03 100644
 --- a/scintilla/win32/ScintRes.rc
 +++ b/scintilla/win32/ScintRes.rc
 @@ -25,11 +25,11 @@ BEGIN
@@ -4005,19 +4005,19 @@ index 4886e00..3f3d6eb 100644
  	virtual bool OnUserListSelection(int, const char *);
  
 diff --git a/scite/src/SciTE.h b/scite/src/SciTE.h
-index 1499437..73db216 100644
+index 4802074..39f1ea2 100644
 --- a/scite/src/SciTE.h
 +++ b/scite/src/SciTE.h
 @@ -9,10 +9,12 @@
  #define SCITE_H
  
  // Version numbers and dates
--#define VERSION_SCITE "3.4.0"
--#define VERSION_WORDS 3, 4, 0, 0
-+#define VERSION_SCITE "3.0.05"
-+#define VERSION_ORGSCITE "3.4.0"
-+#define VERSION_WORDS 3, 0, 5, 0
- #define COPYRIGHT_DATES "December 1998-March 2014"
+-#define VERSION_SCITE "3.4.1"
+-#define VERSION_WORDS 3, 4, 1, 0
++#define VERSION_SCITE "3.0.05.01"
++#define VERSION_ORGSCITE "3.4.1"
++#define VERSION_WORDS 3, 0, 5, 1
+ #define COPYRIGHT_DATES "December 1998-April 2014"
  #define COPYRIGHT_YEARS "1998-2014"
 +#define COPYRIGHT_YEARS_S4AHK "2007-2014"
  
@@ -4033,7 +4033,7 @@ index 1499437..73db216 100644
  #define IDBM_20_WORD 201
  #define IDBM_20_CASE 202
 diff --git a/scite/src/SciTEBase.cxx b/scite/src/SciTEBase.cxx
-index 6e0e1b1..a1543e3 100644
+index f217f3e..68d5220 100644
 --- a/scite/src/SciTEBase.cxx
 +++ b/scite/src/SciTEBase.cxx
 @@ -178,6 +178,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
@@ -4078,7 +4078,19 @@ index 6e0e1b1..a1543e3 100644
  				braceAtCaret = caretPos;
  				isAfter = false;
  			}
-@@ -1435,10 +1438,18 @@ void SciTEBase::ToggleOutputVisible() {
+@@ -1025,6 +1028,11 @@ int SciTEBase::MarkAll(MarkPurpose purpose) {
+ 	return marked;
+ }
+ 
++void SciTEBase::ClearAllBookmarks() {
++	wEditor.Call(SCI_MARKERDELETEALL, markerBookmark);
++	RemoveFindMarks();
++}
++
+ int SciTEBase::IncrementSearchMode() {
+ 	FindIncrement();
+ 	return 0;
+@@ -1435,10 +1443,18 @@ void SciTEBase::ToggleOutputVisible() {
  		WindowSetFocus(wEditor);
  	} else {
  		if (previousHeightOutput < 20) {
@@ -4097,7 +4109,7 @@ index 6e0e1b1..a1543e3 100644
  			previousHeightOutput = heightOutput;
  		} else {
  			heightOutput = NormaliseSplit(previousHeightOutput);
-@@ -1514,13 +1525,10 @@ void SciTEBase::Redraw() {
+@@ -1514,13 +1530,10 @@ void SciTEBase::Redraw() {
  }
  
  char *SciTEBase::GetNearestWords(const char *wordStart, size_t searchLen,
@@ -4115,7 +4127,7 @@ index 6e0e1b1..a1543e3 100644
  }
  
  void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
-@@ -1529,7 +1537,7 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
+@@ -1529,7 +1542,7 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
  	}
  	if (apis) {
  		char *words = GetNearestWords(currentCallTipWord.c_str(), currentCallTipWord.length(),
@@ -4124,7 +4136,7 @@ index 6e0e1b1..a1543e3 100644
  		if (!words)
  			return;
  		// Counts how many call tips
-@@ -1543,7 +1551,7 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
+@@ -1543,7 +1556,7 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
  
  		// Should get current api definition
  		const char *word = apis.GetNearestWord(currentCallTipWord.c_str(), currentCallTipWord.length(),
@@ -4133,7 +4145,7 @@ index 6e0e1b1..a1543e3 100644
  		if (word) {
  			functionDefinition = word;
  			if (maxCallTips > 1) {
-@@ -1652,7 +1660,7 @@ void SciTEBase::ContinueCallTip() {
+@@ -1652,7 +1665,7 @@ void SciTEBase::ContinueCallTip() {
  			commas--;
  		// If it reached the end of the argument list it means that the user typed in more
  		// arguments than the ones listed in the calltip
@@ -4142,7 +4154,7 @@ index 6e0e1b1..a1543e3 100644
  			commas = 0;
  		else
  			startHighlight++;
-@@ -1723,7 +1731,8 @@ bool SciTEBase::StartAutoComplete() {
+@@ -1723,7 +1736,8 @@ bool SciTEBase::StartAutoComplete() {
  	SString root = line.substr(startword, current - startword);
  	if (apis) {
  		char *words = GetNearestWords(root.c_str(), root.length(),
@@ -4152,7 +4164,7 @@ index 6e0e1b1..a1543e3 100644
  		if (words) {
  			EliminateDuplicateWords(words);
  			wEditor.Call(SCI_AUTOCSETSEPARATOR, ' ');
-@@ -4045,7 +4054,7 @@ void SciTEBase::Notify(SCNotification *notification) {
+@@ -4045,7 +4059,7 @@ void SciTEBase::Notify(SCNotification *notification) {
  
  	case SCN_MARGINCLICK: {
  			if (extender)
@@ -4162,10 +4174,18 @@ index 6e0e1b1..a1543e3 100644
  				if (notification->margin == 2) {
  					MarginClick(notification->position, notification->modifiers);
 diff --git a/scite/src/SciTEBase.h b/scite/src/SciTEBase.h
-index 166ef79..d20c4fb 100644
+index 166ef79..f06db75 100644
 --- a/scite/src/SciTEBase.h
 +++ b/scite/src/SciTEBase.h
-@@ -450,7 +450,7 @@ protected:
+@@ -313,6 +313,7 @@ public:
+ 	virtual void HideMatch() = 0;
+ 	enum MarkPurpose { markWithBookMarks, markIncremental };
+ 	virtual int MarkAll(MarkPurpose purpose=markWithBookMarks) = 0;
++	virtual void ClearAllBookmarks() = 0;
+ 	virtual int ReplaceAll(bool inSelection) = 0;
+ 	virtual void ReplaceOnce(bool showWarnings=true) = 0;
+ 	virtual void UIClosed() = 0;
+@@ -450,7 +451,7 @@ protected:
  	bool twoPhaseDraw;
  	bool bracesCheck;
  	bool bracesSloppy;
@@ -4174,7 +4194,7 @@ index 166ef79..d20c4fb 100644
  	int braceCount;
  
  	bool indentationWSVisible;
-@@ -464,6 +464,7 @@ protected:
+@@ -464,6 +465,7 @@ protected:
  	SString calltipParametersEnd;
  	SString calltipParametersSeparators;
  	SString calltipEndDefinition;
@@ -4182,7 +4202,7 @@ index 166ef79..d20c4fb 100644
  	SString autoCompleteStartCharacters;
  	SString autoCompleteFillUpCharacters;
  	SString wordCharacters;
-@@ -720,7 +721,8 @@ protected:
+@@ -720,7 +722,8 @@ protected:
  	void GoMessage(int dir);
  	virtual bool StartCallTip();
  	char *GetNearestWords(const char *wordStart, size_t searchLen,
@@ -4192,8 +4212,16 @@ index 166ef79..d20c4fb 100644
  	virtual void FillFunctionDefinition(int pos = -1);
  	void ContinueCallTip();
  	virtual void EliminateDuplicateWords(char *words);
+@@ -783,6 +786,7 @@ protected:
+ 
+ 	void RemoveFindMarks();
+ 	int MarkAll(MarkPurpose purpose=markWithBookMarks);
++	void ClearAllBookmarks();
+ 	void BookmarkAdd(int lineno = -1);
+ 	void BookmarkDelete(int lineno = -1);
+ 	bool BookmarkPresent(int lineno = -1);
 diff --git a/scite/src/SciTEBuffers.cxx b/scite/src/SciTEBuffers.cxx
-index 6248fcd..171939a 100644
+index a379008..ffb5c8e 100644
 --- a/scite/src/SciTEBuffers.cxx
 +++ b/scite/src/SciTEBuffers.cxx
 @@ -824,6 +824,7 @@ void SciTEBase::SetIndentSettings() {
@@ -4205,7 +4233,7 @@ index 6248fcd..171939a 100644
  	SString fileNameForExtension = ExtensionFileName();
  	SString useTabsChars = props.GetNewExpand("use.tabs.",
 diff --git a/scite/src/SciTEProps.cxx b/scite/src/SciTEProps.cxx
-index 206fe19..96f4d45 100644
+index f95e84d..91feeb3 100644
 --- a/scite/src/SciTEProps.cxx
 +++ b/scite/src/SciTEProps.cxx
 @@ -852,6 +852,8 @@ void SciTEBase::ReadProperties() {
@@ -4643,7 +4671,7 @@ index d467900..fc6a89e 100644
  		END
  	END
 diff --git a/scite/win32/SciTEWin.cxx b/scite/win32/SciTEWin.cxx
-index e57fb8e..fa61ad8 100644
+index 4c83e33..012a2d7 100644
 --- a/scite/win32/SciTEWin.cxx
 +++ b/scite/win32/SciTEWin.cxx
 @@ -23,9 +23,9 @@
@@ -4761,7 +4789,7 @@ index e57fb8e..fa61ad8 100644
  void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
  	int cmdID = ControlIDOfWParam(wParam);
  	if (wParam & 0x10000) {
-@@ -1424,6 +1477,18 @@ void SciTEWin::Run(const GUI::gui_char *cmdLine) {
+@@ -1424,6 +1477,21 @@ void SciTEWin::Run(const GUI::gui_char *cmdLine) {
  		return;	// Don't do anything else
  	}
  
@@ -4769,6 +4797,9 @@ index e57fb8e..fa61ad8 100644
 +	// fincs-edit
 +	do
 +	{
++		SString sMainHwnd(reinterpret_cast<size_t>(MainHWND()));
++		props.Set("scite.hwnd", sMainHwnd.c_str());
++
 +		SString autorun = props.GetExpanded("command.autorun");
 +		if (autorun.length() == 0)
 +			break;
@@ -4780,7 +4811,7 @@ index e57fb8e..fa61ad8 100644
  	// OK, the instance will be displayed
  	SizeSubWindows();
  	wSciTE.Show();
-@@ -1856,6 +1921,10 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
+@@ -1856,6 +1924,10 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
  			WorkerCommand(static_cast<int>(wParam), reinterpret_cast<Worker *>(lParam));
  			break;
  
@@ -4791,7 +4822,7 @@ index e57fb8e..fa61ad8 100644
  		case WM_NOTIFY:
  			Notify(reinterpret_cast<SCNotification *>(lParam));
  			break;
-@@ -1949,6 +2018,15 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
+@@ -1949,6 +2021,15 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
  		case WM_COPYDATA:
  			return uniqueInstance.CopyData(reinterpret_cast<COPYDATASTRUCT *>(lParam));
  
@@ -4807,7 +4838,7 @@ index e57fb8e..fa61ad8 100644
  		default:
  			return ::DefWindowProcW(MainHWND(), iMessage, wParam, lParam);
  		}
-@@ -2135,6 +2213,20 @@ uptr_t SciTEWin::EventLoop() {
+@@ -2135,6 +2216,20 @@ uptr_t SciTEWin::EventLoop() {
  #pragma warning(disable: 28251)
  #endif
  
@@ -4905,6 +4936,59 @@ index e4afcf9..998c64f 100644
  		}
  		return TRUE;
  
+diff --git a/scite/win32/Strips.cxx b/scite/win32/Strips.cxx
+index 8c2f907..5860344 100644
+--- a/scite/win32/Strips.cxx
++++ b/scite/win32/Strips.cxx
+@@ -81,6 +81,7 @@ static const char *textFindPrompt = "Fi&nd:";
+ static const char *textReplacePrompt = "Rep&lace:";
+ static const char *textFindNext = "&Find Next";
+ static const char *textMarkAll = "&Mark All";
++static const char *textUnmarkAll = "&Unmark All";
+ 
+ static const char *textReplace = "&Replace";
+ static const char *textReplaceAll = "Replace &All";
+@@ -941,6 +942,7 @@ void FindStrip::Creation() {
+ 
+ 	wButton = CreateButton(textFindNext, IDOK);
+ 	wButtonMarkAll = CreateButton(textMarkAll, IDMARKALL);
++	wButtonUnmarkAll = CreateButton(textUnmarkAll, IDM_BOOKMARK_CLEARALL);
+ 
+ 	wCheckWord = CreateButton(toggles[SearchOption::tWord].label, toggles[SearchOption::tWord].id, true);
+ 	wCheckCase = CreateButton(toggles[SearchOption::tCase].label, toggles[SearchOption::tCase].id, true);
+@@ -989,6 +991,10 @@ void FindStrip::Size() {
+ 	wCheckWord.SetPosition(rcButton);
+ 
+ 	rcButton.right = rcButton.left - 4;
++	rcButton.left = rcButton.right - WidthControl(wButtonUnmarkAll);
++	wButtonUnmarkAll.SetPosition(rcButton);
++
++	rcButton.right = rcButton.left - 4;
+ 	rcButton.left = rcButton.right - WidthControl(wButtonMarkAll);
+ 	wButtonMarkAll.SetPosition(rcButton);
+ 
+@@ -1089,6 +1095,9 @@ bool FindStrip::Command(WPARAM wParam) {
+ 	} else if (control == IDMARKALL) {
+ 		Next(true, false);
+ 		return true;
++	} else if (control == IDM_BOOKMARK_CLEARALL) {
++		pSearcher->ClearAllBookmarks();
++		return true;
+ 	} else if (control == IDFINDWHAT) {
+ 		if (subCommand == CBN_EDITCHANGE) {
+ 			NextIncremental();
+diff --git a/scite/win32/Strips.h b/scite/win32/Strips.h
+index 1b210ef..4d1c7a8 100644
+--- a/scite/win32/Strips.h
++++ b/scite/win32/Strips.h
+@@ -157,6 +157,7 @@ public:
+ class FindStrip : public FindReplaceStrip {
+ 	GUI::Window wButton;
+ 	GUI::Window wButtonMarkAll;
++	GUI::Window wButtonUnmarkAll;
+ 	GUI::Window wCheckUp;
+ public:
+ 	FindStrip() {
 diff --git a/scite/win32/closefile.bmp b/scite/win32/closefile.bmp
 index 1050a29..2aabd4f 100644
 Binary files a/scite/win32/closefile.bmp and b/scite/win32/closefile.bmp differ

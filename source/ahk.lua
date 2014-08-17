@@ -624,6 +624,7 @@ function SetMarkerColors()
 	editor.MarkerBack[11] = 0xFFFF00
 	editor:MarkerDefine(12, 22) -- current line highlighting
 	editor.MarkerBack[12] = 0xFFFF00
+	editor.MarkerAlpha[12] = 32
 end
 
 function ClearAllMarkers()

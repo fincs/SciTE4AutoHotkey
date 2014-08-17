@@ -11,6 +11,7 @@ SetBatchLines, -1
 SetWorkingDir, %A_ScriptDir%
 DetectHiddenWindows, On
 
+global g_appTitle := "SciTE4AutoHotkey Debugger"
 ADM_SCITE := 0x1010
 ATM_OFFSET := 0x1000
 ATM_STARTDEBUG := ATM_OFFSET+0
@@ -20,13 +21,13 @@ SciControl_InitConstants()
 
 if A_IsCompiled
 {
-	MsgBox, 16, SciTE4AutoHotkey Debugger, This program *must* be a uncompiled script!
+	MsgBox, 16, %g_appTitle%, This program *must* be a uncompiled script!
 	ExitApp
 }
 
 if 0 = 0
 {
-	MsgBox, 16, SciTE4AutoHotkey Debugger, You mustn't run this script directly!
+	MsgBox, 16, %g_appTitle%, You mustn't run this script directly!
 	ExitApp
 }
 
@@ -34,7 +35,7 @@ if 0 = 0
 oSciTE := GetSciTEInstance()
 if !oSciTE
 {
-	MsgBox, 16, SciTE4AutoHotkey Debugger, SciTE must be running!
+	MsgBox, 16, %g_appTitle%, SciTE must be running!
 	ExitApp
 }
 
@@ -53,7 +54,7 @@ else
 	AhkExecutable = %1%
 	IfNotExist, %AhkExecutable%
 	{
-		MsgBox, 16, SciTE4AutoHotkey Debugger, The AutoHotkey executable doesn't exist!
+		MsgBox, 16, %g_appTitle%, The AutoHotkey executable doesn't exist!
 		ExitApp
 	}
 
@@ -67,13 +68,13 @@ else
 	
 	if ahkType = FAIL
 	{
-		MsgBox, 16, SciTE4AutoHotkey Debugger, Invalid AutoHotkey executable!
+		MsgBox, 16, %g_appTitle%, Invalid AutoHotkey executable!
 		ExitApp
 	}
 	
 	if ahkType = Legacy
 	{
-		MsgBox, 16, SciTE4AutoHotkey Debugger, Debugging is not supported in legacy versions of AutoHotkey (prior to v1.1).
+		MsgBox, 16, %g_appTitle%, Debugging is not supported in legacy versions of AutoHotkey (prior to v1.1).
 		ExitApp
 	}
 }
@@ -91,9 +92,9 @@ if szFilename =
 	ExitApp
 
 ; Do not allow debugging neither the toolbar nor the debugger itself
-if InStr(szFilename, SciTEPath "\toolbar\") || (szFilename = A_ScriptFullPath)
+if InStr(szFilename, SciTEPath "\toolbar\") = 1 || (szFilename = A_ScriptFullPath)
 {
-	MsgBox, 48, SciTE4AutoHotkey Debugger, It is not supported to debug SciTE4AutoHotkey's debugger and toolbar scripts.
+	MsgBox, 48, %g_appTitle%, Debuging SciTE4AutoHotkey's debugger and toolbar scripts is not supported.
 	ExitApp
 }
 
@@ -101,7 +102,7 @@ if InStr(szFilename, SciTEPath "\toolbar\") || (szFilename = A_ScriptFullPath)
 ControlGet, toolbarhwnd, Hwnd,, AutoHotkeyGUI1, ahk_id %scitehwnd%
 if toolbarhwnd =
 {
-	MsgBox, 16, SciTE4AutoHotkey Debugger, Can't find the toolbar window!
+	MsgBox, 16, %g_appTitle%, Can't find the toolbar window!
 	ExitApp
 }
 
@@ -116,8 +117,6 @@ SciTEConnected := false
 OnMessage(ADM_SCITE, "SciTEMsgHandler")
 SciTE_Connect()
 Hotkey, ^!z, Off
-
-DbgTitle := " [Debugging]"
 
 ; Run AutoHotkey and wait for it to connect
 ToolTip, Waiting for AutoHotkey to connect...
@@ -179,7 +178,7 @@ if Dbg_Lang != AutoHotkey
 {
 	; Oops, wrong language, we've got to exit again
 	ToolTip
-	MsgBox, 16, SciTE4AutoHotkey Debugger, Invalid language: %Dbg_Lang%.
+	MsgBox, 16, %g_appTitle%, Invalid language: %Dbg_Lang%.
 
 	Dbg_ExitByDisconnect := true ; tell our message handler to just return true without attempting to exit
 	SciTE_Disconnect()
@@ -263,7 +262,7 @@ SelectAttachScript(ByRef outwin, ByRef outpid)
 	
 	if i = 0
 	{
-		MsgBox, 48, SciTE4AutoHotkey Debugger, There are no currently running debuggable AutoHotkey scripts!
+		MsgBox, 48, %g_appTitle%, There are no currently running debuggable AutoHotkey scripts!
 		return ""
 	}
 	
@@ -322,7 +321,7 @@ return
 cmd_pause:
 if !bIsAsync
 {
-	MsgBox, 48, SciTE4AutoHotkey Debugger, Script pausing is not supported in this AutoHotkey version!
+	MsgBox, 48, %g_appTitle%, Script pausing is not supported in this AutoHotkey version!
 	return
 }
 
@@ -340,7 +339,7 @@ DummyCallback(session, ByRef response)
 cmd_stop:
 if bIsAttach
 {
-	MsgBox, 35, SciTE4AutoHotkey Debugger, Do you wish to stop the script (YES) or just stop debugging (NO)?
+	MsgBox, 35, %g_appTitle%, Do you wish to stop the script (YES) or just stop debugging (NO)?
 	IfMsgBox, Cancel
 		return
 	IfMsgBox, No
@@ -432,7 +431,7 @@ _wP1: ; Breakpoint setting
 _wP2: ; Variable inspection
 	if !bIsAsync && !Dbg_OnBreak
 	{
-		MsgBox, 48, SciTE4AutoHotkey Debugger, You can't inspect a variable whilst the script is running!
+		MsgBox, 48, %g_appTitle%, You can't inspect a variable whilst the script is running!
 		return false
 	}
 	
@@ -447,7 +446,7 @@ _wP2: ; Variable inspection
 	Dbg_NewVarName := dom.selectSingleNode("/response/property/@name").text
 	if Dbg_NewVarName = (invalid)
 	{
-		MsgBox, 48, SciTE4AutoHotkey Debugger, Invalid variable name: %Dbg_VarName%
+		MsgBox, 48, %g_appTitle%, Invalid variable name: %Dbg_VarName%
 		return false
 	}
 	if dom.selectSingleNode("/response/property/@type").text != "Object"
@@ -599,7 +598,7 @@ DBGp_CloseDebugger(force := 0)
 	global
 	if !bIsAsync && !force && !Dbg_OnBreak
 	{
-		MsgBox, 52, SciTE4AutoHotkey Debugger, The script is running. Stopping it would mean loss of data. Proceed?
+		MsgBox, 52, %g_appTitle%, The script is running. Stopping it would mean loss of data. Proceed?
 		IfMsgBox, No
 			return 0 ; fail
 	}
@@ -629,7 +628,7 @@ SciTE_Connect()
 	while !SciTEConnected ; wait for SciTE to connect
 		Sleep, 100 ; sleep a delay to avoid smashing the CPU
 	SendMessage, ATM_STARTDEBUG, 0, 0,, ahk_id %toolbarhwnd% ; Enable the debugging buttons in the toolbar
-	SetTimer, SciTEDebugTitle, On
+	SendMessage, 1026, 1, 0,, ahk_id %scitehwnd% ; Enable [Debugging] mark in SciTE's window title
 }
 
 SciTE_ToggleRunButton()
@@ -641,31 +640,15 @@ SciTE_ToggleRunButton()
 SciTE_Disconnect()
 {
 	global
-	SetTimer, SciTEDebugTitle, Off
 	
 	Dbg_WaitClose := false
 	d := A_TickCount
 	SendMessage, 0x111, 1125, 0,, ahk_id %scitehwnd% ; call the "Close active debugging connection" command
+	SendMessage, 1026, 0, 0,, ahk_id %scitehwnd% ; call the "Delete debugging title" command
 	while !Dbg_WaitClose && (A_TickCount - d) < 1000 ; wait until we process that command
 		Sleep, 100 ; sleep a delay to avoid smashing the CPU
-	SendMessage, ATM_STOPDEBUG, 0, 0,, ahk_id %toolbarhwnd% ; Disable the debugging buttons in the toolbar
-	
-	WinGetTitle, temp, ahk_id %scitehwnd%
-	StringReplace, temp, temp, %DbgTitle%,, All
-	WinSetTitle, ahk_id %scitehwnd%,, %temp%
+	SendMessage, ATM_STOPDEBUG, 0, 0,, ahk_id %toolbarhwnd% ; Disable [Debugging] mark in SciTE's window title
 }
-
-SciTEDebugTitle:
-ListLines, Off
-Critical, 10000
-if !_waiting
-{
-	WinGetTitle, SciTETitle, ahk_id %scitehwnd%
-	IfNotInString, SciTETitle, %DbgTitle%
-		WinSetTitle, ahk_id %scitehwnd%,, %SciTETitle%%DbgTitle%
-}
-ListLines, On
-return
 
 ;}
 
@@ -744,7 +727,7 @@ OnDebuggerDisconnection(session)
 	Dbg_ExitByGuiClose := true
 	Dbg_IsClosing := true
 	Dbg_OnBreak := true
-	SetTimer, SciTEDebugTitle, Off
+	SendMessage, 1026, 0, 0,, ahk_id %scitehwnd% ; Disable [Debugging] mark in SciTE's window title
 }
 
 ;}
@@ -1033,7 +1016,7 @@ VL_Destroy()
 VL_Inspect:
 if !bIsAsync && !Dbg_OnBreak
 {
-	MsgBox, 48, SciTE4AutoHotkey Debugger, You can't inspect a variable while the script is running!
+	MsgBox, 48, %g_appTitle%, You can't inspect a variable while the script is running!
 	return
 }
 if A_GuiEvent != DoubleClick

@@ -221,6 +221,7 @@ Btn_Install()
 	document.getElementById("stmtext").innerText .= winVer < 6.2 ? "Create shortcuts in the Start menu" : "Add tiles to the Start screen"
 	if hasLegacyAhk
 	{
+		document.getElementById("obsoletecounter").innerText := "over " (A_Year - 2009) " years old"
 		document.getElementById("ahkver").innerText := "v" ahkVer
 		switchPage("legacyahkinfo")
 	}else
@@ -229,7 +230,7 @@ Btn_Install()
 
 Lnk_AhkWebsite()
 {
-	Run, http://www.autohotkey.com/
+	Run, http://www.ahkscript.org/
 }
 
 SetCheckBox(oCheckBox, state, disabled)

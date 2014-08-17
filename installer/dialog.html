@@ -187,8 +187,15 @@ label p
 #nagnote
 {
 	/*display: none;*/
+	text-align: center;
 	color: red;
 	font-weight: bold;
+}
+#obsoletecounter
+{
+	font-weight: bold;
+	color: red;
+	font-size: 110%;
 }
 </style>
 
@@ -275,7 +282,7 @@ function switchPage(page)
 	<div id="license">
 	
 	<p>SciTE and Scintilla by Neil Hodgson; AutoHotkey by Chris and Lexikos; LexAHK1 by PhiLho;
-	tools by fincs, Rajat and TheGood; logo by Ice_Tea; debugging icons from famfamfam.com;
+	tools by fincs, Rajat and TheGood; logo by Ice_Tea; program icon by kon; debugging icons from famfamfam.com;
 	file hosting provided by daonlyfreez; 7-Zip by the 7-Zip team, source code hosting by GitHub,
 	installer UI originally designed and coded by Lexikos.</p>
 	
@@ -350,22 +357,27 @@ function switchPage(page)
 
 <div class="page" id="legacyahkinfo">
 
-	<p id="nagnote">Legacy AutoHotkey version detected</p>
+	<p id="nagnote"><strong>WARNING</strong> - Legacy AutoHotkey version detected</p>
 	
 	<p>Setup has detected that AutoHotkey <span id="ahkver">q</span> is installed.
 	Usage of such legacy versions of AutoHotkey with SciTE4AutoHotkey may result in
-	degraded user experience, such as the inability to debug scripts using the
+	a degraded user experience, such as the inability to debug scripts using the
 	interactive debugger.</p>
 	
-	<p>Please take into account that the currently installed AutoHotkey version is over <strong>four
-	years old</strong> and numerous bugfixes and improvements have been added since then, not to mention
-	that new scripts posted to the AutoHotkey community are increasingly incompatible with it.</p>
+	<p>Please take into account that the currently installed AutoHotkey version is <span id="obsoletecounter">
+	</span>&nbsp;and numerous bugfixes and improvements have been added since then, not to mention
+	that new scripts created by the AutoHotkey community are increasingly incompatible with it.</p>
+	
+	<p>Please also note that the autohotkey.com website has been taken over as of 2014 by a third-party
+	for-profit entity and is <strong>not affiliated with and/or endorsed by</strong> the AutoHotkey developers
+	or the community. This entity is responsible for the promotion of this obsolete version of AutoHotkey,
+	and therefore <strong>you may be a victim.</strong></p>
 	
 	<p>You can always download the latest version of AutoHotkey at <a href="ahk://Lnk_AhkWebsite">
-	the official website</a>.</p>
+	ahkscript.org</a>, the new grassroots website founded by the AutoHotkey community and developers.</p>
 	
 	<div style="text-align: center">
-		<a onclick="switchPage('setupopt')" class="button">I understand</a>
+		<a onclick="switchPage('setupopt')" class="button">I understand the risks</a>
 		<span>&nbsp;&nbsp;&nbsp;</span>
 		<a href="ahk://Btn_Exit" class="button">Quit Setup</a>
 		<br>&nbsp;

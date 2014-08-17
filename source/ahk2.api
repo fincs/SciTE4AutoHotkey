@@ -215,15 +215,17 @@ Object([Key1, Value1, Key2, Value2, ...]) Creates a scriptable associative array
 ObjGetAddress(obj, Key) Returns the current address of the field's string buffer, if it has one.
 ObjGetCapacity(obj [, Key]) Returns the current capacity of an object or one of its fields.
 ObjHasKey(obj, Key) Returns true if Key is associated with a value (even "") within Object, otherwise false.
-ObjInsert(obj, Value) Inserts key-value pairs into the object, automatically adjusting existing keys if appropriate.
-ObjInsert(obj, Key, Value) Inserts key-value pairs into the object, automatically adjusting existing keys if appropriate.
-ObjInsert(obj, Index, Value1 [, Value2, ..., ValueN]) Inserts key-value pairs into the object, automatically adjusting existing keys if appropriate.
-ObjMaxIndex(obj) If any integer keys are present, returns the lowest. Otherwise an empty string is returned.
-ObjMinIndex(obj) If any integer keys are present, returns the highest. Otherwise an empty string is returned.
+ObjInsertAt(obj, Index, Value1, ...) Insert one or more values at the given position.
+ObjLength(obj) If any integer keys are present, returns the highest. Otherwise 0 is returned.
 ObjNewEnum(obj) Returns a new enumerator to enumerate this object's key-value pairs.
+ObjPop(obj) Remove and return the last array element.
+ObjPush(obj, Value1, ...) Insert one or more values at the end of the array.
+ObjRawSet(obj, Key, Value) Assigns a value to the object, bypassing any meta-functions.
 ObjRelease(Ptr) Decrements an object's reference count.
-ObjRemove(obj, Key := MaxIndex()) Removes a key-value pair from an object, returning the value.
-ObjRemove(obj, FirstKey, LastKey) Removes key-value pairs from an object.
+ObjRemove(obj, Key) Remove Key and return its prior value.
+ObjRemove(obj, FirstKey, LastKey) Remove a range of keys and return the number of actual key-value pairs removed.
+ObjRemoveAt(obj, Index) Remove and return the array element at Index.
+ObjRemoveAt(obj, Index, vCount) Remove all array elements from Index to Index+vCount-1.
 ObjSetCapacity(obj, Key, ByteSize) Adjusts the capacity of an object field.
 ObjSetCapacity(obj, MaxItems) Adjusts the capacity of an object.
 OnMessage(MsgNumber [, FunctionNameOrRef]) Monitors a message/event.
@@ -366,6 +368,64 @@ WinWait([WinTitle, WinText, Seconds, ExcludeTitle, ExcludeText]) Waits until the
 WinWaitActive([WinTitle, WinText, Seconds, ExcludeTitle, ExcludeText]) Waits until the specified window is active.
 WinWaitClose([WinTitle, WinText, Seconds, ExcludeTitle, ExcludeText]) Waits until the specified window does not exist.
 WinWaitNotActive([WinTitle, WinText, Seconds, ExcludeTitle, ExcludeText]) Waits until the specified window is not active.
+
+.__Call([params...]) 'Call' meta-function of a class or object.
+.__Get([params...]) 'Get' meta-function of a class or object.
+.__Set([params...,] value) 'Set' meta-function of a class or object.
+
+.Clone() Returns a shallow copy of the object.
+.GetAddress(Key) Returns the current address of the field's string buffer, if it has one.
+.GetCapacity([Key]) Returns the current capacity of an object or one of its fields.
+.HasKey(Key) Returns true if Key is associated with a value (even "") within Object, otherwise false.
+.InsertAt(Index, Value1, ...) Insert one or more values at the given position.
+.Length() If any integer keys are present, returns the highest. Otherwise 0 is returned.
+._NewEnum() Returns a new enumerator to enumerate this object's key-value pairs.
+.Pop() Remove and return the last array element.
+.Push(Value1, ...) Insert one or more values at the end of the array.
+.Remove(Key) Remove Key and return its prior value.
+.Remove(FirstKey, LastKey) Remove a range of keys and return the number of actual key-value pairs removed.
+.RemoveAt(Index) Remove and return the array element at Index.
+.RemoveAt(Index, vCount) Remove all array elements from Index to Index+vCount-1.
+.SetCapacity(Key, ByteSize) Adjusts the capacity of an object field.
+.SetCapacity(MaxItems) Adjusts the capacity of an object.
+
+.Read([CharCount]) [File object] Reads a string of characters from the file and advances the file pointer.
+.Write(String) [File object] Writes a string of characters to the file and advances the file pointer.
+.ReadLine() [File object] Reads a line of text from the file and advances the file pointer.
+.WriteLine([String]) [File object] Writes a string of characters followed by the newline sequence and advances the file pointer.
+.ReadUChar() [File object] Reads a little-endian unsigned 8-bit number from the file and advances the file pointer.
+.ReadChar() [File object] Reads a little-endian signed 8-bit number from the file and advances the file pointer.
+.ReadUShort() [File object] Reads a little-endian unsigned 16-bit number from the file and advances the file pointer.
+.ReadShort() [File object] Reads a little-endian signed 16-bit number from the file and advances the file pointer.
+.ReadUInt() [File object] Reads a little-endian unsigned 32-bit number from the file and advances the file pointer.
+.ReadInt() [File object] Reads a little-endian signed 32-bit number from the file and advances the file pointer.
+.ReadInt64() [File object] Reads a little-endian 64-bit number from the file and advances the file pointer.
+.ReadFloat() [File object] Reads a little-endian 32-bit floating point number from the file and advances the file pointer.
+.ReadDouble() [File object] Reads a little-endian 64-bit floating point number from the file and advances the file pointer.
+.WriteUChar(num) [File object] Writes a little-endian unsigned 8-bit number to the file and advances the file pointer.
+.WriteChar(num) [File object] Writes a little-endian signed 8-bit number to the file and advances the file pointer.
+.WriteUShort(num) [File object] Writes a little-endian unsigned 16-bit number to the file and advances the file pointer.
+.WriteShort(num) [File object] Writes a little-endian signed 16-bit number to the file and advances the file pointer.
+.WriteUInt(num) [File object] Writes a little-endian unsigned 32-bit number to the file and advances the file pointer.
+.WriteInt(num) [File object] Writes a little-endian signed 32-bit number to the file and advances the file pointer.
+.WriteInt64(num) [File object] Writes a little-endian 64-bit number to the file and advances the file pointer.
+.WriteFloat(num) [File object] Writes a little-endian 32-bit floating point number to the file and advances the file pointer.
+.WriteDouble(num) [File object] Writes a little-endian 64-bit floating point number to the file and advances the file pointer.
+.Seek(Distance [, Origin := 0]) [File object] Moves the file pointer.
+.Position
+.Pos
+.AtEOF
+.Close() [File object] Closes the file, flushes any data in the cache to disk and releases the share locks.
+.Encoding
+.__Handle
+
+.Name
+.IsBuiltIn
+.IsVariadic
+.MinParams
+.MaxParams
+.IsByRef(index) [Func object] Determines whether a parameter is ByRef.
+.IsOptional(index) [Func object] Determines whether a parameter is optional.
 
 A_AhkPath
 A_AhkVersion

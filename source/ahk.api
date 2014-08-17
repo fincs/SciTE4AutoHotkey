@@ -381,6 +381,64 @@ ComObjFlags(ComObject [, NewFlags, Mask]) \nRetrieves or changes flags which con
 
 Func(funcname)
 
+.__Call([params...]) \n'Call' meta-function of a class or object.
+.__Get([params...]) \n'Get' meta-function of a class or object.
+.__Set([params...,] value) \n'Set' meta-function of a class or object.
+
+.Clone() \nReturns a shallow copy of the object.
+.GetAddress(Key) \nReturns the current address of the field's string buffer, if it has one.
+.GetCapacity([Key]) \nReturns the current capacity of an object or one of its fields.
+.HasKey(Key) \nReturns true if Key is associated with a value (even "") within Object, otherwise false.
+.Insert(index, values...) \nInsert one or more values at the given position.
+.Insert(value) \nInsert one or more values at the end of the array.
+.Insert(key, value) \nInsert a key-value pair.
+.MaxIndex() \nIf any integer keys are present, returns the highest. Otherwise an empty string is returned.
+.MinIndex() \nIf any integer keys are present, returns the lowest. Otherwise an empty string is returned.
+._NewEnum() \nReturns a new enumerator to enumerate this object's key-value pairs.
+.Remove(key) \nRemove and return the array element at Index.
+.Remove(first, last) \nRemove a range of keys and return the number of actual key-value pairs removed.
+.Remove(intkey, "") \nRemove and return the element at intkey without shifting integer keys.
+.SetCapacity(Key, ByteSize) \nAdjusts the capacity of an object field.
+.SetCapacity(MaxItems) \nAdjusts the capacity of an object.
+
+.Read([CharCount]) \n[File object] Reads a string of characters from the file and advances the file pointer.
+.Write(String) \n[File object] Writes a string of characters to the file and advances the file pointer.
+.ReadLine() \n[File object] Reads a line of text from the file and advances the file pointer.
+.WriteLine([String]) \n[File object] Writes a string of characters followed by the newline sequence and advances the file pointer.
+.ReadUChar() \n[File object] Reads a little-endian unsigned 8-bit number from the file and advances the file pointer.
+.ReadChar() \n[File object] Reads a little-endian signed 8-bit number from the file and advances the file pointer.
+.ReadUShort() \n[File object] Reads a little-endian unsigned 16-bit number from the file and advances the file pointer.
+.ReadShort() \n[File object] Reads a little-endian signed 16-bit number from the file and advances the file pointer.
+.ReadUInt() \n[File object] Reads a little-endian unsigned 32-bit number from the file and advances the file pointer.
+.ReadInt() \n[File object] Reads a little-endian signed 32-bit number from the file and advances the file pointer.
+.ReadInt64() \n[File object] Reads a little-endian 64-bit number from the file and advances the file pointer.
+.ReadFloat() \n[File object] Reads a little-endian 32-bit floating point number from the file and advances the file pointer.
+.ReadDouble() \n[File object] Reads a little-endian 64-bit floating point number from the file and advances the file pointer.
+.WriteUChar(num) \n[File object] Writes a little-endian unsigned 8-bit number to the file and advances the file pointer.
+.WriteChar(num) \n[File object] Writes a little-endian signed 8-bit number to the file and advances the file pointer.
+.WriteUShort(num) \n[File object] Writes a little-endian unsigned 16-bit number to the file and advances the file pointer.
+.WriteShort(num) \n[File object] Writes a little-endian signed 16-bit number to the file and advances the file pointer.
+.WriteUInt(num) \n[File object] Writes a little-endian unsigned 32-bit number to the file and advances the file pointer.
+.WriteInt(num) \n[File object] Writes a little-endian signed 32-bit number to the file and advances the file pointer.
+.WriteInt64(num) \n[File object] Writes a little-endian 64-bit number to the file and advances the file pointer.
+.WriteFloat(num) \n[File object] Writes a little-endian 32-bit floating point number to the file and advances the file pointer.
+.WriteDouble(num) \n[File object] Writes a little-endian 64-bit floating point number to the file and advances the file pointer.
+.Seek(Distance [, Origin := 0]) \n[File object] Moves the file pointer.
+.Position
+.Pos
+.AtEOF
+.Close() \n[File object] Closes the file, flushes any data in the cache to disk and releases the share locks.
+.Encoding
+.__Handle
+
+.Name
+.IsBuiltIn
+.IsVariadic
+.MinParams
+.MaxParams
+.IsByRef(index) \n[Func object] Determines whether a parameter is ByRef.
+.IsOptional(index) \n[Func object] Determines whether a parameter is optional.
+
 Shift
 LShift
 RShift

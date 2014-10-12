@@ -228,6 +228,8 @@ ObjRemoveAt(obj, Index) Remove and return the array element at Index.
 ObjRemoveAt(obj, Index, vCount) Remove all array elements from Index to Index+vCount-1.
 ObjSetCapacity(obj, Key, ByteSize) Adjusts the capacity of an object field.
 ObjSetCapacity(obj, MaxItems) Adjusts the capacity of an object.
+OnClipboardChange([CallbackFunc]) Specifies a function to call automatically whenever any application changes the contents of the clipboard.
+OnExit([CallbackFunc]) Specifies a function to call automatically when the script exits.
 OnMessage(MsgNumber [, FunctionNameOrRef]) Monitors a message/event.
 Ord(String) Returns the ordinal value of the first Unicode character in String.
 OutputDebug(Text) Sends a string to the debugger (if any) for display.
@@ -393,6 +395,8 @@ WinWaitNotActive([WinTitle, WinText, Seconds, ExcludeTitle, ExcludeText]) Waits 
 .Write(String) [File object] Writes a string of characters to the file and advances the file pointer.
 .ReadLine() [File object] Reads a line of text from the file and advances the file pointer.
 .WriteLine([String]) [File object] Writes a string of characters followed by the newline sequence and advances the file pointer.
+.RawRead(VarOrAddress, Bytes) [File object] Read raw binary data from the file into memory.
+.RawWrite(VarOrAddress, Bytes) [File object] Write raw binary data to the file.
 .ReadUChar() [File object] Reads a little-endian unsigned 8-bit number from the file and advances the file pointer.
 .ReadChar() [File object] Reads a little-endian signed 8-bit number from the file and advances the file pointer.
 .ReadUShort() [File object] Reads a little-endian unsigned 16-bit number from the file and advances the file pointer.

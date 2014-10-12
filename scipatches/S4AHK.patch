@@ -4428,6 +4428,30 @@ index 0fa1ac9..34309bf 100644
  	// Either set the settings related to the extension or the default ones
  	SString fileNameForExtension = ExtensionFileName();
  	SString useTabsChars = props.GetNewExpand("use.tabs.",
+diff --git a/scite/src/SciTEIO.cxx b/scite/src/SciTEIO.cxx
+index 8c92b4c..02d6479 100644
+--- a/scite/src/SciTEIO.cxx
++++ b/scite/src/SciTEIO.cxx
+@@ -575,6 +575,19 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
+ 			wEditor.Call(SCI_EMPTYUNDOBUFFER);
+ 		}
+ 		CurrentBuffer()->isReadOnly = props.GetInt("read.only");
++		extern bool _IsProtectedFile(FilePath);
++		if (_IsProtectedFile(filePath))
++		{
++			GUI::gui_string msg = LocaliseMessage(
++				"File '^0' is an internal SciTE4AutoHotkey program file.\n\n"
++				"It is strongly advised not to edit this file. Future SciTE4AutoHotkey updates will overwrite your changes.\n"
++				"In order to change a setting configured here, copy it to your personal settings file "
++				"(Tools > Open User properties) and change it.\n"
++				"If you rather want to delete a setting, add a line to the User properties that sets it to blank."
++				, filePath.AsInternal());
++			WindowMessageBox(wSciTE, msg);
++			CurrentBuffer()->isReadOnly = true;
++		}
+ 		wEditor.Call(SCI_SETREADONLY, CurrentBuffer()->isReadOnly);
+ 	}
+ 	RemoveFileFromStack(filePath);
 diff --git a/scite/src/SciTEProps.cxx b/scite/src/SciTEProps.cxx
 index 25d757d..a352cbe 100644
 --- a/scite/src/SciTEProps.cxx
@@ -4882,7 +4906,7 @@ index e37d863..1e423f2 100644
  		END
  	END
 diff --git a/scite/win32/SciTEWin.cxx b/scite/win32/SciTEWin.cxx
-index f7bcbd0..ce45e17 100644
+index f7bcbd0..d8b2c5d 100644
 --- a/scite/win32/SciTEWin.cxx
 +++ b/scite/win32/SciTEWin.cxx
 @@ -23,9 +23,9 @@
@@ -4936,12 +4960,12 @@ index f7bcbd0..ce45e17 100644
  	wndclass.hCursor = NULL;
  	wndclass.hbrBackground = NULL;
  	wndclass.lpszMenuName = resourceName;
-@@ -429,10 +437,51 @@ FilePath SciTEWin::GetSciteDefaultHome() {
+@@ -429,10 +437,82 @@ FilePath SciTEWin::GetSciteDefaultHome() {
  	return GetSciTEPath(home);
  }
  
 +// fincs-edit START
-+bool _IsPortable()
++static bool _FileExistsInSciTEDir(PCWSTR aFileName)
 +{
 +	wchar_t aBuf[MAX_PATH+1];
 +	wchar_t* aBufPtr = aBuf;
@@ -4949,9 +4973,40 @@ index f7bcbd0..ce45e17 100644
 +	GetModuleFileNameW(NULL, aBuf, MAX_PATH+1);
 +	aBufPtr += wcslen(aBuf);
 +	while(*--aBufPtr != '\\');
-+	wcscpy(aBufPtr+1, L"$PORTABLE");
++	wcscpy(aBufPtr+1, aFileName);
 +
 +	return GetFileAttributes(aBuf) != INVALID_FILE_ATTRIBUTES;
++}
++
++bool _IsPortable()
++{
++	static bool bInit = false, ret = false;
++	if (!bInit)
++	{
++		bInit = true;
++		ret = _FileExistsInSciTEDir(L"$PORTABLE");
++	}
++	return ret;
++}
++
++bool _IsDeveloper()
++{
++	static bool bInit = false, ret = false;
++	if (!bInit)
++	{
++		bInit = true;
++		ret = _FileExistsInSciTEDir(L"$DEV");
++	}
++	return ret;
++}
++
++bool _IsProtectedFile(FilePath file)
++{
++	if (_IsPortable() || _IsDeveloper()) return false;
++	GUI::gui_string basePath = GetSciTEPath(FilePath()).AsInternal();
++	basePath.append(GUI_TEXT("\\"));
++	return wcsncmp(file.AsInternal(), basePath.c_str(), basePath.length()) == 0
++		&& !file.Name().SameNameAs(FilePath(GUI_TEXT("TestSuite.ahk")));
 +}
 +// fincs-edit END
 +
@@ -4989,7 +5044,7 @@ index f7bcbd0..ce45e17 100644
  	return GetSciTEPath(home);
  }
  
-@@ -584,6 +633,10 @@ HWND SciTEWin::MainHWND() {
+@@ -584,6 +664,10 @@ HWND SciTEWin::MainHWND() {
  	return HwndOf(wSciTE);
  }
  
@@ -5000,7 +5055,7 @@ index f7bcbd0..ce45e17 100644
  void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
  	int cmdID = ControlIDOfWParam(wParam);
  	if (wParam & 0x10000) {
-@@ -1442,6 +1495,21 @@ void SciTEWin::Run(const GUI::gui_char *cmdLine) {
+@@ -1442,6 +1526,21 @@ void SciTEWin::Run(const GUI::gui_char *cmdLine) {
  		return;	// Don't do anything else
  	}
  
@@ -5022,7 +5077,7 @@ index f7bcbd0..ce45e17 100644
  	// OK, the instance will be displayed
  	SizeSubWindows();
  	wSciTE.Show();
-@@ -1874,6 +1942,10 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
+@@ -1874,6 +1973,10 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
  			WorkerCommand(static_cast<int>(wParam), reinterpret_cast<Worker *>(lParam));
  			break;
  
@@ -5033,7 +5088,7 @@ index f7bcbd0..ce45e17 100644
  		case WM_NOTIFY:
  			Notify(reinterpret_cast<SCNotification *>(lParam));
  			break;
-@@ -1967,6 +2039,20 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
+@@ -1967,6 +2070,20 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
  		case WM_COPYDATA:
  			return uniqueInstance.CopyData(reinterpret_cast<COPYDATASTRUCT *>(lParam));
  
@@ -5054,7 +5109,7 @@ index f7bcbd0..ce45e17 100644
  		default:
  			return ::DefWindowProcW(MainHWND(), iMessage, wParam, lParam);
  		}
-@@ -2130,6 +2216,20 @@ uptr_t SciTEWin::EventLoop() {
+@@ -2130,6 +2247,20 @@ uptr_t SciTEWin::EventLoop() {
  #pragma warning(disable: 28251)
  #endif
  
@@ -5116,7 +5171,7 @@ index 8c99dc7..99237ec 100644
  
  	TBBUTTON tbb[ELEMENTS(bbs)];
 diff --git a/scite/win32/SciTEWinDlg.cxx b/scite/win32/SciTEWinDlg.cxx
-index c9466b9..e74615b 100644
+index c9466b9..e50471c 100644
 --- a/scite/win32/SciTEWinDlg.cxx
 +++ b/scite/win32/SciTEWinDlg.cxx
 @@ -252,6 +252,11 @@ bool SciTEWin::OpenDialog(FilePath directory, const GUI::gui_char *filesFilter)
@@ -5143,7 +5198,25 @@ index c9466b9..e74615b 100644
  
  		dialogsOnScreen++;
  		if (::GetSaveFileNameW(&ofn)) {
-@@ -1704,7 +1714,7 @@ BOOL SciTEWin::AboutMessage(HWND hDlg, UINT message, WPARAM wParam) {
+@@ -320,6 +330,17 @@ bool SciTEWin::SaveAsDialog() {
+ 		GUI::StringFromUTF8(props.GetExpanded("save.filter").c_str()).c_str());
+ 	FilePath path = ChooseSaveName(filePath.Directory(), "Save File", saveFilter.c_str());
+ 	if (path.IsSet()) {
++		extern bool _IsProtectedFile(FilePath);
++		if (_IsProtectedFile(path))
++		{
++			GUI::gui_string msg = LocaliseMessage(
++				"Folder '^0' is reserved for SciTE4AutoHotkey program files.\n\n"
++				"The SciTE4AutoHotkey program folder is deleted and repopulated everytime the program is updated. "
++				"In order to prevent data loss, please select another one."
++				, path.Directory().AsInternal());
++			WindowMessageBox(wSciTE, msg);
++			return SaveAsDialog();
++		}
+ 		return SaveIfNotOpen(path, false);
+ 	}
+ 	return false;
+@@ -1704,7 +1725,7 @@ BOOL SciTEWin::AboutMessage(HWND hDlg, UINT message, WPARAM wParam) {
  		LONG_PTR subclassedProc = ::SetWindowLongPtr(hwndCredits, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(CreditsWndProc));
  		::SetWindowLongPtr(hwndCredits, GWLP_USERDATA, subclassedProc);
  		ss.SetID(hwndCredits);

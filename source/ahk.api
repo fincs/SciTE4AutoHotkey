@@ -369,12 +369,12 @@ ComObjGet(name) \nReturns a reference to an object provided by a COM component.
 ComObjConnect(obj [, funcPrefixOrObj])  \nListens to events from a ComObject (omit the 2nd parameter to stop listening).
 ComObjError([Enable])\nEnables or disables notification of COM errors. If Enable is omitted, the current setting is returned.
 ComObjActive(ProgIdOrCLSID) \nRetrieves a running object that has been registered with OLE.
-ComObjEnwrap(pdisp) \nWraps a raw IDispatch pointer in a usable object.
-ComObjUnwrap(obj) \nUnwraps a raw IDispatch pointer in a usable object.
-ComObjParameter(vt, val [, flags]) \nPacks type and value information in a single parameter.
+ComObject(vt, val [, flags]) \nCreates an object representing a typed value to be passed as a parameter or return value.
+ComObjMissing() \n[DEPRECATED - Write consecutive commas instead]
+ComObjEnwrap(pdisp) \n[DEPRECATED - Use ComObject(9,ptr,1) and ObjAddRef(ptr) instead]
+ComObjUnwrap(obj) \n[DEPRECATED - Use ComObjValue(ptr) and ObjAddRef(ptr) instead]
 ComObjType(obj [, "Name|IID"]) \nRetrieves type information for a COM object.
 ComObjValue(obj) \nRetrieves the raw 64-bit signed integer stored in a ComObject wrapper.
-ComObjMissing() \nCreates an object for use in place of an optional parameter's default value when calling a COM object.
 ComObjArray(VarType, Count1 [, Count2, ... Count8]) \nCreates a SAFEARRAY for use with COM.
 ComObjQuery(ComObject [, SID], IID) \nQueries a COM object for an interface or service.
 ComObjFlags(ComObject [, NewFlags, Mask]) \nRetrieves or changes flags which control a COM wrapper object's behaviour.
@@ -405,6 +405,8 @@ Func(funcname)
 .Write(String) \n[File object] Writes a string of characters to the file and advances the file pointer.
 .ReadLine() \n[File object] Reads a line of text from the file and advances the file pointer.
 .WriteLine([String]) \n[File object] Writes a string of characters followed by the newline sequence and advances the file pointer.
+.RawRead(VarOrAddress, Bytes) \n[File object] Read raw binary data from the file into memory.
+.RawWrite(VarOrAddress, Bytes) \n[File object] Write raw binary data to the file.
 .ReadUChar() \n[File object] Reads a little-endian unsigned 8-bit number from the file and advances the file pointer.
 .ReadChar() \n[File object] Reads a little-endian signed 8-bit number from the file and advances the file pointer.
 .ReadUShort() \n[File object] Reads a little-endian unsigned 16-bit number from the file and advances the file pointer.

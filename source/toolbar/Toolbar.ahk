@@ -114,6 +114,9 @@ IfNotExist, %LocalSciTEPath%\Settings\
 IfNotExist, %LocalSciTEPath%\Extensions\
 	FileCreateDir, %LocalSciTEPath%\Extensions\
 
+IfExist, %LocalSciTEPath%\$NODEFTOOLBAR
+	GlobalSettings := ""
+
 ToolbarProps := GlobalSettings "`n" Util_ReadExtToolbarDef() LocalSettings
 
 ; Load the tools

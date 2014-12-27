@@ -263,6 +263,7 @@ Exception(message [, what, extra])
 Exp(Number)
 FileExist("FilePattern")
 Floor(Number)
+Format(format, values...) \nFormats a string containing placeholders.
 GetKeyState(KeyName [, "P" or "T"])
 IL_Add(ImageListID, Filename [, IconNumber, ResizeNonIcon?])
 IL_Create([InitialCount, GrowCount, LargeIcons?])

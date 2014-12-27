@@ -10,6 +10,7 @@
 *.7z
 *.orig
 *~
+$DEV
 /source/tools/GenDocs/
 /installer/$SETUP
 /installer/$DATA/

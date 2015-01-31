@@ -143,6 +143,7 @@ FileSelect([Options, "RootDir\Filename", Prompt, Filter]) Displays a standard di
 FileSetAttrib(Attributes [, FilePattern, OperateOnFolders := 0, Recurse := false]) Changes the attributes of one or more files or folders. Wildcards are supported.
 FileSetTime([YYYYMMDDHH24MISS, FilePattern, "M|C|A", OperateOnFolders := 0, Recurse := false]) Changes the datetime stamp of one or more files or folders. Wildcards are supported.
 Floor(Number) Returns Number rounded down to the nearest integer.
+Format(FormatStr [, Values...]) Formats a variable number of input values according to a format string.
 FormatTime([YYYYMMDDHH24MISS, Format]) Transforms a YYYYMMDDHH24MISS timestamp into the specified date/time format.
 Func(FuncName) Returns a reference to the specified function if it exists.
 GetKeyName(Key) Retrieves the name/text of a key.

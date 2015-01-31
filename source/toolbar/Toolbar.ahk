@@ -16,6 +16,7 @@
 SetWorkingDir, %A_ScriptDir%\..
 SetBatchLines, -1
 DetectHiddenWindows, On
+ListLines, Off
 
 ; CLSID and APPID for this script: don't reuse, please!
 CLSID_SciTE4AHK := "{D7334085-22FB-416E-B398-B5038A5A0784}"
@@ -216,8 +217,8 @@ Loop, Parse, ToolbarProps, `n, `r
 ControlGet, scitool, Hwnd,, ToolbarWindow321, ahk_id %scitehwnd%
 ControlGetPos,,, guiw, guih,, ahk_id %scitool% ; Get size of real SciTE toolbar. ~L
 ; Get width of real SciTE toolbar to determine placement for our toolbar. ~L
-SendMessage, 1024, 0, 0,, ahk_id %scitehwnd% ; send our custom message to SciTE
-x := ErrorLevel
+; Use DllCall() instead of AHK's built-in SendMessage in order not to use a timeout.
+x := DllCall("SendMessage", "ptr", scitehwnd, "uint", 1024, "ptr", 0, "ptr", 0, "ptr")
 
 ; Create and show the AutoHotkey toolbar
 Gui, New, hwndhwndgui +Parent%scitool% -Caption, AHKToolbar4SciTE
@@ -251,10 +252,10 @@ Menu, ToolMenu, Add, Edit User toolbar properties, editprops
 Menu, ToolMenu, Add, Edit User autorun script, editautorun
 Menu, ToolMenu, Add, Edit User Lua script, editlua
 Menu, ToolMenu, Add
-Menu, ToolMenu, Add, Edit Global toolbar properties, editglobalprops
-Menu, ToolMenu, Add, Edit Global autorun script, editglobalautorun
+Menu, ToolMenu, Add, View Global toolbar properties, editglobalprops
+Menu, ToolMenu, Add, View Global autorun script, editglobalautorun
 Menu, ToolMenu, Add
-Menu, ToolMenu, Add, Edit platform properties, editplatforms
+Menu, ToolMenu, Add, View platform properties, editplatforms
 Menu, ToolMenu, Add, Reload platforms, reloadplatforms
 Menu, ToolMenu, Add
 Menu, ToolMenu, Add, Reload toolbar, reloadtoolbar
@@ -282,14 +283,14 @@ InitComInterface()
 Director_Init()
 
 ; Retrieve the default AutoHotkey directory
-AhkDir := DirectorReady ? CoI_ResolveProp("", "AutoHotkeyDir") : (SciTEDir "\..")
+AhkDir := DirectorReady ? CoI.ResolveProp("AutoHotkeyDir") : (SciTEDir "\..")
 if DirectorReady && !IsPortable
 {
 	; Auto-detect the AutoHotkey directory from registry
 	temp := Util_GetAhkPath()
 	if temp
 	{
-		CoI_SendDirectorMsg("", "property:AutoHotkeyDir=" CEscape(temp))
+		CoI.SendDirectorMsg("property:AutoHotkeyDir=" CEscape(temp))
 		AhkDir := temp
 	}
 }
@@ -313,7 +314,7 @@ if platforms[curplatform] != temp
 	gosub changeplatform
 
 if DirectorReady
-	CurAhkExe := CoI_ResolveProp("", "AutoHotkey")
+	CurAhkExe := CoI.ResolveProp("AutoHotkey")
 
 ; Run the autorun script
 if 3 != /NoAutorun
@@ -324,7 +325,7 @@ SetTimer, check4scite, 1000
 
 if FirstTime
 {
-	CoI_OpenFile("", SciTEDir "\TestSuite.ahk")
+	CoI.OpenFile(SciTEDir "\TestSuite.ahk")
 	MsgBox, 64, SciTE4AutoHotkey, Welcome to SciTE4AutoHotkey!
 	Run, "%A_AhkPath%" "%SciTEDir%\tools\PropEdit.ahk"
 }
@@ -366,6 +367,7 @@ IfWinExist, ahk_id %scitehwnd%
 	if ErrorLevel = 1
 		return
 }
+CoI_CallEvent("OnExit")
 ExitApp
 
 reloadexts:
@@ -450,7 +452,8 @@ FileDelete, %LocalSciTEPath%\_platform.properties
 FileAppend, % platforms[curplatform], %LocalSciTEPath%\_platform.properties
 SendMessage, 1024+1, 0, 0,, ahk_id %scitehwnd%
 if DirectorReady
-	CurAhkExe := CoI_ResolveProp("", "AutoHotkey")
+	CurAhkExe := CoI.ResolveProp("AutoHotkey")
+CoI_CallEvent("OnPlatformChange", curplatform)
 return
 
 ; Function to run a tool

@@ -242,7 +242,7 @@ SetCheckBox(oCheckBox, state, disabled)
 ; Convert a normal boolean value into a COM VT_BOOL
 ComBool(x)
 {
-	return ComObjParameter(0xB, x ? -1 : 0)
+	return ComObject(0xB, x ? -1 : 0)
 }
 
 Btn_Browse()

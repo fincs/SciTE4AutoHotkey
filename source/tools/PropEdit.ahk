@@ -17,7 +17,7 @@ if !scite
 	ExitApp
 }
 
-scite_hwnd := scite.GetSciTEHandle()
+scite_hwnd := scite.SciTEHandle
 
 LocalSciTEPath := scite.UserDir
 

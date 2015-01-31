@@ -52,11 +52,11 @@ _Director_Recv(wParam, lParam, msg, hwnd)
 			DirectorMsg.Insert(message)
 	}else
 	{
-		func := "SciTE_On" message.type
+		func := "SciTE_On" message.verb
 		if IsFunc(func)
 		{
 			Critical, Off
-			%func%(message.value, message.type)
+			%func%(message.value, message.verb)
 		}
 	}
 	return true
@@ -65,5 +65,5 @@ _Director_Recv(wParam, lParam, msg, hwnd)
 _Director_ParseResponse(resp)
 {
 	colon := InStr(resp, ":")
-	return {type: SubStr(resp, 1, colon-1), value: CUnescape(SubStr(resp, colon+1))}
+	return { Verb: SubStr(resp, 1, colon-1), Value: CUnescape(SubStr(resp, colon+1)) }
 }

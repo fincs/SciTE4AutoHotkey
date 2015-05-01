@@ -19,13 +19,17 @@ ATM_STOPDEBUG  := ATM_OFFSET+1
 ATM_DRUNTOGGLE := ATM_OFFSET+4
 SciControl_InitConstants()
 
+global A_Args := []
+Loop, %0%
+	A_Args.Push(%A_Index%)
+
 if A_IsCompiled
 {
 	MsgBox, 16, %g_appTitle%, This program *must* be a uncompiled script!
 	ExitApp
 }
 
-if 0 = 0
+if A_Args.Length() = 0
 {
 	MsgBox, 16, %g_appTitle%, You mustn't run this script directly!
 	ExitApp
@@ -47,18 +51,18 @@ dbgCaptureStreams := !!oSciTE.ResolveProp("ahk.debugger.capture.streams")
 global dbgMaxChildren := oSciTE.ResolveProp("ahk.debugger.max.obj.children")+0
 global dbgMaxData := oSciTE.ResolveProp("ahk.debugger.max.data")+0
 
-if 1 = /attach
+if A_Args[1] = "/attach"
 	bIsAttach := true
 else
 {
-	AhkExecutable = %1%
+	AhkExecutable := A_Args.RemoveAt(1)
 	IfNotExist, %AhkExecutable%
 	{
 		MsgBox, 16, %g_appTitle%, The AutoHotkey executable doesn't exist!
 		ExitApp
 	}
 
-	Loop, %AhkExecutable%
+	Loop, Files, %AhkExecutable%
 	{
 		AhkExecutable := A_LoopFileLongPath
 		break
@@ -143,8 +147,9 @@ DBGp_OnEnd("OnDebuggerDisconnection")
 Dbg_Socket := DBGp_StartListening(dbgAddr, dbgPort) ; start listening
 SplitPath, szFilename,, szDir
 
+allArgs := ObjJoin(A_Args,, """")
 if !bIsAttach
-	Run, "%AhkExecutable%" /Debug=%dbgAddr%:%dbgPort% "%szFilename%", %szDir%,, Dbg_PID ; run AutoHotkey and store its process ID
+	Run, "%AhkExecutable%" /Debug=%dbgAddr%:%dbgPort% "%szFilename%" %allArgs%, %szDir%,, Dbg_PID ; run AutoHotkey and store its process ID
 else
 {
 	; Set the Last Found Window
@@ -1358,6 +1363,14 @@ GetExeMachine(exepath)
 	
 	exe.Seek(60), exe.Seek(exe.ReadUInt()+4)
 	return exe.ReadUShort()
+}
+
+ObjJoin(obj, delim := " ", wrap := "")
+{
+	var := ""
+	for _,val in obj
+		val := wrap val wrap, var .= A_Index>1 ? delim val : val
+	return var
 }
 
 ;}

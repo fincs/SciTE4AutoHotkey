@@ -137,7 +137,7 @@ KeyWait, KeyName [, Options]
 ListHotkeys
 ListLines
 ListVars
-Loop [, Count]\nLoop, FilePattern [, IncludeFolders?, Recurse?]\nLoop, Parse, InputVar [, Delimiters|CSV, OmitChars]\nLoop, Read, InputFile [, OutputFile]\nLoop, HKLM|HKU|HKCU|HKCR|HKCC [, Key, IncludeSubkeys?, Recurse?]\n{\n	commands\n} \nPerforms a repetition/file/file reading/parsing/registry loop.
+Loop [, Count]\nLoop, Files, FilePattern [, Mode]\nLoop, Parse, InputVar [, Delimiters|CSV, OmitChars]\nLoop, Read, InputFile [, OutputFile]\nLoop, Reg, RootKey[\\Key, Mode]\n{\n	commands\n} \nPerforms a repetition/file/file reading/parsing/registry loop.
 Menu, MenuName, Cmd [, P3, P4, P5]
 MouseClick, WhichButton [, X, Y, ClickCount, Speed, D|U, R]
 MouseClickDrag, WhichButton, X1, Y1, X2, Y2 [, Speed, R]
@@ -153,9 +153,9 @@ PostMessage, Msg [, wParam, lParam, Control, WinTitle, WinText, ExcludeTitle, Ex
 Process, Cmd, PID-or-Name [, Param3]
 Progress, Param1 [, SubText, MainText, WinTitle, FontName]
 Random, OutputVar [, Min, Max]
-RegDelete, HKLM|HKU|HKCU|HKCR|HKCC, SubKey [, ValueName]
-RegRead, OutputVar, HKLM|HKU|HKCU|HKCR|HKCC, SubKey [, ValueName]
-RegWrite, REG_SZ|REG_EXPAND_SZ|REG_MULTI_SZ|REG_DWORD|REG_BINARY, HKLM|HKU|HKCU|HKCR|HKCC, SubKey [, ValueName, Value]
+RegDelete, RootKey\\SubKey [, ValueName]
+RegRead, OutputVar, RootKey\\SubKey [, ValueName]
+RegWrite, ValueType, RootKey\\SubKey [, ValueName, Value]
 Reload
 return [Expression]
 Run, Target [, WorkingDir, Max|Min|Hide|UseErrorLevel, OutputVarPID]
@@ -252,7 +252,7 @@ WinWaitNotActive [, WinTitle, WinText, Seconds, ExcludeTitle, ExcludeText]
 
 Abs(Number)
 ACos(Number)
-Asc(String)
+Asc(String) \n[DEPRECATED - Use Ord]
 ASin(Number)
 ATan(Number)
 Ceil(Number)
@@ -287,7 +287,10 @@ LV_SetImageList(ImageListID [, 0|1|2])
 Mod(Dividend, Divisor)
 NumGet(VarOrAddress [, Offset := 0] [, Type := "UPtr"])
 NumPut(Number, VarOrAddress [, Offset := 0] [, Type := "UPtr"])
-OnMessage(MsgNumber [, "FunctionName"])
+OnClipboardChange(Func [, AddRemove])
+OnExit(Func [, AddRemove])
+OnMessage(MsgNumber [, Function, MaxThreads])
+Ord(String) \nReturns the ordinal value (numeric character code) of the first character in String.
 RegExMatch(Haystack, NeedleRegEx [, UnquotedOutputVar := "", StartingPos := 1])
 RegExReplace(Haystack, NeedleRegEx [, Replacement := "", OutputVarCount := "", Limit := -1, StartingPos := 1])
 RegisterCallback("FunctionName" [, Options := "", ParamCount := FormalCount, EventInfo := Address])
@@ -299,6 +302,7 @@ Sin(Number)
 Sqrt(Number)
 StrLen(String)
 SubStr(String, StartingPos [, Length])
+StrReplace(Haystack, SearchText [, ReplaceText, OutputVarCount, Limit := -1]) \nReplaces the specified substring with a new string.
 StrSplit(String [, Delimiters, OmitChars])
 Tan(Number)
 TV_Add(Name, [ParentItemID, Options])
@@ -335,12 +339,12 @@ Object([key, value, [key2, value2...]]) \nCreates a scriptable object which is a
 Object(obj) \nRetrieves an interface pointer from an object reference or vice versa.
 Array([values...]) \nCreates an array.
 IsObject(param) \nTests if the parameter is an object.
-ObjInsert(obj, index, values...)
-ObjInsert(obj, value)
-ObjInsert(obj, key, value)
-ObjRemove(obj, key)
-ObjRemove(obj, first, last)
-ObjRemove(obj, intkey, "")
+ObjInsert(obj, index, values...) \n[DEPRECATED - USE .InsertAt/.Push/ObjRawSet]
+ObjInsert(obj, value) \n[DEPRECATED - USE .InsertAt/.Push/ObjRawSet]
+ObjInsert(obj, key, value) \n[DEPRECATED - USE .InsertAt/.Push/ObjRawSet]
+ObjRemove(obj, key) \n[DEPRECATED - USE .RemoveAt/.Delete/.Pop]
+ObjRemove(obj, first, last) \n[DEPRECATED - USE .RemoveAt/.Delete/.Pop]
+ObjRemove(obj, intkey, "") \n[DEPRECATED - USE .RemoveAt/.Delete/.Pop]
 ObjMinIndex(obj)
 ObjMaxIndex(obj)
 ObjSetCapacity(obj, maxitems)
@@ -352,6 +356,15 @@ ObjAddRef(address)
 ObjRelease(address)
 ObjHasKey(obj, key)
 ObjClone(obj)
+ObjBindMethod(Obj, Method, Params) \nCreates a BoundFunc object which calls a method of a given object.
+ObjRawSet(Obj, Key, Value) \nStores or overwrites a key-value pair in the object.
+ObjInsertAt(Obj, Pos, Value1 [, Value2, ... ValueN]) \nInserts one or more values at a given position within a linear array.
+ObjPush(Obj, Value [, Value2, ..., ValueN ]) \nAppends values to the end of an array.
+ObjDelete(Obj, Key) \nRemoves key-value pairs from an object.
+ObjDelete(Obj, FirstKey, LastKey) \nRemoves key-value pairs from an object.
+ObjRemoveAt(Obj, Pos [, Length]) \nRemoves items from the given position in a linear array.
+ObjPop(Obj) \nRemoves and returns the last array element.
+ObjLength(Obj) \nReturns the length of a linear array beginning at position 1.
 
 __Get([params...])
 __Set([params...,] value)
@@ -390,17 +403,25 @@ Func(funcname)
 .GetAddress(Key) \nReturns the current address of the field's string buffer, if it has one.
 .GetCapacity([Key]) \nReturns the current capacity of an object or one of its fields.
 .HasKey(Key) \nReturns true if Key is associated with a value (even "") within Object, otherwise false.
-.Insert(index, values...) \nInsert one or more values at the given position.
-.Insert(value) \nInsert one or more values at the end of the array.
-.Insert(key, value) \nInsert a key-value pair.
+.Insert(index, values...) \n[DEPRECATED - USE .InsertAt/.Push/ObjRawSet]
+.Insert(value) \n[DEPRECATED - USE .InsertAt/.Push/ObjRawSet]
+.Insert(key, value) \n[DEPRECATED - USE .InsertAt/.Push/ObjRawSet]
 .MaxIndex() \nIf any integer keys are present, returns the highest. Otherwise an empty string is returned.
 .MinIndex() \nIf any integer keys are present, returns the lowest. Otherwise an empty string is returned.
 ._NewEnum() \nReturns a new enumerator to enumerate this object's key-value pairs.
-.Remove(key) \nRemove and return the array element at Index.
-.Remove(first, last) \nRemove a range of keys and return the number of actual key-value pairs removed.
-.Remove(intkey, "") \nRemove and return the element at intkey without shifting integer keys.
+.Remove(key) \n[DEPRECATED - USE .RemoveAt/.Delete/.Pop]
+.Remove(first, last) \n[DEPRECATED - USE .RemoveAt/.Delete/.Pop]
+.Remove(intkey, "") \n[DEPRECATED - USE .RemoveAt/.Delete/.Pop]
 .SetCapacity(Key, ByteSize) \nAdjusts the capacity of an object field.
 .SetCapacity(MaxItems) \nAdjusts the capacity of an object.
+
+.InsertAt(Pos, Value1 [, Value2, ... ValueN]) \nInserts one or more values at a given position within a linear array.
+.Push(Value [, Value2, ..., ValueN ]) \nAppends values to the end of an array.
+.Delete(Key) \nRemoves key-value pairs from an object.
+.Delete(FirstKey, LastKey) \nRemoves key-value pairs from an object.
+.RemoveAt(Pos [, Length]) \nRemoves items from the given position in a linear array.
+.Pop() \nRemoves and returns the last array element.
+.Length() \nReturns the length of a linear array beginning at position 1.
 
 .Read([CharCount]) \n[File object] Reads a string of characters from the file and advances the file pointer.
 .Write(String) \n[File object] Writes a string of characters to the file and advances the file pointer.
@@ -441,6 +462,8 @@ Func(funcname)
 .MaxParams
 .IsByRef(index) \n[Func object] Determines whether a parameter is ByRef.
 .IsOptional(index) \n[Func object] Determines whether a parameter is optional.
+.Call(Parameters) \n[Func object] Calls the function.
+.Bind(Parameters) \n[Func object] Binds parameters to the function and returns a BoundFunc object.
 
 Shift
 LShift

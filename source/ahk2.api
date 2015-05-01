@@ -211,27 +211,30 @@ MsgBox(Text) Displays the specified text in a small window containing one or mor
 NumGet(VarOrAddress [, Offset := 0][, Type := "UPtr"]) Returns the binary number stored at the specified address+offset.
 NumPut(Number, VarOrAddress [, Offset := 0][, Type := "UPtr"]) Stores a number in binary format at the specified address+offset.
 ObjAddRef(Ptr) Increments an object's reference count.
+ObjBindMethod(Obj, Method, Params) Creates a BoundFunc object which calls a method of a given object.
 ObjClone(obj) Returns a shallow copy of the object.
+ObjDelete(obj, Key) Remove Key and return its prior value.
+ObjDelete(obj, FirstKey, LastKey) Remove a range of keys and return the number of actual key-value pairs removed.
 Object([Key1, Value1, Key2, Value2, ...]) Creates a scriptable associative array.
 ObjGetAddress(obj, Key) Returns the current address of the field's string buffer, if it has one.
 ObjGetCapacity(obj [, Key]) Returns the current capacity of an object or one of its fields.
 ObjHasKey(obj, Key) Returns true if Key is associated with a value (even "") within Object, otherwise false.
 ObjInsertAt(obj, Index, Value1, ...) Insert one or more values at the given position.
+ObjMaxIndex(obj) Returns the lowest integer key if present, otherwise returns an empty string.
+ObjMinIndex(obj) Returns the highest integer key if present, otherwise returns an empty string.
 ObjLength(obj) If any integer keys are present, returns the highest. Otherwise 0 is returned.
 ObjNewEnum(obj) Returns a new enumerator to enumerate this object's key-value pairs.
 ObjPop(obj) Remove and return the last array element.
 ObjPush(obj, Value1, ...) Insert one or more values at the end of the array.
 ObjRawSet(obj, Key, Value) Assigns a value to the object, bypassing any meta-functions.
 ObjRelease(Ptr) Decrements an object's reference count.
-ObjRemove(obj, Key) Remove Key and return its prior value.
-ObjRemove(obj, FirstKey, LastKey) Remove a range of keys and return the number of actual key-value pairs removed.
 ObjRemoveAt(obj, Index) Remove and return the array element at Index.
 ObjRemoveAt(obj, Index, vCount) Remove all array elements from Index to Index+vCount-1.
 ObjSetCapacity(obj, Key, ByteSize) Adjusts the capacity of an object field.
 ObjSetCapacity(obj, MaxItems) Adjusts the capacity of an object.
-OnClipboardChange([CallbackFunc]) Specifies a function to call automatically whenever any application changes the contents of the clipboard.
-OnExit([CallbackFunc]) Specifies a function to call automatically when the script exits.
-OnMessage(MsgNumber [, FunctionNameOrRef]) Monitors a message/event.
+OnClipboardChange(Func [, AddRemove]) Registers a function or function object to run whenever the clipboard's content changes.
+OnExit(Func [, AddRemove]) Specifies a function to call automatically when the script exits.
+OnMessage(MsgNumber [, Function, MaxThreads]) Specifies a function or function object to call automatically when the script receives the specified message.
 Ord(String) Returns the ordinal value of the first Unicode character in String.
 OutputDebug(Text) Sends a string to the debugger (if any) for display.
 PixelGetColor(X, Y [, "Alt"|"Slow"]) Retrieves the color of the pixel at the specified x,y coordinates.
@@ -377,16 +380,18 @@ WinWaitNotActive([WinTitle, WinText, Seconds, ExcludeTitle, ExcludeText]) Waits 
 .__Set([params...,] value) 'Set' meta-function of a class or object.
 
 .Clone() Returns a shallow copy of the object.
+.Delete(Key) Remove Key and return its prior value.
+.Delete(FirstKey, LastKey) Remove a range of keys and return the number of actual key-value pairs removed.
 .GetAddress(Key) Returns the current address of the field's string buffer, if it has one.
 .GetCapacity([Key]) Returns the current capacity of an object or one of its fields.
 .HasKey(Key) Returns true if Key is associated with a value (even "") within Object, otherwise false.
 .InsertAt(Index, Value1, ...) Insert one or more values at the given position.
+.MaxIndex() Returns the lowest integer key if present, otherwise returns an empty string.
+.MinIndex() Returns the highest integer key if present, otherwise returns an empty string.
 .Length() If any integer keys are present, returns the highest. Otherwise 0 is returned.
 ._NewEnum() Returns a new enumerator to enumerate this object's key-value pairs.
 .Pop() Remove and return the last array element.
 .Push(Value1, ...) Insert one or more values at the end of the array.
-.Remove(Key) Remove Key and return its prior value.
-.Remove(FirstKey, LastKey) Remove a range of keys and return the number of actual key-value pairs removed.
 .RemoveAt(Index) Remove and return the array element at Index.
 .RemoveAt(Index, vCount) Remove all array elements from Index to Index+vCount-1.
 .SetCapacity(Key, ByteSize) Adjusts the capacity of an object field.
@@ -429,6 +434,8 @@ WinWaitNotActive([WinTitle, WinText, Seconds, ExcludeTitle, ExcludeText]) Waits 
 .IsVariadic
 .MinParams
 .MaxParams
+.Bind(Parameters) Binds parameters to the function and returns a BoundFunc object.
+.Call(Parameters) Calls the function.
 .IsByRef(index) [Func object] Determines whether a parameter is ByRef.
 .IsOptional(index) [Func object] Determines whether a parameter is optional.
 

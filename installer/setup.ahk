@@ -187,7 +187,6 @@ Btn_Install()
 		RegRead, defEdit, HKLM, Software\SciTE4AutoHotkey, InstallDefEditor
 		RegRead, defSS, HKLM, Software\SciTE4AutoHotkey, InstallDefSS
 		RegRead, defDS, HKLM, Software\SciTE4AutoHotkey, InstallDefDS
-		disableEdit := defEdit, disableSS := defSS, disableDS := defDS
 		previousInstallDir := defPath
 	}else
 	{
@@ -208,17 +207,16 @@ Btn_Install()
 			defEdit := InStr(ov, "SciTE.exe")
 			defSS := FileExist(A_ProgramsCommon "\SciTE4AutoHotkey\")
 			defDS := FileExist(A_DesktopCommon "\SciTE4AutoHotkey.lnk")
-			disableEdit := defEdit, disableSS := defSS, disableDS := defDS
 			previousInstallDir := ahkPath "\SciTE"
 		}
 	}
 	
 	document := getDocument()
 	document.getElementById("opt_installdir").value := defPath
-	SetCheckBox(document.getElementById("opt_defedit"), defEdit, disableEdit)
-	SetCheckBox(document.getElementById("opt_startlnks"), defSS, disableSS)
-	SetCheckBox(document.getElementById("opt_desklnks"), defDS, disableDS)
-	document.getElementById("stmtext").innerText .= winVer < 6.2 ? "Create shortcuts in the Start menu" : "Add tiles to the Start screen"
+	SetCheckBox(document.getElementById("opt_defedit"), defEdit)
+	SetCheckBox(document.getElementById("opt_startlnks"), defSS)
+	SetCheckBox(document.getElementById("opt_desklnks"), defDS)
+	document.getElementById("stmtext").innerText .= (winVer < 6.2 || winVer >= 10.0) ? "Create shortcuts in the Start menu" : "Add tiles to the Start screen"
 	if hasLegacyAhk
 	{
 		document.getElementById("obsoletecounter").innerText := "over " (A_Year - 2009) " years old"
@@ -233,10 +231,9 @@ Lnk_AhkWebsite()
 	Run, http://www.ahkscript.org/
 }
 
-SetCheckBox(oCheckBox, state, disabled)
+SetCheckBox(oCheckBox, state)
 {
 	oCheckBox.checked := ComBool(state)
-	oCheckBox.disabled := ComBool(disabled)
 }
 
 ; Convert a normal boolean value into a COM VT_BOOL

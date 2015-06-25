@@ -57,6 +57,15 @@ try
 	ExitApp
 }
 
+; Guard against allegedly 'user friendly' proxies that block HTTP access to unauthorized websites
+if RegExMatch(latestVer, "[^0-9\.\-]") || RegExMatch(latestRev, "\D")
+{
+	; Bad luck, try again tomorrow
+	FileDelete, %LocalSciTEPath%\$LASTUPDATE
+	FileAppend, %today%, %LocalSciTEPath%\$LASTUPDATE
+	ExitApp
+}
+
 FileRead, curVer, ..\$VER
 if (curVer < latestVer)
 {

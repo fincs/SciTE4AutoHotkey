@@ -1,14 +1,14 @@
-SciTE/Scintilla 3.5.5 modified source code
+SciTE/Scintilla 3.5.7 modified source code
 ==========================================
 
 Patch instructions
 ------------------
 
-In order to get the modified source code, download & extract the file scite355.tgz to a new folder, open a command prompt, navigate to it and issue the following command:
+In order to get the modified source code, download & extract the file scite357.tgz to a new folder, open a command prompt, navigate to it and issue the following command:
 
     patch -p1 < path/to/S4AHK.patch
 
 Build instructions
 ------------------
 
-Use MSVC++ 2013 to build everything. Open SciTE4AutoHotkey.sln, select the *Win32* platform and the *Release* configuration then click on Build.
+Use MSVC++ 2015 to build everything. Open SciTE4AutoHotkey.sln, select the *Win32* platform and the *Release* configuration then click on Build.

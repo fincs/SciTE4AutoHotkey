@@ -1265,7 +1265,6 @@ SciTE_SetCurrentLine(line, mode := 1) ; show the current line markers in SciTE
 SciTE_DeleteCurLineMarkers() ; delete the current line markers in SciTE
 {
 	global
-	line--
 	; Delete current markers
 	DllCall("SendMessage", "ptr", scintillahwnd, "uint", SCI_MARKERDELETEALL, "int", 11, "int", 0)
 	DllCall("SendMessage", "ptr", scintillahwnd, "uint", SCI_MARKERDELETEALL, "int", 12, "int", 0)

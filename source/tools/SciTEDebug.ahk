@@ -393,7 +393,8 @@ return
 SciTEMsgHandler(wParam, lParam, msg, hwnd)
 {
 	Critical
-	global scintillahwnd, SciTEConnected, Dbg_ExitByDisconnect, Dbg_Session, Dbg_IsClosing, Dbg_WaitClose, Dbg_OnBreak, bIsAsync, bInitBk, InitBkList
+	global scintillahwnd, SciTEConnected, Dbg_ExitByDisconnect, Dbg_Session
+		, Dbg_IsClosing, Dbg_WaitClose, Dbg_OnBreak, bIsAsync, InitBkList
 	
 	; This code used to be a big if/else if block. I've changed it to this pseudo-switch structure.
 	if IsLabel("_wP" wParam)
@@ -409,13 +410,9 @@ _wP1: ; Breakpoint setting
 	if !bIsAsync && !Dbg_OnBreak
 		return true
 	
-	if !bInitBk
-	{
-		; We need to launch the breakpoint setting code in a separate thread due to usage of COM
-		global _temp := lParam + 1 ; convert line number from 0-based to 1-based
-		SetTimer, SetBreakpointHelper, -10
-	} else
-		InitBkList.Insert(lParam + 1)
+	; We need to launch the breakpoint setting code in a separate thread due to usage of COM
+	global _temp := StrGet(lParam, "UTF-8")
+	SetTimer, SetBreakpointHelper, -10
 	return true
 	
 _wP2: ; Variable inspection
@@ -483,11 +480,18 @@ _wP4: ; Hovering
 	return true
 	
 _wP5: ; Breakpoint initialization
-	bInitBk := lParam
-	if !bInitBk
-		SetTimer, InitBreakpoints, -10
-	else
-		InitBkList := []
+	bkfile := ""
+	bklines := ""
+	bkstring := StrGet(lParam, "UTF-8")
+	InitBkList := {}
+	Loop, Parse, bkstring, `n
+	{
+		bkpart := StrSplit(A_LoopField, "|")  ; filename|breakpoints
+		InitBkList[bkpart[1]] := bk := []
+		Loop, Parse, % bkpart[2], % A_Space
+			 bk[A_LoopField] := true
+	}
+	SetTimer, InitBreakpoints, -10
 	return true
 
 _wP255: ; Disconnect
@@ -519,27 +523,35 @@ SetEnableChildren(v)
 }
 
 SetBreakpointHelper:
-SetBreakpoint(_temp)
+SetBreakpoint(StrSplit(_temp,"|")*)
 return
 
-InitBreakpoints:
-for _, line in InitBkList
-	SetBreakpoint(line)
-InitBkList := ""
+InitBreakpoints()
+{
+	global InitBkList
+	for filepath, lines in InitBkList
+		for line in lines
+			SetBreakpoint(filepath, line)
+	InitBkList := ""
+}
+
 return
 
-SetBreakpoint(lParam)
+SetBreakpoint(filepath, lParam, state:=1)
 {
 	global Dbg_Session, bInBkProcess
 	
-	uri := DBGp_EncodeFileURI(file := SciTE_GetFile())
+	uri := DBGp_EncodeFileURI(filepath)
 	bk := Util_GetBk(uri, lParam)
-	if bk
+	if ((bk != "") == (state != 0))
+		return  ; Breakpoint already in the right state
+	if (state = 0)  ; Remove (implies bk != "")
 	{
 		Dbg_Session.breakpoint_remove("-d " bk.id)
-		SciTE_BPSymbolRemove(lParam)
 		Util_RemoveBk(uri, lParam)
-	}else
+		; SciTE_BPSymbolRemove(lParam)  ; Done by ahk.lua.  See below.
+	}
+	else  ; Add (implies bk == "")
 	{
 		bInBkProcess := true
 		Dbg_Session.breakpoint_set("-t line -n " lParam " -f " uri, Dbg_Response)
@@ -550,10 +562,16 @@ SetBreakpoint(lParam)
 		}
 		dom := loadXML(Dbg_Response)
 		bkID := dom.selectSingleNode("/response/@id").text
+		/*
+		; This is currently disabled because the new line number would need
+		; to be communicated back to ahk.lua.  We don't simply set the marker
+		; here, as that would only work for the current file (it would also
+		; require ahk.lua to adjust its records based on the markers).
 		Dbg_Session.breakpoint_get("-d " bkID, Dbg_Response)
 		dom := loadXML(Dbg_Response)
 		lParam := dom.selectSingleNode("/response/breakpoint[@id=" bkID "]/@lineno").text
 		SciTE_BPSymbol(lParam)
+		*/
 		Util_AddBkToList(uri, lParam, bkID)
 		bInBkProcess := false
 	}
@@ -1222,7 +1240,8 @@ SciTE_DeleteCurLineMarkers() ; delete the current line markers in SciTE
 	DllCall("SendMessage", "ptr", scintillahwnd, "uint", SCI_MARKERDELETEALL, "int", 12, "int", 0)
 }
 
-SciTE_BPSymbol(line) ; show the current line markers in SciTE
+/* ; Currently unused.
+SciTE_BPSymbol(line) ; set a breakpoint marker in SciTE
 {
 	global
 	line--
@@ -1230,13 +1249,14 @@ SciTE_BPSymbol(line) ; show the current line markers in SciTE
 	DllCall("SendMessage", "ptr", scintillahwnd, "uint", SCI_MARKERADD, "int", line, "int", 10)
 }
 
-SciTE_BPSymbolRemove(line) ; show the current line markers in SciTE
+SciTE_BPSymbolRemove(line) ; remove a breakpoint marker in SciTE
 {
 	global
 	line--
 	; Add markers
 	DllCall("SendMessage", "ptr", scintillahwnd, "uint", SCI_MARKERDELETE, "int", line, "int", 10)
 }
+*/
 
 ;}
 

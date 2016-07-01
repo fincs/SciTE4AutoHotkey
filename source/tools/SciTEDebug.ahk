@@ -79,9 +79,23 @@ else
 	}
 }
 
-; Get the HWND of SciTE and its Scintilla control
+; Get the HWND of SciTE and its Scintilla controls
 scitehwnd := oSciTE.SciTEHandle
 ControlGet, scintillahwnd, Hwnd,, Scintilla1, ahk_id %scitehwnd%
+ControlGet, sciOutputHwnd, Hwnd,, Scintilla2, ahk_id %scitehwnd%
+
+; Initialize output pane and related variables
+sciOutputCP := oSciTE.ResolveProp("output.code.page")
+if (sciOutputCP = "") ; This means "use the current file's codepage".
+{
+	SendMessage 2137, 0, 0,, ahk_id %sciOutputHwnd% ; SCI_GETCODEPAGE
+	sciOutputCP := ErrorLevel
+}
+if oSciTE.ResolveProp("clear.before.execute")
+	SendMessage, 2004, 0, 0,, ahk_id %sciOutputHwnd% ; SCI_CLEARALL
+ControlGetPos, ,,, outputHeight,, ahk_id %sciOutputHwnd%
+if !outputHeight ; Output pane not visible
+	SendMessage 0x111, 409, 0,, ahk_id %scitehwnd% ; Toggle output pane
 
 ; Get the SciTE path
 SciTEPath := oSciTE.SciTEDir
@@ -112,14 +126,14 @@ Gui, Show, Hide, SciTEDebugStub ; create a dummy GUI that SciTE will speak to
 ; Run SciTE
 WinActivate, ahk_id %scitehwnd%
 Hotkey, ^!z, CancelSciTE
-ToolTip, Waiting for SciTE to connect...`nPress Ctrl-Alt-Z to cancel
+SciTE_Output("> Waiting for SciTE to connect...  Press Ctrl-Alt-Z to cancel")
 SciTEConnected := false
 OnMessage(ADM_SCITE, "SciTEMsgHandler")
 SciTE_Connect()
 Hotkey, ^!z, Off
 
 ; Run AutoHotkey and wait for it to connect
-ToolTip, Waiting for AutoHotkey to connect...
+SciTE_Output("> Waiting for AutoHotkey to connect...", true)
 
 ; Initialize variables
 Dbg_OnBreak := true
@@ -177,7 +191,6 @@ if !Dbg_AHKExists
 if Dbg_Lang != AutoHotkey
 {
 	; Oops, wrong language, we've got to exit again
-	ToolTip
 	MsgBox, 16, %g_appTitle%, Invalid language: %Dbg_Lang%.
 
 	Dbg_ExitByDisconnect := true ; tell our message handler to just return true without attempting to exit
@@ -187,9 +200,8 @@ if Dbg_Lang != AutoHotkey
 	ExitApp ; exit
 }
 
-; Show the splash
-ToolTip, Ready to debug!
-SetTimer, RemoveTooltip, -250
+; Update status in output pane
+SciTE_Output("> Debugging " szFilename "`n", true)
 
 ; Reset saved breakpoints
 PostMessage, 0x111, 1135, 0,, ahk_id %scitehwnd%
@@ -218,6 +230,7 @@ if Dbg_ExitByGuiClose ; we've got to tell SciTE that we are leaving
 	Dbg_ExitByDisconnect := true ; tell our message handler to just return true without attempting to exit
 	SciTE_Disconnect()
 }
+SciTE_Output("> Debugging stopped`n")
 OnMessage(ADM_SCITE, "") ; disable the SciTE message handler
 OnExit ; disable the OnExit trap
 ExitApp
@@ -225,10 +238,6 @@ ExitApp
 CancelSciTE:
 OnExit
 ExitApp
-
-RemoveTooltip:
-ToolTip
-return
 
 ;}
 
@@ -721,8 +730,10 @@ OnDebuggerStream(session, ByRef stream)
 {
 	dom := loadXML(stream)
 	type := dom.selectSingleNode("/stream/@type").text
-	data := DBGp_Base64UTF8Decode(dom.selectSingleNode("/stream").text)
-	SP_Output(type, data)
+	; Base64-decode but leave as UTF-8:
+	DBGp_StringToBinary(data, dom.selectSingleNode("/stream").text, 1)
+	VarSetCapacity(data, -1)
+	SciTE_OutputUTF8(data)
 }
 
 ; OnDebuggerDisconnection() - fired when the debugger disconnects.
@@ -1035,43 +1046,6 @@ Dbg_GetContexts()
 
 ;}
 
-;{ Stream Window
-
-SP_Output(stream, data)
-{
-	global Dbg_StreamWin, SP_Console, SP_ConHWND
-	
-	if !Dbg_StreamWin
-	{
-		Gui 5:Font, s9, %dbgTextFont%
-		Gui 5:+ToolWindow +AlwaysOnTop +LabelSPGui +Resize +MinSize -MaximizeBox
-		Gui 5:Add, Edit, x0 y0 w320 h240 +ReadOnly vSP_Console hwndSP_ConHWND
-		Gui 5:Show, w320 h240, Stream viewer
-		Dbg_StreamWin := true
-	}
-	
-	GuiControlGet, ctext, 5:, SP_Console
-	StringReplace, data, data, `r`n, `n, All
-	IfNotInString, data, `n
-		ctext .= "<" stream "> " data "`n"
-	else
-		ctext .= "<" stream ">:`n" data "`n"
-	ctext := SubStr(ctext, -1023) ; Limit the output to 1 KB of data
-	GuiControl 5:, SP_Console, % ctext
-	SendMessage, 0xB6, 0, 999999,, ahk_id %SP_ConHWND%
-}
-
-SPGuiSize:
-GuiControl, Move, SP_Console, w%A_GuiWidth% h%A_GuiHeight%
-return
-
-SPGuiClose:
-Gui 5:Destroy
-Dbg_StreamWin := false
-return
-
-;}
-
 ;{ Object Inspection Window
 
 OE_Create(ByRef objdom)
@@ -1257,6 +1231,36 @@ SciTE_BPSymbolRemove(line) ; remove a breakpoint marker in SciTE
 	DllCall("SendMessage", "ptr", scintillahwnd, "uint", SCI_MARKERDELETE, "int", line, "int", 10)
 }
 */
+
+SciTE_OutputUTF8(ByRef data)  ; data: a UTF-8 string
+{
+	; Convert the string to the current output codepage (EM_REPLACESEL
+	; is used so the OS handles marshalling the memory, but Scintilla
+	; handles it the same as SCI_REPLACESEL; i.e. does no conversion).
+	; If sciOutputCP is blank, it depends on whichever file is active.
+	; We could get the current code page, but previous output can still
+	; be corrupted when the user switches files.  So just assume UTF-8.
+	global sciOutputCP, sciOutputHwnd
+	if (sciOutputCP != 65001 && sciOutputCP != "")
+	{
+		sdata := StrGet(&data, "UTF-8")
+		n := VarSetCapacity(data, StrPut(sdata, "UTF-8"))
+		StrPut(sdata, &data, n, sciOutputCP)
+	}
+	SendMessage 2318, 0, 0,, ahk_id %sciOutputHwnd% ; SCI_DOCUMENTEND
+	SendMessage 0xC2, % true, % &data,, ahk_id %sciOutputHwnd% ; EM_REPLACESEL
+}
+
+SciTE_Output(ByRef string, replaceLastLine:=false)
+{
+	global scitehwnd, sciOutputCP, sciOutputHwnd
+	SendMessage 2318, 0, 0,, ahk_id %sciOutputHwnd% ; SCI_DOCUMENTEND
+	if replaceLastLine
+		SendMessage 2338, 0, 0,, ahk_id %sciOutputHwnd% ; SCI_LINEDELETE
+	n := VarSetCapacity(data, StrPut(string, "UTF-8"))
+	StrPut(string, &data, n, sciOutputCP)
+	SendMessage 0xC2, % true, % &data,, ahk_id %sciOutputHwnd% ; EM_REPLACESEL
+}
 
 ;}
 

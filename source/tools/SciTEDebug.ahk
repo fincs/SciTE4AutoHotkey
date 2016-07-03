@@ -314,10 +314,7 @@ else
 	goto cmd_pause
 
 cmd_run:
-if !Dbg_OnBreak
-	return
-SciTE_DeleteCurLineMarkers()
-DBGp_CmdRun(Dbg_Session)
+Dbg_Continue("run")
 return
 
 cmd_pause:
@@ -358,26 +355,17 @@ goto GuiClose
 
 F10::
 cmd_stepinto:
-if !Dbg_OnBreak
-	return
-SciTE_DeleteCurLineMarkers()
-DBGp_CmdStepInto(Dbg_Session)
+Dbg_Continue("step_into")
 return
 
 F11::
 cmd_stepover:
-if !Dbg_OnBreak
-	return
-SciTE_DeleteCurLineMarkers()
-DBGp_CmdStepOver(Dbg_Session)
+Dbg_Continue("step_over")
 return
 
 +F11::
 cmd_stepout:
-if !Dbg_OnBreak
-	return
-SciTE_DeleteCurLineMarkers()
-DBGp_CmdStepOut(Dbg_Session)
+Dbg_Continue("step_out")
 return
 
 cmd_stacktrace:
@@ -734,54 +722,18 @@ OnDebuggerDisconnection(session)
 
 ;}
 
-;{ Wrappers for DBGp Commands that set Dbg_OnBreak
+;{ Wrapper for DBGp Commands that set Dbg_OnBreak
 
-DBGp_CmdRun(a)
+Dbg_Continue(cmd)
 {
 	global
+	if !Dbg_OnBreak
+		return
+	SciTE_DeleteCurLineMarkers()
 	ErrorLevel = 0
 	Dbg_OnBreak := false
 	Dbg_HasStarted := true
-	a.run()
-	SciTE_ToggleRunButton()
-	VE_Close()
-	OE_Close()
-	ST_Clear()
-}
-
-DBGp_CmdStepInto(a)
-{
-	global
-	ErrorLevel = 0
-	Dbg_OnBreak := false
-	Dbg_HasStarted := true
-	a.step_into()
-	SciTE_ToggleRunButton()
-	VE_Close()
-	OE_Close()
-	ST_Clear()
-}
-
-DBGp_CmdStepOver(a)
-{
-	global
-	ErrorLevel = 0
-	Dbg_OnBreak := false
-	Dbg_HasStarted := true
-	a.step_over()
-	SciTE_ToggleRunButton()
-	VE_Close()
-	OE_Close()
-	ST_Clear()
-}
-
-DBGp_CmdStepOut(a)
-{
-	global
-	ErrorLevel = 0
-	Dbg_OnBreak := false
-	Dbg_HasStarted := true
-	a.step_out()
+	Dbg_Session[cmd]()
 	SciTE_ToggleRunButton()
 	VE_Close()
 	OE_Close()

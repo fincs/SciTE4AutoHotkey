@@ -22,7 +22,7 @@ local bkcur = nil
 function OnClear()
 	if not prepared then
 		-- Remove the current line markers.
-		ClearAllMarkers()
+		ClearCurrentLineMarkers()
 	end
 	
 	SetMarkerColors()
@@ -197,8 +197,7 @@ function DBGp_Connect()
 	-- Initialize
 	pumpmsg(4112, 0, 0)
 	prepared = true
-	--SetMarkerColors()
-	ClearAllMarkers()
+	ClearCurrentLineMarkers()
 end
 
 function DBGp_BkReset()
@@ -222,9 +221,8 @@ function DBGp_Disconnect()
 	u = pumpmsg(4112, 255, 0)
 	if u == 0 then return false end
 	
-	--editor.MarginSensitiveN[1] = false
 	prepared = false
-	ClearAllMarkers()
+	ClearCurrentLineMarkers()
 end
 
 function DBGp_Inspect()
@@ -656,8 +654,7 @@ function SetMarkerColors()
 	editor.MarkerAlpha[12] = 32
 end
 
-function ClearAllMarkers()
-	--editor:MarkerDeleteAll(10)
+function ClearCurrentLineMarkers()
 	editor:MarkerDeleteAll(11)
 	editor:MarkerDeleteAll(12)
 end

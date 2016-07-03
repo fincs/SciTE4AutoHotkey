@@ -197,7 +197,6 @@ PostMessage, 0x111, 1135, 0,, ahk_id %scitehwnd%
 ; Main loop
 while !Dbg_IsClosing ; while the debugger is active
 {
-	Sleep, 100 ; do I really need to repeat the smashing comment over and over?
 	IfWinNotExist, ahk_id %scitehwnd% ; oops, the user closed the SciTE window
 	{
 		if !Dbg_ExitByDisconnect
@@ -210,6 +209,9 @@ while !Dbg_IsClosing ; while the debugger is active
 		SciTE_Disconnect()
 		break
 	}
+	; Sleep *after* the above checks, not before, so Dbg_IsClosing is
+	; checked first and SciTE_Disconnect() is called only once on Stop.
+	Sleep, 100
 }
 if Dbg_ExitByGuiClose ; we've got to tell SciTE that we are leaving
 {

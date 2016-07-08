@@ -156,10 +156,22 @@ end
 -- OnDwellStart event - used to implement hovering --
 -- =============================================== --
 
-function OnDwellStart(pos, s)
+local NoDwellStyles = {
+	-- Some of these constants don't work due to an error in the ordering
+	-- of the constants in 3.0.06.01 (which messes with binary search).
+	--[SCLEX_AHK1] = {SCE_AHK_COMMENTBLOCK, SCE_AHK_COMMENTLINE, SCE_AHK_STRING, SCE_AHK_ESCAPE, SCE_AHK_LABEL},
+	[SCLEX_AHK1] = {2, 1, 6, 3, 10},
+	--[SCLEX_AHK2] = {SCE_AHK2_COMMENTBLOCK, SCE_AHK2_COMMENTLINE, SCE_AHK2_STRING, SCE_AHK2_ESCAPE, SCE_AHK2_LABEL},
+	[SCLEX_AHK2] = {2, 1, 5, 3, 11},
+}
+function OnDwellStart(pos, word)
 	if not prepared then return end
-	if s ~= '' then
-		pumpmsgstr(4112, 4, GetWord(pos))
+	if word ~= '' then
+		if isInTable(NoDwellStyles[editor.Lexer], editor.StyleAt[pos]) then
+			return
+		end
+		local line, wordpos, wordlen = GetCurLineAndWordPos(pos)
+		pumpmsgstr(4112, 4, line..'\1'..wordpos..'\1'..wordlen)
 	else
 		pumpmsgstr(4112, 4, "")
 	end
@@ -227,7 +239,15 @@ end
 
 function DBGp_Inspect()
 	if not prepared then return end
-	pumpmsgstr(4112, 2, GetCurWord())
+	
+	local word = editor:GetSelText()
+	if word == "" then
+		local line, wordpos, wordlen = GetCurLineAndWordPos(pos)
+		-- Prevent Inspect from taking the [] to the right of the word:
+		line = line:sub(1, wordpos + wordlen - 1)
+		word = line..'\1'..wordpos..'\1'..wordlen
+	end
+	pumpmsgstr(4112, 2, word)
 end
 
 function DBGp_Run()
@@ -612,6 +632,17 @@ function GetCurWord()
 		word = GetWord(editor.CurrentPos)
 	end
 	return word
+end
+
+function GetCurLineAndWordPos(pos)
+	pos = pos or editor.CurrentPos
+	local lineno = editor:LineFromPosition(pos)
+	local linepos = editor:PositionFromLine(lineno)
+	local wordpos = editor:WordStartPosition(pos, true)
+	local wordend = editor:WordEndPosition(pos, true)
+	return editor:GetLine(lineno)
+		, wordpos - linepos + 1
+		, wordend - wordpos
 end
 
 function getPrevLinePos()

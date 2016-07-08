@@ -431,7 +431,8 @@ _wP2: ; Variable inspection
 		return false
 	}
 	
-	Dbg_VarName := Trim(StrGet(lParam, "UTF-8"), " `t`r`n=")
+	p := StrSplit(StrGet(lParam, "UTF-8"), Chr(1))
+	Dbg_VarName := p.Length()==1 ? p[1] : PropertyNameFromWord(p*)
 	
 	; Allow retrieving immediate children for object values
 	SetEnableChildren(true)
@@ -466,25 +467,39 @@ _wP4: ; Hovering
 	if !bIsAsync && !Dbg_OnBreak
 		return true
 	
-	Dbg_VarName := Trim(StrGet(lParam, "UTF-8"), " `t`r`n")
-	if Dbg_VarName =
-		ToolTip
-	else
+	lParam := StrGet(lParam, "UTF-8")
+	if lParam =
 	{
-		Dbg_Session.property_get("-m 200 -n " Dbg_VarName, Dbg_Response)
-		dom := loadXML(Dbg_Response)
-		check := dom.selectSingleNode("/response/property/@name").text
-		if check = (invalid)
-			return true
-		if dom.selectSingleNode("/response/property/@type").text != "Object"
+		ToolTip
+		return true
+	}
+	try propName := PropertyNameFromWord(StrSplit(lParam, Chr(1))*)
+	if propName !=
+	{
+		Dbg_Session.property_get("-m 200 -n " propName, response)
+		prop := loadXML(response).selectSingleNode("/response/property")
+		propType := prop.getAttribute("type")
+		if (propType = "undefined")
 		{
-			Dbg_VarData := DBGp_Base64UTF8Decode(dom.selectSingleNode("/response/property").text)
-			Dbg_VarSize := dom.selectSingleNode("/response/property/@size").text
-			if Dbg_VarSize > 200
-				Dbg_VarData .= "..."
-			ToolTip, %Dbg_VarName% = %Dbg_VarData%
-		}else
-			ToolTip, %Dbg_VarName% is an object
+			if prop.getAttribute("encoding") ; This is a bit of a hack...
+				ToolTip, %propName% is uninitialized
+			; Other properties actually don't exist.
+			; else ToolTip, %propName% is undefined
+		}
+		else if (propType = "object")
+		{
+			propClass := prop.getAttribute("classname")
+			propClass := ((propClass ~= "i)^[aeiou]") ? "an " : "a ") propClass
+			ToolTip, %propName% is %propClass%
+		}
+		else
+		{
+			propData := DBGp_Base64UTF8Decode(prop.text)
+			propSize := prop.getAttribute("size")
+			if propSize > 200
+				propData .= "..."
+			ToolTip, %propName% = %propData%
+		}
 	}
 	return true
 	
@@ -515,6 +530,172 @@ _wP255: ; Disconnect
 	Dbg_WaitClose := true ; the main thread can finish waiting now
 	Sleep, 10
 	return true
+}
+
+PropertyNameFromWord(line, wordpos, wordlen)
+{
+	name := SubStr(line, wordpos, wordlen)
+	i := wordpos
+	while (i > 1 && SubStr(line, i-1, 1) == ".")
+	{
+		--i
+		name := "." name
+		if (i > 1 && SubStr(line, i-1, 1) == "]")
+		{
+			i := FindLeftBracket(line, i-1, "[")
+			if !i
+				return
+		}
+		i := RegExMatch(SubStr(line, 1, i-1), "(?:[\w#@$]|[^\x00-\x7F])+(?=[ \t]*$)", m)
+		if !i
+			return
+		name := m name
+	}
+	return PropertyNameFromCode(SubStr(line, i), wordpos-i + wordlen)
+}
+
+PropertyNameFromCode(s, wordend)
+{
+	name := PropertyNameEval(s, i := 1, wordend)
+	if (i <= wordend)
+		throw Exception("Parse error",, SubStr(s,i))
+	return name
+}
+
+PropertyNameEval(s, ByRef i, wordend:="")
+{
+	name := ""
+	while i <= StrLen(s)
+	{
+		ch := SubStr(s, i, 1)
+		if InStr(" `t", ch)
+		{
+			i += 1
+			continue
+		}
+		if (ch == "[" && name != "")
+		{
+			Loop
+			{
+				index := PropertyNameEval(s, ++i)
+				expr := PropertyIndexEval(index)
+				if (expr = "")
+					throw Exception("Array index eval failed",, index)
+				name .= expr
+				
+				ch := SubStr(s,i,1)
+				if (ch == "]")
+				{
+					++i
+					break
+				}
+				if (ch != ",")
+					throw Exception("Parse error",, SubStr(s,i))
+			}
+		}
+		; The placement of this check decides what kind of expressions
+		; to the right of the hovered word get included/excluded:
+		if (wordend != "" && i > wordend)
+			break
+		if RegExMatch(s, (name == "" ? "\G" : "\G\.")
+			. "(?:[\w#@$]|[^\x00-\x7F])+", m, i)
+		{
+			name .= m
+			i += StrLen(m)
+			continue
+		}
+		if (name == "" && InStr("""'", ch))
+		{
+			value := ParseQuotedString(s, i, ch)
+			StringReplace value, value, `", "", All
+			value = ["%value%"]
+			i += StrLen(m)
+			return value
+		}
+		break
+	}
+	return name
+}
+
+PropertyIndexEval(prop_name)
+{
+	if SubStr(prop_name,1,2) = "["""
+		return prop_name
+	if prop_name is integer
+		return "[" prop_name "]"
+	if prop_name is float
+		return "[""" prop_name """]"
+	global Dbg_Session
+	Dbg_Session.property_get("-m 200 -n " prop_name, response)
+	prop := loadXML(response).selectSingleNode("/response/property")
+	if !prop
+		|| prop.getAttribute("name") = "(invalid)" ; Invalid - abort.
+		|| prop.getAttribute("size") > 200 ; Truncated - don't query (the wrong) property.
+		return
+	if prop.getAttribute("type") = "object"
+		return "Object(" prop.getAttribute("address") ")"
+	value := DBGp_Base64UTF8Decode(prop.text)
+	if value is integer
+		return "[" value "]"
+	; The debugger uses "" to mean a literal quote, even on v2,
+	; and does not recognize escape sequences.
+	StringReplace value, value, `", "", All
+	return "[""" value """]"
+}
+
+ParseQuotedString(s, ByRef i, q)
+{
+	value := ""
+	while ++i <= StrLen(s)
+	{
+		ch := SubStr(s,i,1)
+		if (ch == "``")
+		{
+			++i
+			Transform ch, Deref, % ch SubStr(s,i,1)
+		}
+		else if (ch == q)
+		{
+			++i
+			if (SubStr(s,i,1) != q)
+				return value
+		}
+		value .= ch
+	}
+	throw Exception("Missing " q,, s)
+}
+
+FindLeftQuote(s, i, q)
+{
+	--i
+	while i >= 1
+	{
+		if (SubStr(s, i, 1) == q)
+		{
+			ch := SubStr(s, i-1, 1)
+			if (ch != "``" and ch != q)
+				return i
+			; TODO: Detect percent signs in v2
+			--i ; Skip the escape char/first quote in the pair.
+		}
+		--i
+	}
+}
+
+FindLeftBracket(s, i, b)
+{
+	--i
+	while i >= 1
+	{
+		ch := SubStr(s, i, 1)
+		if (ch == b)
+			return i
+		else if (ch == "]")
+			i := FindLeftBracket(s, i, "[")
+		else if SubStr(s, i-1, 1) != "``" && InStr("""'", ch)
+			i := FindLeftQuote(s, i, ch)
+		--i
+	}
 }
 
 SetEnableChildren(v)

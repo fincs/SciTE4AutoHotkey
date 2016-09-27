@@ -83,9 +83,23 @@ else
 	}
 }
 
-; Get the HWND of SciTE and its Scintilla control
+; Get the HWND of SciTE and its Scintilla controls
 scitehwnd := oSciTE.SciTEHandle
 ControlGet, scintillahwnd, Hwnd,, Scintilla1, ahk_id %scitehwnd%
+ControlGet, sciOutputHwnd, Hwnd,, Scintilla2, ahk_id %scitehwnd%
+
+; Initialize output pane and related variables
+sciOutputCP := oSciTE.ResolveProp("output.code.page")
+if (sciOutputCP = "") ; This means "use the current file's codepage".
+{
+	SendMessage 2137, 0, 0,, ahk_id %sciOutputHwnd% ; SCI_GETCODEPAGE
+	sciOutputCP := ErrorLevel
+}
+if oSciTE.ResolveProp("clear.before.execute")
+	SendMessage, 2004, 0, 0,, ahk_id %sciOutputHwnd% ; SCI_CLEARALL
+ControlGetPos, ,,, outputHeight,, ahk_id %sciOutputHwnd%
+if !outputHeight ; Output pane not visible
+	SendMessage 0x111, 409, 0,, ahk_id %scitehwnd% ; Toggle output pane
 
 ; Get the SciTE path
 SciTEPath := oSciTE.SciTEDir
@@ -116,14 +130,14 @@ Gui, Show, Hide, SciTEDebugStub ; create a dummy GUI that SciTE will speak to
 ; Run SciTE
 WinActivate, ahk_id %scitehwnd%
 Hotkey, ^!z, CancelSciTE
-ToolTip, Waiting for SciTE to connect...`nPress Ctrl-Alt-Z to cancel
+SciTE_Output("> Waiting for SciTE to connect...  Press Ctrl-Alt-Z to cancel")
 SciTEConnected := false
 OnMessage(ADM_SCITE, "SciTEMsgHandler")
 SciTE_Connect()
 Hotkey, ^!z, Off
 
 ; Run AutoHotkey and wait for it to connect
-ToolTip, Waiting for AutoHotkey to connect...
+SciTE_Output("> Waiting for AutoHotkey to connect...", true)
 
 ; Initialize variables
 Dbg_OnBreak := true
@@ -182,7 +196,6 @@ if !Dbg_AHKExists
 if Dbg_Lang != AutoHotkey
 {
 	; Oops, wrong language, we've got to exit again
-	ToolTip
 	MsgBox, 16, %g_appTitle%, Invalid language: %Dbg_Lang%.
 
 	Dbg_ExitByDisconnect := true ; tell our message handler to just return true without attempting to exit
@@ -192,9 +205,8 @@ if Dbg_Lang != AutoHotkey
 	ExitApp ; exit
 }
 
-; Show the splash
-ToolTip, Ready to debug!
-SetTimer, RemoveTooltip, -250
+; Update status in output pane
+SciTE_Output("> Debugging " szFilename "`n", true)
 
 ; Reset saved breakpoints
 PostMessage, 0x111, 1135, 0,, ahk_id %scitehwnd%
@@ -202,7 +214,6 @@ PostMessage, 0x111, 1135, 0,, ahk_id %scitehwnd%
 ; Main loop
 while !Dbg_IsClosing ; while the debugger is active
 {
-	Sleep, 100 ; do I really need to repeat the smashing comment over and over?
 	IfWinNotExist, ahk_id %scitehwnd% ; oops, the user closed the SciTE window
 	{
 		if !Dbg_ExitByDisconnect
@@ -215,12 +226,16 @@ while !Dbg_IsClosing ; while the debugger is active
 		SciTE_Disconnect()
 		break
 	}
+	; Sleep *after* the above checks, not before, so Dbg_IsClosing is
+	; checked first and SciTE_Disconnect() is called only once on Stop.
+	Sleep, 100
 }
 if Dbg_ExitByGuiClose ; we've got to tell SciTE that we are leaving
 {
 	Dbg_ExitByDisconnect := true ; tell our message handler to just return true without attempting to exit
 	SciTE_Disconnect()
 }
+SciTE_Output("> Debugging stopped`n")
 OnMessage(ADM_SCITE, "") ; disable the SciTE message handler
 OnExit ; disable the OnExit trap
 ExitApp
@@ -228,10 +243,6 @@ ExitApp
 CancelSciTE:
 OnExit
 ExitApp
-
-RemoveTooltip:
-ToolTip
-return
 
 ;}
 
@@ -317,10 +328,7 @@ else
 	goto cmd_pause
 
 cmd_run:
-if !Dbg_OnBreak
-	return
-SciTE_DeleteCurLineMarkers()
-DBGp_CmdRun(Dbg_Session)
+Dbg_Continue("run")
 return
 
 cmd_pause:
@@ -361,26 +369,17 @@ goto GuiClose
 
 F10::
 cmd_stepinto:
-if !Dbg_OnBreak
-	return
-SciTE_DeleteCurLineMarkers()
-DBGp_CmdStepInto(Dbg_Session)
+Dbg_Continue("step_into")
 return
 
 F11::
 cmd_stepover:
-if !Dbg_OnBreak
-	return
-SciTE_DeleteCurLineMarkers()
-DBGp_CmdStepOver(Dbg_Session)
+Dbg_Continue("step_over")
 return
 
 +F11::
 cmd_stepout:
-if !Dbg_OnBreak
-	return
-SciTE_DeleteCurLineMarkers()
-DBGp_CmdStepOut(Dbg_Session)
+Dbg_Continue("step_out")
 return
 
 cmd_stacktrace:
@@ -408,7 +407,8 @@ return
 SciTEMsgHandler(wParam, lParam, msg, hwnd)
 {
 	Critical
-	global scintillahwnd, SciTEConnected, Dbg_ExitByDisconnect, Dbg_Session, Dbg_IsClosing, Dbg_WaitClose, Dbg_OnBreak, bIsAsync, bInitBk, InitBkList
+	global scintillahwnd, SciTEConnected, Dbg_ExitByDisconnect, Dbg_Session
+		, Dbg_IsClosing, Dbg_WaitClose, Dbg_OnBreak, bIsAsync, InitBkList
 	
 	; This code used to be a big if/else if block. I've changed it to this pseudo-switch structure.
 	if IsLabel("_wP" wParam)
@@ -424,13 +424,9 @@ _wP1: ; Breakpoint setting
 	if !bIsAsync && !Dbg_OnBreak
 		return true
 	
-	if !bInitBk
-	{
-		; We need to launch the breakpoint setting code in a separate thread due to usage of COM
-		global _temp := lParam + 1 ; convert line number from 0-based to 1-based
-		SetTimer, SetBreakpointHelper, -10
-	} else
-		InitBkList.Insert(lParam + 1)
+	; We need to launch the breakpoint setting code in a separate thread due to usage of COM
+	global _temp := StrGet(lParam, "UTF-8")
+	SetTimer, SetBreakpointHelper, -10
 	return true
 	
 _wP2: ; Variable inspection
@@ -498,11 +494,18 @@ _wP4: ; Hovering
 	return true
 	
 _wP5: ; Breakpoint initialization
-	bInitBk := lParam
-	if !bInitBk
-		SetTimer, InitBreakpoints, -10
-	else
-		InitBkList := []
+	bkfile := ""
+	bklines := ""
+	bkstring := StrGet(lParam, "UTF-8")
+	InitBkList := {}
+	Loop, Parse, bkstring, `n
+	{
+		bkpart := StrSplit(A_LoopField, "|")  ; filename|breakpoints
+		InitBkList[bkpart[1]] := bk := []
+		Loop, Parse, % bkpart[2], % A_Space
+			 bk[A_LoopField] := true
+	}
+	SetTimer, InitBreakpoints, -10
 	return true
 
 _wP255: ; Disconnect
@@ -534,27 +537,35 @@ SetEnableChildren(v)
 }
 
 SetBreakpointHelper:
-SetBreakpoint(_temp)
+SetBreakpoint(StrSplit(_temp,"|")*)
 return
 
-InitBreakpoints:
-for _, line in InitBkList
-	SetBreakpoint(line)
-InitBkList := ""
+InitBreakpoints()
+{
+	global InitBkList
+	for filepath, lines in InitBkList
+		for line in lines
+			SetBreakpoint(filepath, line)
+	InitBkList := ""
+}
+
 return
 
-SetBreakpoint(lParam)
+SetBreakpoint(filepath, lParam, state:=1)
 {
 	global Dbg_Session, bInBkProcess
 	
-	uri := DBGp_EncodeFileURI(file := SciTE_GetFile())
+	uri := DBGp_EncodeFileURI(filepath)
 	bk := Util_GetBk(uri, lParam)
-	if bk
+	if ((bk != "") == (state != 0))
+		return  ; Breakpoint already in the right state
+	if (state = 0)  ; Remove (implies bk != "")
 	{
 		Dbg_Session.breakpoint_remove("-d " bk.id)
-		SciTE_BPSymbolRemove(lParam)
 		Util_RemoveBk(uri, lParam)
-	}else
+		; SciTE_BPSymbolRemove(lParam)  ; Done by ahk.lua.  See below.
+	}
+	else  ; Add (implies bk == "")
 	{
 		bInBkProcess := true
 		Dbg_Session.breakpoint_set("-t line -n " lParam " -f " uri, Dbg_Response)
@@ -565,10 +576,16 @@ SetBreakpoint(lParam)
 		}
 		dom := loadXML(Dbg_Response)
 		bkID := dom.selectSingleNode("/response/@id").text
+		/*
+		; This is currently disabled because the new line number would need
+		; to be communicated back to ahk.lua.  We don't simply set the marker
+		; here, as that would only work for the current file (it would also
+		; require ahk.lua to adjust its records based on the markers).
 		Dbg_Session.breakpoint_get("-d " bkID, Dbg_Response)
 		dom := loadXML(Dbg_Response)
 		lParam := dom.selectSingleNode("/response/breakpoint[@id=" bkID "]/@lineno").text
 		SciTE_BPSymbol(lParam)
+		*/
 		Util_AddBkToList(uri, lParam, bkID)
 		bInBkProcess := false
 	}
@@ -718,8 +735,10 @@ OnDebuggerStream(session, ByRef stream)
 {
 	dom := loadXML(stream)
 	type := dom.selectSingleNode("/stream/@type").text
-	data := DBGp_Base64UTF8Decode(dom.selectSingleNode("/stream").text)
-	SP_Output(type, data)
+	; Base64-decode but leave as UTF-8:
+	DBGp_StringToBinary(data, dom.selectSingleNode("/stream").text, 1)
+	VarSetCapacity(data, -1)
+	SciTE_OutputUTF8(data)
 }
 
 ; OnDebuggerDisconnection() - fired when the debugger disconnects.
@@ -737,54 +756,18 @@ OnDebuggerDisconnection(session)
 
 ;}
 
-;{ Wrappers for DBGp Commands that set Dbg_OnBreak
+;{ Wrapper for DBGp Commands that set Dbg_OnBreak
 
-DBGp_CmdRun(a)
+Dbg_Continue(cmd)
 {
 	global
+	if !Dbg_OnBreak
+		return
+	SciTE_DeleteCurLineMarkers()
 	ErrorLevel = 0
 	Dbg_OnBreak := false
 	Dbg_HasStarted := true
-	a.run()
-	SciTE_ToggleRunButton()
-	VE_Close()
-	OE_Close()
-	ST_Clear()
-}
-
-DBGp_CmdStepInto(a)
-{
-	global
-	ErrorLevel = 0
-	Dbg_OnBreak := false
-	Dbg_HasStarted := true
-	a.step_into()
-	SciTE_ToggleRunButton()
-	VE_Close()
-	OE_Close()
-	ST_Clear()
-}
-
-DBGp_CmdStepOver(a)
-{
-	global
-	ErrorLevel = 0
-	Dbg_OnBreak := false
-	Dbg_HasStarted := true
-	a.step_over()
-	SciTE_ToggleRunButton()
-	VE_Close()
-	OE_Close()
-	ST_Clear()
-}
-
-DBGp_CmdStepOut(a)
-{
-	global
-	ErrorLevel = 0
-	Dbg_OnBreak := false
-	Dbg_HasStarted := true
-	a.step_out()
+	Dbg_Session[cmd]()
 	SciTE_ToggleRunButton()
 	VE_Close()
 	OE_Close()
@@ -1068,43 +1051,6 @@ Dbg_GetContexts()
 
 ;}
 
-;{ Stream Window
-
-SP_Output(stream, data)
-{
-	global Dbg_StreamWin, SP_Console, SP_ConHWND
-	
-	if !Dbg_StreamWin
-	{
-		Gui 5:Font, s9, %dbgTextFont%
-		Gui 5:+ToolWindow +AlwaysOnTop +LabelSPGui +Resize +MinSize -MaximizeBox
-		Gui 5:Add, Edit, x0 y0 w320 h240 +ReadOnly vSP_Console hwndSP_ConHWND
-		Gui 5:Show, w320 h240, Stream viewer
-		Dbg_StreamWin := true
-	}
-	
-	GuiControlGet, ctext, 5:, SP_Console
-	StringReplace, data, data, `r`n, `n, All
-	IfNotInString, data, `n
-		ctext .= "<" stream "> " data "`n"
-	else
-		ctext .= "<" stream ">:`n" data "`n"
-	ctext := SubStr(ctext, -1023) ; Limit the output to 1 KB of data
-	GuiControl 5:, SP_Console, % ctext
-	SendMessage, 0xB6, 0, 999999,, ahk_id %SP_ConHWND%
-}
-
-SPGuiSize:
-GuiControl, Move, SP_Console, w%A_GuiWidth% h%A_GuiHeight%
-return
-
-SPGuiClose:
-Gui 5:Destroy
-Dbg_StreamWin := false
-return
-
-;}
-
 ;{ Object Inspection Window
 
 OE_Create(ByRef objdom)
@@ -1268,13 +1214,13 @@ SciTE_SetCurrentLine(line, mode := 1) ; show the current line markers in SciTE
 SciTE_DeleteCurLineMarkers() ; delete the current line markers in SciTE
 {
 	global
-	line--
 	; Delete current markers
 	DllCall("SendMessage", "ptr", scintillahwnd, "uint", SCI_MARKERDELETEALL, "int", 11, "int", 0)
 	DllCall("SendMessage", "ptr", scintillahwnd, "uint", SCI_MARKERDELETEALL, "int", 12, "int", 0)
 }
 
-SciTE_BPSymbol(line) ; show the current line markers in SciTE
+/* ; Currently unused.
+SciTE_BPSymbol(line) ; set a breakpoint marker in SciTE
 {
 	global
 	line--
@@ -1282,12 +1228,43 @@ SciTE_BPSymbol(line) ; show the current line markers in SciTE
 	DllCall("SendMessage", "ptr", scintillahwnd, "uint", SCI_MARKERADD, "int", line, "int", 10)
 }
 
-SciTE_BPSymbolRemove(line) ; show the current line markers in SciTE
+SciTE_BPSymbolRemove(line) ; remove a breakpoint marker in SciTE
 {
 	global
 	line--
 	; Add markers
 	DllCall("SendMessage", "ptr", scintillahwnd, "uint", SCI_MARKERDELETE, "int", line, "int", 10)
+}
+*/
+
+SciTE_OutputUTF8(ByRef data)  ; data: a UTF-8 string
+{
+	; Convert the string to the current output codepage (EM_REPLACESEL
+	; is used so the OS handles marshalling the memory, but Scintilla
+	; handles it the same as SCI_REPLACESEL; i.e. does no conversion).
+	; If sciOutputCP is blank, it depends on whichever file is active.
+	; We could get the current code page, but previous output can still
+	; be corrupted when the user switches files.  So just assume UTF-8.
+	global sciOutputCP, sciOutputHwnd
+	if (sciOutputCP != 65001 && sciOutputCP != "")
+	{
+		sdata := StrGet(&data, "UTF-8")
+		n := VarSetCapacity(data, StrPut(sdata, "UTF-8"))
+		StrPut(sdata, &data, n, sciOutputCP)
+	}
+	SendMessage 2318, 0, 0,, ahk_id %sciOutputHwnd% ; SCI_DOCUMENTEND
+	SendMessage 0xC2, % true, % &data,, ahk_id %sciOutputHwnd% ; EM_REPLACESEL
+}
+
+SciTE_Output(ByRef string, replaceLastLine:=false)
+{
+	global scitehwnd, sciOutputCP, sciOutputHwnd
+	SendMessage 2318, 0, 0,, ahk_id %sciOutputHwnd% ; SCI_DOCUMENTEND
+	if replaceLastLine
+		SendMessage 2338, 0, 0,, ahk_id %sciOutputHwnd% ; SCI_LINEDELETE
+	n := VarSetCapacity(data, StrPut(string, "UTF-8"))
+	StrPut(string, &data, n, sciOutputCP)
+	SendMessage 0xC2, % true, % &data,, ahk_id %sciOutputHwnd% ; EM_REPLACESEL
 }
 
 ;}

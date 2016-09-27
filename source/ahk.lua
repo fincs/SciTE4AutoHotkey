@@ -12,7 +12,8 @@
 --     SciTEDebug.ahk DBGp debugger interface
 
 local prepared = false
-local savedbk = nil
+local bkall = {}
+local bkcur = nil
 
 -- ================================================== --
 -- OnClear event - fired when SciTE changes documents --
@@ -21,7 +22,7 @@ local savedbk = nil
 function OnClear()
 	if not prepared then
 		-- Remove the current line markers.
-		ClearAllMarkers()
+		ClearCurrentLineMarkers()
 	end
 	
 	SetMarkerColors()
@@ -87,28 +88,68 @@ function CancelAutoComplete()
 end
 
 -- ================================================== --
+-- File/buffer events - needed to set up breakpoints  --
+-- ================================================== --
+
+function OnOpen(filename)
+	if not InAHKLexer() then return end
+	bkcur = bkall[filename]
+	if bkcur then
+		-- Restore breakpoints from memory
+		for line in pairs(bkcur) do
+			editor:MarkerAdd(line, 10)
+		end
+	else
+		bkcur = {}
+		bkall[filename] = bkcur
+	end
+end
+
+function OnSwitchFile(filename)
+	bkcur = bkall[filename]
+end
+
+function UpdateBreakpoints(filename) -- Called by OnBeforeSave
+	if not bkcur then return end
+	-- Compensate for line additions/removals by rebuilding the array.
+	-- This is only useful when the file is being saved, because the
+	-- debugger will load the version of script that's on disk.
+	for k in next,bkcur do bkcur[k] = nil end
+	local line = -1
+	while true do
+		line = editor:MarkerNext(line + 1, 1024) -- 1024 = BIT(10)
+		if line == -1 then break end
+		bkcur[line] = true
+	end
+end
+
+-- ================================================== --
 -- OnMarginClick event - needed to set up breakpoints --
 -- ================================================== --
 
 function OnMarginClick(position, margin)
 	-- This function only works with the AutoHotkey lexer
-	if not InAHKLexer() then return false end
+	if not bkcur then return false end
 	
-	if margin == 1 then
-		if prepared then
-			postmsg(4112, 1, editor:LineFromPosition(position))
-		else
-			line = editor:LineFromPosition(position)
-			if editor:MarkerNext(line, 1024) == line then -- 1024 = BIT(10)
-				editor:MarkerDelete(line, 10)
-			else
-				editor:MarkerAdd(line, 10)
-			end
-		end
-		return true
-	else
+	if margin ~= 1 then
 		return false
 	end
+	local line = editor:LineFromPosition(position)
+	-- Toggle the marker, not bkcur[], since the latter can be inaccurate
+	-- while editing a file
+	if editor:MarkerNext(line, 1024) == line then -- 1024 = BIT(10)
+		editor:MarkerDelete(line, 10)
+		bkcur[line] = nil
+	else
+		editor:MarkerAdd(line, 10)
+		bkcur[line] = true
+	end
+	if prepared then
+		-- Send the filename, line number and new state to the debugger
+		pumpmsgstr(4112, 1
+			, props.FilePath.."|"..(line+1).."|"..(bkcur[line] and 1 or 0))
+	end
+	return true
 end
 
 -- =============================================== --
@@ -156,40 +197,23 @@ function DBGp_Connect()
 	-- Initialize
 	pumpmsg(4112, 0, 0)
 	prepared = true
-	--SetMarkerColors()
-	ClearAllMarkers()
-	savedbk = enumBreakpoints()
-end
-
-function enumBreakpoints()
-	line = editor:MarkerNext(0, 1024) -- 1024 = BIT(10)
-	if line ~= -1 then
-		i = 2
-		tbl = { line }
-		while true do
-			line = editor:MarkerNext(line+1, 1024)
-			if line == -1 then break end
-			tbl[i] = line
-			i = i + 1
-		end
-		return tbl
-	end
-	return nil
+	ClearCurrentLineMarkers()
 end
 
 function DBGp_BkReset()
-	if savedbk == nil then return end
+	if not bkcur then return end
 	
-	pumpmsg(4112, 5, 1)
-	
-	editor:MarkerDeleteAll(10)
-	for i,v in ipairs(savedbk) do
-		pumpmsg(4112, 1, v)
+	local bkstr = {}
+	for file, lines in pairs(bkall) do
+		local bklines = {}
+		for line in pairs(lines) do
+			table.insert(bklines, line+1)
+		end
+		table.insert(bkstr, file .. "|" .. table.concat(bklines, " "))
 	end
 	
-	postmsg(4112, 5, 0)
-	
-	savedbk = nil
+	-- Send all filenames|breakpoints as a single string
+	pumpmsgstr(4112, 5, table.concat(bkstr, "\n"))
 end
 
 function DBGp_Disconnect()
@@ -197,9 +221,8 @@ function DBGp_Disconnect()
 	u = pumpmsg(4112, 255, 0)
 	if u == 0 then return false end
 	
-	--editor.MarginSensitiveN[1] = false
 	prepared = false
-	ClearAllMarkers()
+	ClearCurrentLineMarkers()
 end
 
 function DBGp_Inspect()
@@ -476,8 +499,6 @@ end
 -- Script Backup Function --
 -- ====================== --
 
--- this functions creates backups for the files
-
 function OnBeforeSave(filename)
 	-- This function only works with the AutoHotkey lexer
 	if not InAHKLexer() then return false end
@@ -486,6 +507,12 @@ function OnBeforeSave(filename)
 		os.remove(filename .. ".bak")
 		os.rename(filename, filename .. ".bak")
 	end
+	
+	-- Also update breakpoints.  It's called from here and not OnSave
+	-- because OnBeforeSave is more reliable.  OnSave is not called if
+	-- the file is saved asynchronously and some other file is active
+	-- when it completes (this happens with save.all.for.build=1).
+	UpdateBreakpoints()
 end
 
 -- ============= --
@@ -627,8 +654,7 @@ function SetMarkerColors()
 	editor.MarkerAlpha[12] = 32
 end
 
-function ClearAllMarkers()
-	--editor:MarkerDeleteAll(10)
+function ClearCurrentLineMarkers()
 	editor:MarkerDeleteAll(11)
 	editor:MarkerDeleteAll(12)
 end

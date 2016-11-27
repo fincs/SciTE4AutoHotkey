@@ -1,6 +1,6 @@
-/* DBGp client functions - v1.0
+﻿/* DBGp client functions - v1.1
  *  Enables scripts to debug other scripts via DBGp.
- *  Requires AutoHotkey_L v1.1.09+
+ *  Requires AutoHotkey v1.1.21+
  */
 
 /*
@@ -40,12 +40,20 @@ class DBGp_Session
 ;internal:
     static OnBegin, OnBreak, OnStream, OnEnd
     static sockets := {}
+    static callQueue := []
     responseQueue := []
     handlers := {}
     lastID := 0
     __New() {
         ObjSetCapacity(this, "buf", 4096)
         this.bufLen := 0
+    }
+    class WaitHandler {
+        static Call := Func("_DBGp_WaitHandler_Call")
+    }
+    class QueueHandler {
+        static Call := Func("_DBGp_QueueHandler_Call")
+        static __New := Func("_DBGp_QueueHandler_New")
     }
 }
 
@@ -82,27 +90,31 @@ DBGp_StartListening(localAddress="127.0.0.1", localPort=9000)
 }
 
 ; Set the function to be called when a debugger connection is accepted.
-DBGp_OnBegin(function_name)
+DBGp_OnBegin(fn)
 {
-    DBGp_Session.OnBegin := function_name ; Subject to change.
+    ; Subject to change - do not use this property directly:
+    DBGp_Session.OnBegin := fn ? new DBGp_Session.QueueHandler(fn) : ""
 }
 
 ; Set the function to be called when a response to a continuation command is received.
-DBGp_OnBreak(function_name)
+DBGp_OnBreak(fn)
 {
-	DBGp_Session.OnBreak := function_name ; Subject to change.
+    ; Subject to change - do not use this property directly:
+    DBGp_Session.OnBreak := fn ? new DBGp_Session.QueueHandler(fn) : ""
 }
 
 ; Set the function to be called when a stream packet is received.
-DBGp_OnStream(function_name)
+DBGp_OnStream(fn)
 {
-	DBGp_Session.OnStream := function_name ; Subject to change.
+    ; Subject to change - do not use this property directly:
+    DBGp_Session.OnStream := fn ? new DBGp_Session.QueueHandler(fn) : ""
 }
 
 ; Set the function to be called when a debugger connection is lost.
-DBGp_OnEnd(function_name)
+DBGp_OnEnd(fn)
 {
-	DBGp_Session.OnEnd := function_name ; Subject to change.
+    ; Subject to change - do not use this property directly:
+    DBGp_Session.OnEnd := fn ? new DBGp_Session.QueueHandler(fn) : ""
 }
 
 ; Stops listening for debugger connections. Does not disconnect debuggers, but prevents more debuggers from connecting.
@@ -116,19 +128,21 @@ DBGp(session, command, args="", ByRef response="")
 {
     response := ""
     
+    handler := ""
     ; If OnBreak has been set and this is a continuation command,
     ; call OnBreak when the response is received instead of waiting.
     if InStr(" run step_into step_over step_out ", " " command " ")
         handler := DBGp_Session.OnBreak
-    else
-        handler := ""
+    if wait := !handler
+        handler := new DBGp_Session.WaitHandler
     
-	if (r := DBGp_Send(session, command, args, handler)) = 0
+    if (r := _DBGp_SendEx(session, command, args, handler)) = 0
 	{
-        if !handler
+        if wait
         {
+            handler.cmd := command ;dbg
             ; Wait for and return a response.
-            r := DBGp_Receive(session, response)
+            r := _DBGp_WaitHandler_Wait(handler, session, response)
         }
 	}
 	return r
@@ -136,6 +150,13 @@ DBGp(session, command, args="", ByRef response="")
 
 ; Send a command.
 DBGp_Send(session, command, args="", responseHandler="")
+{
+    if responseHandler
+        responseHandler := new DBGp_Session.QueueHandler(responseHandler)
+    return _DBGp_SendEx(session, command, args, responseHandler)
+}
+
+_DBGp_SendEx(session, command, args, responseHandler)
 {
 	; Format command line (insert -i transaction_id).
 	transaction_id := ++session.lastID
@@ -149,33 +170,23 @@ DBGp_Send(session, command, args="", responseHandler="")
 	
     ; Set the handler first to avoid a possible race condition.
     if responseHandler
-        session.handlers[session.lastID] := responseHandler
+        session.handlers[transaction_id] := responseHandler
 	
-    ; D("# " packet)
-    
 	if DllCall("ws2_32\send", "ptr", session.Socket, "ptr", &packetData, "int", packetLen, "int", 0) = -1
     {
         ; Remove the handler, since it is unlikely to be called. This
         ; may be unnecessary since it's likely the session is ending.
         if responseHandler
-            session.handlers.Remove(session.lastID, "")
+            session.handlers.Delete(transaction_id)
 		return DBGp_WSAE()
     }
 	return 0
 }
 
-; Receive an XML message packet.
+; Retrieve the next <response/>.
 DBGp_Receive(session, ByRef packet)
 {
-    WasCritical := A_IsCritical
-    Critical Off ; Must be Off to allow data to be received.
-	while !session.responseQueue.MaxIndex()
-        Sleep 10
-    Critical % WasCritical
-    packet := session.responseQueue.Remove(1)
-	if RegExMatch(packet, "<error\s+code=""\K.*?(?="")", DBGp_error_code)
-		return DBGp_E(DBGp_error_code)
-	return 0 ; Success.
+    return _DBGp_WaitHandler_Wait(session.responseQueue, session, packet)
 }
 
 
@@ -327,8 +338,6 @@ DBGp_HandleWindowMessage(hwnd, uMsg, wParam, lParam)
 		if s = -1
 			return 0, DBGp_WSAE()
         
-        ; D("# accept " s " from " wParam)
-		
 		; Create object to store information about this debugging session.
         session := new DBGp_Session
         session.Socket := s
@@ -345,17 +354,10 @@ DBGp_HandleWindowMessage(hwnd, uMsg, wParam, lParam)
 	else if (event = FD_CLOSE) ; Connection closed.
 	{
 		if !(session := DBGp_FindSessionBySocket(wParam))
-        {
-            ; D("- no session for socket " wParam)
             return 0
-        }
-        
-        ; Abort any current DBGp_Receive() call:
-        session.responseQueue.Insert("<response><error code=""999""/></response>")
         
         DBGp_CallHandler(DBGp_Session.OnEnd, session)
         
-        ; D("# close socket " wParam)
         DBGp_RemoveSession(session), session.Socket := -1
         DllCall("ws2_32\closesocket", "ptr", wParam)
 	}
@@ -476,32 +478,66 @@ DBGp_HandleIncomingData(session)
 
 DBGp_CallHandler(handler, session="", ByRef packet="")
 {
-    ; This must be done to allow data to be received while the handler
-    ; is running (i.e. in case the handler sends a dbgp command):
-    Critical Off
-    
-    ; This function was originally going to execute the handler in a
-    ; separate thread via a timer, but that idea was abandoned due to
-    ; unreliability.  Instead, we just turn Critical Off before calling
-    ; this function.  An alternative would be to execute a new thread
-    ; via a callback, but that seems unnecessary at this point.
-    %handler%(session, packet)
+    handler.Call(session, packet)
+}
+
+_DBGp_QueueHandler_Call(handler, session, ByRef packet)
+{
+    DBGp_Session.callQueue.Push([handler.fn, session, packet])
+    ; Using a single timer ensures that each handler finishes before
+    ; the next is called, and that each runs in its own thread.
+    SetTimer _DBGp_DispatchTimer, -1
+}
+
+_DBGp_DispatchTimer()
+{
+    ; Call exactly one handler per new thread.
+    if next := DBGp_Session.callQueue.RemoveAt(1)
+        fn := next[1], %fn%(next[2], next[3])
+    ; If the queue is not empty, reset the timer.
+    if DBGp_Session.callQueue.Length()
+        SetTimer _DBGp_DispatchTimer, -1
+}
+
+_DBGp_QueueHandler_New(handler, fn)
+{
+    handler.fn := IsObject(fn) ? fn : Func(fn)
+}
+
+_DBGp_WaitHandler_Call(handler, session, ByRef response)
+{
+    ObjPush(handler, response)
+}
+
+_DBGp_WaitHandler_Wait(handler, session, ByRef response)
+{
+    WasCritical := A_IsCritical
+    Critical Off ; Must be Off to allow data to be received.
+    while !ObjLength(handler)
+    {
+        if session.Socket = -1
+            return DBGp_E("Disconnected")
+        Sleep 10
+    }
+    Critical % WasCritical
+    response := ObjRemoveAt(handler, 1)
+    if RegExMatch(response, "<error\s+code=""\K.*?(?="")", DBGp_error_code)
+        return DBGp_E(DBGp_error_code)
+    return 0 ; Success.
 }
 
 DBGp_HandleResponsePacket(session, ByRef packet)
 {
-    ; D("# " (StrLen(packet) < 1000 ? packet : SubStr(packet,1,500) " ... " SubStr(packet,-499)))
     if RegExMatch(packet, "(?<=\btransaction_id="").*?(?="")", transaction_id)
-        && (handler := session.handlers[transaction_id])
+        && (handler := session.handlers.Delete(transaction_id))
     {
         ; Call the callback previously set for this transaction.
-        session.handlers.Remove(transaction_id, "")
         DBGp_CallHandler(handler, session, packet)
     }
     else
     {
         ; Append the packet to the queue, for DBGp_Receive().
-        session.responseQueue.Insert(packet)
+        session.responseQueue.Push(packet)
     }
 }
 
@@ -536,7 +572,7 @@ DBGp_AddSession(session)
 ; Internal: Remove disconnecting session from list.
 DBGp_RemoveSession(session)
 {
-    DBGp_Session.sockets.Remove(session.Socket, "")
+    DBGp_Session.sockets.Delete(session.Socket)
 }
 
 ; Internal: Find session structure given its socket handle.
@@ -562,7 +598,6 @@ DBGp_WSAE(n="")
 {
 	if (n = "")
 		n := DllCall("ws2_32\WSAGetLastError")
-	; D("WSAE " n)
     if n
 		ErrorLevel=WSAE:%n%
 	else
@@ -572,7 +607,6 @@ DBGp_WSAE(n="")
 ; Internal: Sets ErrorLevel then returns an empty string or DBGp error code.
 DBGp_E(n)
 {
-    ; D("E " n)
 	ErrorLevel := n
 	if ErrorLevel is integer
 		return ErrorLevel ; Return DBGp error code.

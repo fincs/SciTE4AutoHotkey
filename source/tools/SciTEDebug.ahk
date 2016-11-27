@@ -83,12 +83,27 @@ else
 	}
 }
 
-; Get the HWND of SciTE and its Scintilla control
+; Get the HWND of SciTE and its Scintilla controls
 scitehwnd := oSciTE.SciTEHandle
 ControlGet, scintillahwnd, Hwnd,, Scintilla1, ahk_id %scitehwnd%
+ControlGet, sciOutputHwnd, Hwnd,, Scintilla2, ahk_id %scitehwnd%
+
+; Initialize output pane and related variables
+sciOutputCP := oSciTE.ResolveProp("output.code.page")
+if (sciOutputCP = "") ; This means "use the current file's codepage".
+{
+	SendMessage 2137, 0, 0,, ahk_id %sciOutputHwnd% ; SCI_GETCODEPAGE
+	sciOutputCP := ErrorLevel
+}
+if oSciTE.ResolveProp("clear.before.execute")
+	SendMessage, 2004, 0, 0,, ahk_id %sciOutputHwnd% ; SCI_CLEARALL
+ControlGetPos, ,,, outputHeight,, ahk_id %sciOutputHwnd%
+if !outputHeight ; Output pane not visible
+	SendMessage 0x111, 409, 0,, ahk_id %scitehwnd% ; Toggle output pane
 
 ; Get the SciTE path
 SciTEPath := oSciTE.SciTEDir
+SciTEUserHome := oSciTE.ResolveProp("SciteUserHome")
 
 ; Get the script to debug
 szFilename := !bIsAttach ? oSciTE.CurrentFile : SelectAttachScript(AttachWin, Dbg_PID)
@@ -116,14 +131,14 @@ Gui, Show, Hide, SciTEDebugStub ; create a dummy GUI that SciTE will speak to
 ; Run SciTE
 WinActivate, ahk_id %scitehwnd%
 Hotkey, ^!z, CancelSciTE
-ToolTip, Waiting for SciTE to connect...`nPress Ctrl-Alt-Z to cancel
+SciTE_Output("> Waiting for SciTE to connect...  Press Ctrl-Alt-Z to cancel")
 SciTEConnected := false
 OnMessage(ADM_SCITE, "SciTEMsgHandler")
 SciTE_Connect()
 Hotkey, ^!z, Off
 
 ; Run AutoHotkey and wait for it to connect
-ToolTip, Waiting for AutoHotkey to connect...
+SciTE_Output("> Waiting for AutoHotkey to connect...", true)
 
 ; Initialize variables
 Dbg_OnBreak := true
@@ -133,9 +148,11 @@ Dbg_ExitByDisconnect := false
 Dbg_ExitByGuiClose := false
 Dbg_WaitClose := false
 Dbg_StackTraceWin := false
-Dbg_VarWin := false
 Dbg_StreamWin := false
 Dbg_BkList := []
+Dbg_Ini := SciTEUserHome "\SciTEDebug.ini"
+
+SetDvOwnerWindow()
 
 ; Set the DBGp event handlers
 DBGp_OnBegin("OnDebuggerConnection")
@@ -182,7 +199,6 @@ if !Dbg_AHKExists
 if Dbg_Lang != AutoHotkey
 {
 	; Oops, wrong language, we've got to exit again
-	ToolTip
 	MsgBox, 16, %g_appTitle%, Invalid language: %Dbg_Lang%.
 
 	Dbg_ExitByDisconnect := true ; tell our message handler to just return true without attempting to exit
@@ -192,17 +208,18 @@ if Dbg_Lang != AutoHotkey
 	ExitApp ; exit
 }
 
-; Show the splash
-ToolTip, Ready to debug!
-SetTimer, RemoveTooltip, -250
+; Update status in output pane
+SciTE_Output("> Debugging " szFilename "`n", true)
 
 ; Reset saved breakpoints
-PostMessage, 0x111, 1135, 0,, ahk_id %scitehwnd%
+SendMessage, 0x111, 1135, 0,, ahk_id %scitehwnd%
+
+; Restore variable list/inspector windows
+LoadDvWindows()
 
 ; Main loop
 while !Dbg_IsClosing ; while the debugger is active
 {
-	Sleep, 100 ; do I really need to repeat the smashing comment over and over?
 	IfWinNotExist, ahk_id %scitehwnd% ; oops, the user closed the SciTE window
 	{
 		if !Dbg_ExitByDisconnect
@@ -215,12 +232,17 @@ while !Dbg_IsClosing ; while the debugger is active
 		SciTE_Disconnect()
 		break
 	}
+	; Sleep *after* the above checks, not before, so Dbg_IsClosing is
+	; checked first and SciTE_Disconnect() is called only once on Stop.
+	Sleep, 100
 }
 if Dbg_ExitByGuiClose ; we've got to tell SciTE that we are leaving
 {
 	Dbg_ExitByDisconnect := true ; tell our message handler to just return true without attempting to exit
 	SciTE_Disconnect()
 }
+SaveDvWindows()
+SciTE_Output("> Debugging stopped`n")
 OnMessage(ADM_SCITE, "") ; disable the SciTE message handler
 OnExit ; disable the OnExit trap
 ExitApp
@@ -228,10 +250,6 @@ ExitApp
 CancelSciTE:
 OnExit
 ExitApp
-
-RemoveTooltip:
-ToolTip
-return
 
 ;}
 
@@ -317,10 +335,7 @@ else
 	goto cmd_pause
 
 cmd_run:
-if !Dbg_OnBreak
-	return
-SciTE_DeleteCurLineMarkers()
-DBGp_CmdRun(Dbg_Session)
+Dbg_Continue("run")
 return
 
 cmd_pause:
@@ -361,26 +376,17 @@ goto GuiClose
 
 F10::
 cmd_stepinto:
-if !Dbg_OnBreak
-	return
-SciTE_DeleteCurLineMarkers()
-DBGp_CmdStepInto(Dbg_Session)
+Dbg_Continue("step_into")
 return
 
 F11::
 cmd_stepover:
-if !Dbg_OnBreak
-	return
-SciTE_DeleteCurLineMarkers()
-DBGp_CmdStepOver(Dbg_Session)
+Dbg_Continue("step_over")
 return
 
 +F11::
 cmd_stepout:
-if !Dbg_OnBreak
-	return
-SciTE_DeleteCurLineMarkers()
-DBGp_CmdStepOut(Dbg_Session)
+Dbg_Continue("step_out")
 return
 
 cmd_stacktrace:
@@ -396,10 +402,20 @@ ST_Create()
 return
 
 cmd_varlist:
-if Dbg_VarWin || (!Dbg_OnBreak && !bIsAsync)
+if (!Dbg_OnBreak && !bIsAsync)
 	return
-VL_Create()
+cmd_varlist(Dbg_VarListWin)
 return
+
+cmd_varlist(ByRef dv)
+{
+	global Dbg_Session, scitehwnd
+	if !dv
+		dv := new DebugVarsGui(new Dv2ContextsNode(Dbg_Session))
+	else
+		dv.Refresh()
+	dv.Show()
+}
 
 ;}
 
@@ -408,7 +424,8 @@ return
 SciTEMsgHandler(wParam, lParam, msg, hwnd)
 {
 	Critical
-	global scintillahwnd, SciTEConnected, Dbg_ExitByDisconnect, Dbg_Session, Dbg_IsClosing, Dbg_WaitClose, Dbg_OnBreak, bIsAsync, bInitBk, InitBkList
+	global scintillahwnd, SciTEConnected, Dbg_ExitByDisconnect, Dbg_Session
+		, Dbg_IsClosing, Dbg_WaitClose, Dbg_OnBreak, bIsAsync, InitBkList
 	
 	; This code used to be a big if/else if block. I've changed it to this pseudo-switch structure.
 	if IsLabel("_wP" wParam)
@@ -424,13 +441,9 @@ _wP1: ; Breakpoint setting
 	if !bIsAsync && !Dbg_OnBreak
 		return true
 	
-	if !bInitBk
-	{
-		; We need to launch the breakpoint setting code in a separate thread due to usage of COM
-		global _temp := lParam + 1 ; convert line number from 0-based to 1-based
-		SetTimer, SetBreakpointHelper, -10
-	} else
-		InitBkList.Insert(lParam + 1)
+	; We need to launch the breakpoint setting code in a separate thread due to usage of COM
+	global _temp := StrGet(lParam, "UTF-8")
+	SetTimer, SetBreakpointHelper, -10
 	return true
 	
 _wP2: ; Variable inspection
@@ -440,28 +453,10 @@ _wP2: ; Variable inspection
 		return false
 	}
 	
-	Dbg_VarName := Trim(StrGet(lParam, "UTF-8"), " `t`r`n=")
+	p := StrSplit(StrGet(lParam, "UTF-8"), Chr(1))
+	Dbg_VarName := p.Length()==1 ? p[1] : PropertyNameFromWord(p*)
 	
-	; Allow retrieving immediate children for object values
-	SetEnableChildren(true)
-	Dbg_Session.property_get("-n " Dbg_VarName, Dbg_Response)
-	SetEnableChildren(false)
-	dom := loadXML(Dbg_Response)
-	
-	Dbg_NewVarName := dom.selectSingleNode("/response/property/@name").text
-	if Dbg_NewVarName = (invalid)
-	{
-		MsgBox, 48, %g_appTitle%, Invalid variable name: %Dbg_VarName%
-		return false
-	}
-	if dom.selectSingleNode("/response/property/@type").text != "Object"
-	{
-		Dbg_VarIsReadOnly := dom.selectSingleNode("/response/property/@facet").text = "Builtin"
-		Dbg_VarData := DBGp_Base64UTF8Decode(dom.selectSingleNode("/response/property").text)
-		VE_Create(Dbg_VarName, Dbg_VarData, Dbg_VarIsReadOnly)
-	}else
-		OE_Create(dom)
-	
+	DvInspectProperty(Dbg_Session, Dbg_VarName)
 	return true
 
 _wP3: ; Command
@@ -475,34 +470,55 @@ _wP4: ; Hovering
 	if !bIsAsync && !Dbg_OnBreak
 		return true
 	
-	Dbg_VarName := Trim(StrGet(lParam, "UTF-8"), " `t`r`n")
-	if Dbg_VarName =
-		ToolTip
-	else
+	lParam := StrGet(lParam, "UTF-8")
+	if lParam =
 	{
-		Dbg_Session.property_get("-m 200 -n " Dbg_VarName, Dbg_Response)
-		dom := loadXML(Dbg_Response)
-		check := dom.selectSingleNode("/response/property/@name").text
-		if check = (invalid)
-			return true
-		if dom.selectSingleNode("/response/property/@type").text != "Object"
+		ToolTip
+		return true
+	}
+	try propName := PropertyNameFromWord(StrSplit(lParam, Chr(1))*)
+	if propName !=
+	{
+		Dbg_Session.property_get("-m 200 -n " propName, response)
+		prop := loadXML(response).selectSingleNode("/response/property")
+		propType := prop.getAttribute("type")
+		if (propType = "undefined")
 		{
-			Dbg_VarData := DBGp_Base64UTF8Decode(dom.selectSingleNode("/response/property").text)
-			Dbg_VarSize := dom.selectSingleNode("/response/property/@size").text
-			if Dbg_VarSize > 200
-				Dbg_VarData .= "..."
-			ToolTip, %Dbg_VarName% = %Dbg_VarData%
-		}else
-			ToolTip, %Dbg_VarName% is an object
+			if prop.getAttribute("encoding") ; This is a bit of a hack...
+				ToolTip, %propName% is uninitialized
+			; Other properties actually don't exist.
+			; else ToolTip, %propName% is undefined
+		}
+		else if (propType = "object")
+		{
+			propClass := prop.getAttribute("classname")
+			propClass := ((propClass ~= "i)^[aeiou]") ? "an " : "a ") propClass
+			ToolTip, %propName% is %propClass%
+		}
+		else
+		{
+			propData := DBGp_Base64UTF8Decode(prop.text)
+			propSize := prop.getAttribute("size")
+			if propSize > 200
+				propData .= "..."
+			ToolTip, %propName% = %propData%
+		}
 	}
 	return true
 	
 _wP5: ; Breakpoint initialization
-	bInitBk := lParam
-	if !bInitBk
-		SetTimer, InitBreakpoints, -10
-	else
-		InitBkList := []
+	bkfile := ""
+	bklines := ""
+	bkstring := StrGet(lParam, "UTF-8")
+	InitBkList := {}
+	Loop, Parse, bkstring, `n
+	{
+		bkpart := StrSplit(A_LoopField, "|")  ; filename|breakpoints
+		InitBkList[bkpart[1]] := bk := []
+		Loop, Parse, % bkpart[2], % A_Space
+			 bk[A_LoopField] := true
+	}
+	SetTimer, InitBreakpoints, -10
 	return true
 
 _wP255: ; Disconnect
@@ -519,42 +535,208 @@ _wP255: ; Disconnect
 	return true
 }
 
-SetEnableChildren(v)
+PropertyNameFromWord(line, wordpos, wordlen)
 {
+	name := SubStr(line, wordpos, wordlen)
+	i := wordpos
+	while (i > 1 && SubStr(line, i-1, 1) == ".")
+	{
+		--i
+		name := "." name
+		if (i > 1 && SubStr(line, i-1, 1) == "]")
+		{
+			i := FindLeftBracket(line, i-1, "[")
+			if !i
+				return
+		}
+		i := RegExMatch(SubStr(line, 1, i-1), "(?:[\w#@$]|[^\x00-\x7F])+(?=[ \t]*$)", m)
+		if !i
+			return
+		name := m name
+	}
+	return PropertyNameFromCode(SubStr(line, i), wordpos-i + wordlen)
+}
+
+PropertyNameFromCode(s, wordend)
+{
+	name := PropertyNameEval(s, i := 1, wordend)
+	if (i <= wordend)
+		throw Exception("Parse error",, SubStr(s,i))
+	return name
+}
+
+PropertyNameEval(s, ByRef i, wordend:="")
+{
+	name := ""
+	while i <= StrLen(s)
+	{
+		ch := SubStr(s, i, 1)
+		if InStr(" `t", ch)
+		{
+			i += 1
+			continue
+		}
+		if (ch == "[" && name != "")
+		{
+			Loop
+			{
+				index := PropertyNameEval(s, ++i)
+				expr := PropertyIndexEval(index)
+				if (expr = "")
+					throw Exception("Array index eval failed",, index)
+				name .= expr
+				
+				ch := SubStr(s,i,1)
+				if (ch == "]")
+				{
+					++i
+					break
+				}
+				if (ch != ",")
+					throw Exception("Parse error",, SubStr(s,i))
+			}
+		}
+		; The placement of this check decides what kind of expressions
+		; to the right of the hovered word get included/excluded:
+		if (wordend != "" && i > wordend)
+			break
+		if RegExMatch(s, (name == "" ? "\G" : "\G\.")
+			. "(?:[\w#@$]|[^\x00-\x7F])+", m, i)
+		{
+			name .= m
+			i += StrLen(m)
+			continue
+		}
+		if (name == "" && InStr("""'", ch))
+		{
+			value := ParseQuotedString(s, i, ch)
+			StringReplace value, value, `", "", All
+			value = ["%value%"]
+			i += StrLen(m)
+			return value
+		}
+		break
+	}
+	return name
+}
+
+PropertyIndexEval(prop_name)
+{
+	if SubStr(prop_name,1,2) = "["""
+		return prop_name
+	if prop_name is integer
+		return "[" prop_name "]"
+	if prop_name is float
+		return "[""" prop_name """]"
 	global Dbg_Session
-	if v
+	Dbg_Session.property_get("-m 200 -n " prop_name, response)
+	prop := loadXML(response).selectSingleNode("/response/property")
+	if !prop
+		|| prop.getAttribute("name") = "(invalid)" ; Invalid - abort.
+		|| prop.getAttribute("size") > 200 ; Truncated - don't query (the wrong) property.
+		return
+	if prop.getAttribute("type") = "object"
+		return "Object(" prop.getAttribute("address") ")"
+	value := DBGp_Base64UTF8Decode(prop.text)
+	if value is integer
+		return "[" value "]"
+	; The debugger uses "" to mean a literal quote, even on v2,
+	; and does not recognize escape sequences.
+	StringReplace value, value, `", "", All
+	return "[""" value """]"
+}
+
+ParseQuotedString(s, ByRef i, q)
+{
+	value := ""
+	while ++i <= StrLen(s)
 	{
-		Dbg_Session.feature_set("-n max_children -v " dbgMaxChildren)
-		Dbg_Session.feature_set("-n max_depth -v 1")
-	}else
+		ch := SubStr(s,i,1)
+		if (ch == "``")
+		{
+			++i
+			Transform ch, Deref, % ch SubStr(s,i,1)
+		}
+		else if (ch == q)
+		{
+			++i
+			if (SubStr(s,i,1) != q)
+				return value
+		}
+		value .= ch
+	}
+	throw Exception("Missing " q,, s)
+}
+
+FindLeftQuote(s, i, q)
+{
+	--i
+	while i >= 1
 	{
-		Dbg_Session.feature_set("-n max_children -v 0")
-		Dbg_Session.feature_set("-n max_depth -v 0")
+		if (SubStr(s, i, 1) == q)
+		{
+			ch := SubStr(s, i-1, 1)
+			if (ch != "``" and ch != q)
+				return i
+			; TODO: Detect percent signs in v2
+			--i ; Skip the escape char/first quote in the pair.
+		}
+		--i
 	}
 }
 
+FindLeftBracket(s, i, b)
+{
+	--i
+	while i >= 1
+	{
+		ch := SubStr(s, i, 1)
+		if (ch == b)
+			return i
+		else if (ch == "]")
+			i := FindLeftBracket(s, i, "[")
+		else if SubStr(s, i-1, 1) != "``" && InStr("""'", ch)
+			i := FindLeftQuote(s, i, ch)
+		--i
+	}
+}
+
+SetEnableChildren(v)
+{
+	global Dbg_Session
+	Dbg_Session.feature_set("-n max_depth -v " (v ? 1 : 0))
+}
+
 SetBreakpointHelper:
-SetBreakpoint(_temp)
+SetBreakpoint(StrSplit(_temp,"|")*)
 return
 
-InitBreakpoints:
-for _, line in InitBkList
-	SetBreakpoint(line)
-InitBkList := ""
+InitBreakpoints()
+{
+	global InitBkList
+	for filepath, lines in InitBkList
+		for line in lines
+			SetBreakpoint(filepath, line)
+	InitBkList := ""
+}
+
 return
 
-SetBreakpoint(lParam)
+SetBreakpoint(filepath, lParam, state:=1)
 {
 	global Dbg_Session, bInBkProcess
 	
-	uri := DBGp_EncodeFileURI(file := SciTE_GetFile())
+	uri := DBGp_EncodeFileURI(filepath)
 	bk := Util_GetBk(uri, lParam)
-	if bk
+	if ((bk != "") == (state != 0))
+		return  ; Breakpoint already in the right state
+	if (state = 0)  ; Remove (implies bk != "")
 	{
 		Dbg_Session.breakpoint_remove("-d " bk.id)
-		SciTE_BPSymbolRemove(lParam)
 		Util_RemoveBk(uri, lParam)
-	}else
+		; SciTE_BPSymbolRemove(lParam)  ; Done by ahk.lua.  See below.
+	}
+	else  ; Add (implies bk == "")
 	{
 		bInBkProcess := true
 		Dbg_Session.breakpoint_set("-t line -n " lParam " -f " uri, Dbg_Response)
@@ -565,10 +747,16 @@ SetBreakpoint(lParam)
 		}
 		dom := loadXML(Dbg_Response)
 		bkID := dom.selectSingleNode("/response/@id").text
+		/*
+		; This is currently disabled because the new line number would need
+		; to be communicated back to ahk.lua.  We don't simply set the marker
+		; here, as that would only work for the current file (it would also
+		; require ahk.lua to adjust its records based on the markers).
 		Dbg_Session.breakpoint_get("-d " bkID, Dbg_Response)
 		dom := loadXML(Dbg_Response)
 		lParam := dom.selectSingleNode("/response/breakpoint[@id=" bkID "]/@lineno").text
 		SciTE_BPSymbol(lParam)
+		*/
 		Util_AddBkToList(uri, lParam, bkID)
 		bInBkProcess := false
 	}
@@ -671,6 +859,7 @@ OnDebuggerConnection(session, init)
 	Dbg_Lang := dom.selectSingleNode("/init/@language").text
 	session.property_set("-n A_DebuggerName -- " DBGp_Base64UTF8Encode("SciTE4AutoHotkey"))
 	session.feature_set("-n max_data -v " dbgMaxData)
+	session.feature_set("-n max_children -v " dbgMaxChildren)
 	SetEnableChildren(false)
 	if dbgCaptureStreams
 	{
@@ -685,7 +874,7 @@ OnDebuggerConnection(session, init)
 ; OnDebuggerBreak() - fired when we receive an asynchronous response from the debugger (including break responses).
 OnDebuggerBreak(session, ByRef response)
 {
-	global Dbg_OnBreak, Dbg_Stack, Dbg_LocalContext, Dbg_GlobalContext, Dbg_VarWin, bInBkProcess, _tempResponse
+	global Dbg_OnBreak, bInBkProcess, _tempResponse
 	if bInBkProcess
 	{
 		; A breakpoint was hit while the script running and the SciTE OnMessage thread is
@@ -705,7 +894,8 @@ OnDebuggerBreak(session, ByRef response)
 		Dbg_GetStack()
 		SciTE_UpdateCurLineOfCode()
 		ST_Update()
-		VL_Update()
+		; Update variable lists and object inspectors
+		DvRefreshAll()
 	}
 }
 
@@ -718,8 +908,10 @@ OnDebuggerStream(session, ByRef stream)
 {
 	dom := loadXML(stream)
 	type := dom.selectSingleNode("/stream/@type").text
-	data := DBGp_Base64UTF8Decode(dom.selectSingleNode("/stream").text)
-	SP_Output(type, data)
+	; Base64-decode but leave as UTF-8:
+	DBGp_StringToBinary(data, dom.selectSingleNode("/stream").text, 1)
+	VarSetCapacity(data, -1)
+	SciTE_OutputUTF8(data)
 }
 
 ; OnDebuggerDisconnection() - fired when the debugger disconnects.
@@ -737,57 +929,20 @@ OnDebuggerDisconnection(session)
 
 ;}
 
-;{ Wrappers for DBGp Commands that set Dbg_OnBreak
+;{ Wrapper for DBGp Commands that set Dbg_OnBreak
 
-DBGp_CmdRun(a)
+Dbg_Continue(cmd)
 {
 	global
+	if !Dbg_OnBreak
+		return
+	SciTE_DeleteCurLineMarkers()
 	ErrorLevel = 0
 	Dbg_OnBreak := false
 	Dbg_HasStarted := true
-	a.run()
+	Dbg_Session[cmd]()
 	SciTE_ToggleRunButton()
 	VE_Close()
-	OE_Close()
-	ST_Clear()
-}
-
-DBGp_CmdStepInto(a)
-{
-	global
-	ErrorLevel = 0
-	Dbg_OnBreak := false
-	Dbg_HasStarted := true
-	a.step_into()
-	SciTE_ToggleRunButton()
-	VE_Close()
-	OE_Close()
-	ST_Clear()
-}
-
-DBGp_CmdStepOver(a)
-{
-	global
-	ErrorLevel = 0
-	Dbg_OnBreak := false
-	Dbg_HasStarted := true
-	a.step_over()
-	SciTE_ToggleRunButton()
-	VE_Close()
-	OE_Close()
-	ST_Clear()
-}
-
-DBGp_CmdStepOut(a)
-{
-	global
-	ErrorLevel = 0
-	Dbg_OnBreak := false
-	Dbg_HasStarted := true
-	a.step_out()
-	SciTE_ToggleRunButton()
-	VE_Close()
-	OE_Close()
 	ST_Clear()
 }
 
@@ -881,325 +1036,96 @@ Dbg_GetStack()
 
 ;}
 
-;{ Variable Inspection Window
+;{ Variable Lists, Variable and Object Inspection
 
-VE_Create(name, ByRef cont, readonly := 0)
+#Include <DebugVarsGui>
+
+SetDvOwnerWindow()
 {
-	global
-	local VE_LF, VE_CRLF
-	
-	VE_Contents=
-	if readonly
-	{
-		readonly = +Disabled
-		readonly2 = +ReadOnly
-	}else
-	{
-		readonly =
-		readonly2 =
-	}
-	Gui 3:Destroy
-	Gui 3:Default
-	VE_BestChoice(VE_LF, VE_CRLF, cont)
-	Gui 3:+ToolWindow +AlwaysOnTop +LabelVEGui +Resize +MinSize -MaximizeBox
-	Gui 3:Add, Text, x8 y8 w80 h16 +Right, Variable name:
-	Gui 3:Add, Text, x92 y8 w236 h16 +Border vVE_VarName, %name%
-	Gui 3:Font, s9, %dbgTextFont%
-	Gui 3:Add, Edit, x8 y32 w320 h240 vVE_Contents hwndVE_Cont_HWND +HScroll %readonly2%, % cont
-	Gui 3:Font
-	Gui 3:Add, Button, x94 y280 w80 h32 gVE_Update %readonly%, Update
-	Gui 3:Add, Radio, x268 y280 w60 h16 Group vVE_LineEnd %VE_LF%, LF
-	Gui 3:Add, Radio, x268 y296 w60 h16 %VE_CRLF%, CR+LF
-	Gui 3:Show, w336 h320, Variable inspection
-	
-	; Don't select all the text when the window is shown
-	SendMessage, 0xB1, 0, 0,, ahk_id %VE_Cont_HWND%
+	fn := Func("ShowDvWindow")
+	DebugVarsGui.Show := fn.Bind(DebugVarsGui.Show)
+	DebugVarGui.Show := fn.Bind(DebugVarGui.Show)
 }
 
-VE_BestChoice(ByRef lf, ByRef crlf, ByRef a)
+ShowDvWindow(show, dv, options:="", title:="")
 {
-	if !InStr(a, "`r`n")
-	{
-		lf = Checked
-		crlf =
-	}else
-	{
-		lf =
-		crlf = Checked
-	}
+	%show%(dv, options, title)
+	global scitehwnd
+	Gui % dv.hGui ":+Owner" scitehwnd " +ToolWindow"
 }
-
-VE_Update:
-GuiControlGet, VE_VarName,, VE_VarName
-Gui, Submit
-VE_Close()
-if VE_LineEnd = 2
-	StringReplace, VE_Contents, VE_Contents, `n, `r`n, All
-Dbg_Session.property_set("-n " VE_VarName " -- " (VE_C2 := DBGp_Base64UTF8Encode(VE_Contents)))
-VarSetCapacity(VE_Contents, 0)
-VL_Update()
-if InStr(VE_VarName, ".") || InStr("VE_VarName", "[")
-	OE_Update(VE_C2)
-VarSetCapacity(VE_C2, 0)
-return
-
-VEGuiClose:
-VE_Close()
-return
 
 VE_Close()
 {
-	Gui 3:Destroy
+	for hwnd, ve in VarEditGui.Instances.Clone()
+		ve.Hide()
 }
 
-VEGuiSize:
-VE_neww := A_GuiWidth - 16
-VE_newh := A_GuiHeight - 80
-VE_initx := A_GuiWidth - 68
-VE_inity := VE_newh + 40
-GuiControl, Move, VE_Contents, w%VE_neww% h%VE_newh%
-GuiControl, Move, Update, % "x" (8+Floor((A_GuiWidth-84)/2)-40) " y" VE_inity
-GuiControl, MoveDraw, LF, x%VE_initx% y%VE_inity%
-GuiControl, MoveDraw, CR+LF, % "x" VE_initx " y" (VE_inity+16)
-return
-
-;}
-
-;{ Variable List Window
-
-VL_Create()
+SaveDvWindows()
 {
-	global
+	global Dbg_Ini, Dbg_VarListWin
 	
-	VL_Destroy()
-	Dbg_VarWin := true
-	Gui 4:+ToolWindow +AlwaysOnTop +LabelVLGui +Resize +MinSize -MaximizeBox
-	Gui 4:Add, ListView, x0 y0 w320 h240 gVL_Inspect vVL_Listview, Scope|Variable name|Contents (partial)
-	VL_Update()
-	Gui 4:Show, w320 h240, Variable list
-}
-
-VL_Update()
-{
-	global
-	if !Dbg_VarWin
-		return
-	; read
-	ToolTip, Updating variable list...
-	Dbg_GetContexts()
-	VL_Local := Util_UnpackNodes(Dbg_LocalContext.selectNodes("/response/property/@name"))
-	VL_Global := Util_UnpackNodes(Dbg_GlobalContext.selectNodes("/response/property/@name"))
-	VL_NVars := VL_Local.MaxIndex() + VL_Global.MaxIndex()
-	VL_LocalCont := Util_UnpackContNodes(Dbg_LocalContext.selectNodes("/response/property"))
-	VL_GlobalCont := Util_UnpackContNodes(Dbg_GlobalContext.selectNodes("/response/property"))
-	; update
-	Gui 4:Default
-	LV_Delete()
-	Loop, % VL_Local.MaxIndex()
-		LV_Add("", "Local", VL_Local[A_Index], VL_LocalCont[A_Index])
-	Loop, % VL_Global.MaxIndex()
-		LV_Add("", "Global", VL_Global[A_Index], VL_GlobalCont[A_Index])
-	ToolTip
-}
-
-VL_ShortCont(a)
-{
-	if pos := InStr(a, "`n")
-		a := Trim(SubStr(a, 1, pos-1), "`r") "..."
-	if StrLen(a) = 65
-		a .= "..."
-	return a
-}
-
-VL_Destroy()
-{
-	global
-	Gui 4:Destroy
-	Dbg_VarWin := false
-}
-
-VL_Inspect:
-if !bIsAsync && !Dbg_OnBreak
-{
-	MsgBox, 48, %g_appTitle%, You can't inspect a variable while the script is running!
-	return
-}
-if A_GuiEvent != DoubleClick
-	return
-LV_GetText(VL_Scope, A_EventInfo, 1)
-VL_Scope := VL_Scope != "Local"
-LV_GetText(VL_VarName, A_EventInfo, 2)
-SetEnableChildren(true)
-Dbg_Session.property_get("-c " VL_Scope " -n " VL_VarName, Dbg_Response)
-SetEnableChildren(false)
-dom := loadXML(Dbg_Response)
-
-if dom.selectSingleNode("/response/property/@type").text != "Object"
-{
-	VL_VarIsReadOnly := dom.selectSingleNode("/response/property/@facet").text = "Builtin"
-	VL_VarData := DBGp_Base64UTF8Decode(dom.selectSingleNode("/response/property").text)
-	VE_Create(VL_VarName, VL_VarData, VL_VarIsReadOnly)
-}else
-	OE_Create(dom)
-dom := ""
-return
-
-VLGuiClose:
-VL_Destroy()
-return
-
-VLGuiSize:
-GuiControl, Move, VL_Listview, w%A_GuiWidth% h%A_GuiHeight%
-return
-
-Dbg_GetContexts()
-{
-	global
+	IniDelete %Dbg_Ini%, Windows ; Clear old list.
 	
-	if !bIsAsync && !Dbg_OnBreak
-		return
-	Dbg_Session.feature_set("-n max_data -v 65")
-	Dbg_Session.context_get("-c 0", Dbg_LocalContext)
-	Dbg_Session.context_get("-c 1", Dbg_GlobalContext)
-	Dbg_Session.feature_set("-n max_data -v " dbgMaxData)
-	Dbg_LocalContext  := loadXML(Dbg_LocalContext)
-	Dbg_GlobalContext := loadXML(Dbg_GlobalContext)
-}
-
-;}
-
-;{ Stream Window
-
-SP_Output(stream, data)
-{
-	global Dbg_StreamWin, SP_Console, SP_ConHWND
-	
-	if !Dbg_StreamWin
+	VarSetCapacity(rect, 16, 0)
+	count := 0
+	windows := VarTreeGui.Instances
+	windows[Dbg_VarListWin.hGui] := Dbg_VarListWin ; Insert (if hidden) or overwrite.
+	for hwnd, dv in windows
 	{
-		Gui 5:Font, s9, %dbgTextFont%
-		Gui 5:+ToolWindow +AlwaysOnTop +LabelSPGui +Resize +MinSize -MaximizeBox
-		Gui 5:Add, Edit, x0 y0 w320 h240 +ReadOnly vSP_Console hwndSP_ConHWND
-		Gui 5:Show, w320 h240, Stream viewer
-		Dbg_StreamWin := true
-	}
-	
-	GuiControlGet, ctext, 5:, SP_Console
-	StringReplace, data, data, `r`n, `n, All
-	IfNotInString, data, `n
-		ctext .= "<" stream "> " data "`n"
-	else
-		ctext .= "<" stream ">:`n" data "`n"
-	ctext := SubStr(ctext, -1023) ; Limit the output to 1 KB of data
-	GuiControl 5:, SP_Console, % ctext
-	SendMessage, 0xB6, 0, 999999,, ahk_id %SP_ConHWND%
-}
-
-SPGuiSize:
-GuiControl, Move, SP_Console, w%A_GuiWidth% h%A_GuiHeight%
-return
-
-SPGuiClose:
-Gui 5:Destroy
-Dbg_StreamWin := false
-return
-
-;}
-
-;{ Object Inspection Window
-
-OE_Create(ByRef objdom)
-{
-	global
-	local root
-	OE_Data := {}
-
-	Gui 6:Destroy
-	Gui 6:Default
-	Gui 6:+ToolWindow +AlwaysOnTop +LabelOEGui +Resize +MinSize -MaximizeBox
-	Gui 6:Add, TreeView, x0 y0 w336 h320 vOE_Tree gOE_Event AltSubmit
-	root := TV_Add(objdom.selectSingleNode("/response/property/@name").text)
-	OE_Add(objdom.selectNodes("/response/property[1]/property"), root)
-	TV_Modify(root, "Expand")
-	Gui 6:Show, w336 h320, Object inspection
-}
-
-OE_Update(ByRef cont)
-{
-	global OE_TempNode
-	OE_TempNode.text := cont
-}
-
-OE_Add(nodes, tnode)
-{
-	global OE_Data
-	Loop, % nodes.length
-	{
-		node := nodes.item[A_Index-1]
-		ttnode := TV_Add(node.attributes.getNamedItem("name").text, tnode)
-		needToLoadChildren := node.attributes.getNamedItem("children").text
-		fullName := node.attributes.getNamedItem("fullname").text
-		nType := node.attributes.getNamedItem("type").text
-		if needToLoadChildren
-			q := TV_Add("{FAIL}", ttnode)
-		OE_Data[ttnode] := { loadC: needToLoadChildren, name: fullName, type: nType, text: node.text, dummyC: q }
+		; Get window type
+		root := dv.TLV.root
+		if (root.base = DvContextNode)
+			type := "context:" root.context
+		else if (root.base = Dv2ContextsNode)
+			type := "variables"
+		/*  ; Currently unused; see LoadDvWindows().
+		else if (root.base = DvPropertyNode)
+			type := "property:" root.fullname
+		*/
+		else
+			continue
+		++count
+		
+		; Save position
+		WinGetPos x, y,,, % "ahk_id " dv.hGui
+		DllCall("GetClientRect", "ptr", dv.hGui, "ptr", &rect)
+		w := NumGet(rect, 8, "int")
+		h := NumGet(rect, 12, "int")
+		opt := DllCall("IsWindowVisible", "ptr", dv.hGui) ? "" : " Hide"
+		IniWrite x%x% y%y% w%w% h%h%%opt%`, %type%, %Dbg_Ini%, Windows, %count%
 	}
 }
 
-OE_Preview(node)
+LoadDvWindows()
 {
-	; TODO
-}
-
-OE_Close()
-{
-	global OE_Data
-	Gui 6:Destroy
-	OE_Data := ""
-}
-
-OE_OnDoubleClick(itemId)
-{
-	global OE_Data
-	node := OE_Data[itemId]
-	fullname := node.name
-	if fullname && node.type != "object"
+	global Dbg_Ini, Dbg_Session, Dbg_VarListWin
+	
+	Loop
 	{
-		cont := DBGp_Base64UTF8Decode(node.text)
-		VE_Create(fullname, cont)
+		IniRead options, %Dbg_Ini%, Windows, %A_Index%
+		if !(p := InStr(options, ","))
+			break
+		type := Trim(SubStr(options, p+1)), options := SubStr(options, 1, p-1)
+		if (type ~= "^context:")
+		{
+			root := new DvContextNode(Dbg_Session, SubStr(type, 9))
+			dv := new DebugVarsGui(root)
+			dv.Show("NA " options)
+		}
+		else if (type == "variables")
+		{
+			root := new Dv2ContextsNode(Dbg_Session)
+			dv := new DebugVarsGui(root)
+			dv.Show("NA " options)
+			Dbg_VarListWin := dv
+		}
+		/*  ; This is unused because properties are generally undefined at
+		    ; this point, and that causes the wrong type of Gui to open.
+		else if (type ~= "^property:")
+			DvInspectProperty(Dbg_Session, SubStr(type, 10),, "NA " options)
+		*/
 	}
 }
-
-OE_OnExpand(itemId)
-{
-	global OE_Data, Dbg_Session
-	node := OE_Data[itemId]
-	if !node.loadC
-		return
-	TV_Modify(A_EventInfo, "-Expand")
-	SetEnableChildren(true)
-	Dbg_Session.property_get("-n " node.name, Dbg_Response)
-	SetEnableChildren(false)
-	dom := loadXML(Dbg_Response)
-	node.loadC := false
-	OE_Add(dom.selectNodes("/response/property[1]/property"), itemId)
-	TV_Delete(node.dummyC)
-	TV_Modify(A_EventInfo, "+Expand")
-}
-
-OE_Event:
-if A_GuiEvent = +
-	OE_OnExpand(A_EventInfo)
-else if A_GuiEvent = DoubleClick
-	OE_OnDoubleClick(A_EventInfo)
-return
-
-OEGuiSize:
-GuiControl, Move, OE_Tree, w%A_GuiWidth% h%A_GuiHeight%
-return
-
-OEGuiClose:
-OE_Close()
-return
 
 ;}
 
@@ -1268,13 +1194,13 @@ SciTE_SetCurrentLine(line, mode := 1) ; show the current line markers in SciTE
 SciTE_DeleteCurLineMarkers() ; delete the current line markers in SciTE
 {
 	global
-	line--
 	; Delete current markers
 	DllCall("SendMessage", "ptr", scintillahwnd, "uint", SCI_MARKERDELETEALL, "int", 11, "int", 0)
 	DllCall("SendMessage", "ptr", scintillahwnd, "uint", SCI_MARKERDELETEALL, "int", 12, "int", 0)
 }
 
-SciTE_BPSymbol(line) ; show the current line markers in SciTE
+/* ; Currently unused.
+SciTE_BPSymbol(line) ; set a breakpoint marker in SciTE
 {
 	global
 	line--
@@ -1282,12 +1208,43 @@ SciTE_BPSymbol(line) ; show the current line markers in SciTE
 	DllCall("SendMessage", "ptr", scintillahwnd, "uint", SCI_MARKERADD, "int", line, "int", 10)
 }
 
-SciTE_BPSymbolRemove(line) ; show the current line markers in SciTE
+SciTE_BPSymbolRemove(line) ; remove a breakpoint marker in SciTE
 {
 	global
 	line--
 	; Add markers
 	DllCall("SendMessage", "ptr", scintillahwnd, "uint", SCI_MARKERDELETE, "int", line, "int", 10)
+}
+*/
+
+SciTE_OutputUTF8(ByRef data)  ; data: a UTF-8 string
+{
+	; Convert the string to the current output codepage (EM_REPLACESEL
+	; is used so the OS handles marshalling the memory, but Scintilla
+	; handles it the same as SCI_REPLACESEL; i.e. does no conversion).
+	; If sciOutputCP is blank, it depends on whichever file is active.
+	; We could get the current code page, but previous output can still
+	; be corrupted when the user switches files.  So just assume UTF-8.
+	global sciOutputCP, sciOutputHwnd
+	if (sciOutputCP != 65001 && sciOutputCP != "")
+	{
+		sdata := StrGet(&data, "UTF-8")
+		n := VarSetCapacity(data, StrPut(sdata, "UTF-8"))
+		StrPut(sdata, &data, n, sciOutputCP)
+	}
+	SendMessage 2318, 0, 0,, ahk_id %sciOutputHwnd% ; SCI_DOCUMENTEND
+	SendMessage 0xC2, % true, % &data,, ahk_id %sciOutputHwnd% ; EM_REPLACESEL
+}
+
+SciTE_Output(ByRef string, replaceLastLine:=false)
+{
+	global scitehwnd, sciOutputCP, sciOutputHwnd
+	SendMessage 2318, 0, 0,, ahk_id %sciOutputHwnd% ; SCI_DOCUMENTEND
+	if replaceLastLine
+		SendMessage 2338, 0, 0,, ahk_id %sciOutputHwnd% ; SCI_LINEDELETE
+	n := VarSetCapacity(data, StrPut(string, "UTF-8"))
+	StrPut(string, &data, n, sciOutputCP)
+	SendMessage 0xC2, % true, % &data,, ahk_id %sciOutputHwnd% ; EM_REPLACESEL
 }
 
 ;}
@@ -1299,15 +1256,6 @@ Util_UnpackNodes(nodes)
 	o := []
 	Loop, % nodes.length
 		o.Insert(nodes.item[A_Index-1].text)
-	return o
-}
-
-Util_UnpackContNodes(nodes)
-{
-	o := []
-	Loop, % nodes.length
-		node := nodes.item[A_Index-1]
-		,o.Insert(node.attributes.getNamedItem("type").text != "object" ? VL_ShortCont(DBGp_Base64UTF8Decode(node.text)) : "(Object)")
 	return o
 }
 

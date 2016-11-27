@@ -99,6 +99,7 @@ if !outputHeight ; Output pane not visible
 
 ; Get the SciTE path
 SciTEPath := oSciTE.SciTEDir
+SciTEUserHome := oSciTE.ResolveProp("SciteUserHome")
 
 ; Get the script to debug
 szFilename := !bIsAttach ? oSciTE.CurrentFile : SelectAttachScript(AttachWin, Dbg_PID)
@@ -143,9 +144,11 @@ Dbg_ExitByDisconnect := false
 Dbg_ExitByGuiClose := false
 Dbg_WaitClose := false
 Dbg_StackTraceWin := false
-Dbg_VarWin := false
 Dbg_StreamWin := false
 Dbg_BkList := []
+Dbg_Ini := SciTEUserHome "\SciTEDebug.ini"
+
+SetDvOwnerWindow()
 
 ; Set the DBGp event handlers
 DBGp_OnBegin("OnDebuggerConnection")
@@ -204,7 +207,10 @@ if Dbg_Lang != AutoHotkey
 SciTE_Output("> Debugging " szFilename "`n", true)
 
 ; Reset saved breakpoints
-PostMessage, 0x111, 1135, 0,, ahk_id %scitehwnd%
+SendMessage, 0x111, 1135, 0,, ahk_id %scitehwnd%
+
+; Restore variable list/inspector windows
+LoadDvWindows()
 
 ; Main loop
 while !Dbg_IsClosing ; while the debugger is active
@@ -230,6 +236,7 @@ if Dbg_ExitByGuiClose ; we've got to tell SciTE that we are leaving
 	Dbg_ExitByDisconnect := true ; tell our message handler to just return true without attempting to exit
 	SciTE_Disconnect()
 }
+SaveDvWindows()
 SciTE_Output("> Debugging stopped`n")
 OnMessage(ADM_SCITE, "") ; disable the SciTE message handler
 OnExit ; disable the OnExit trap
@@ -390,10 +397,20 @@ ST_Create()
 return
 
 cmd_varlist:
-if Dbg_VarWin || (!Dbg_OnBreak && !bIsAsync)
+if (!Dbg_OnBreak && !bIsAsync)
 	return
-VL_Create()
+cmd_varlist(Dbg_VarListWin)
 return
+
+cmd_varlist(ByRef dv)
+{
+	global Dbg_Session, scitehwnd
+	if !dv
+		dv := new DebugVarsGui(new Dv2ContextsNode(Dbg_Session))
+	else
+		dv.Refresh()
+	dv.Show()
+}
 
 ;}
 
@@ -434,26 +451,7 @@ _wP2: ; Variable inspection
 	p := StrSplit(StrGet(lParam, "UTF-8"), Chr(1))
 	Dbg_VarName := p.Length()==1 ? p[1] : PropertyNameFromWord(p*)
 	
-	; Allow retrieving immediate children for object values
-	SetEnableChildren(true)
-	Dbg_Session.property_get("-n " Dbg_VarName, Dbg_Response)
-	SetEnableChildren(false)
-	dom := loadXML(Dbg_Response)
-	
-	Dbg_NewVarName := dom.selectSingleNode("/response/property/@name").text
-	if Dbg_NewVarName = (invalid)
-	{
-		MsgBox, 48, %g_appTitle%, Invalid variable name: %Dbg_VarName%
-		return false
-	}
-	if dom.selectSingleNode("/response/property/@type").text != "Object"
-	{
-		Dbg_VarIsReadOnly := dom.selectSingleNode("/response/property/@facet").text = "Builtin"
-		Dbg_VarData := DBGp_Base64UTF8Decode(dom.selectSingleNode("/response/property").text)
-		VE_Create(Dbg_VarName, Dbg_VarData, Dbg_VarIsReadOnly)
-	}else
-		OE_Create(dom)
-	
+	DvInspectProperty(Dbg_Session, Dbg_VarName)
 	return true
 
 _wP3: ; Command
@@ -701,15 +699,7 @@ FindLeftBracket(s, i, b)
 SetEnableChildren(v)
 {
 	global Dbg_Session
-	if v
-	{
-		Dbg_Session.feature_set("-n max_children -v " dbgMaxChildren)
-		Dbg_Session.feature_set("-n max_depth -v 1")
-	}else
-	{
-		Dbg_Session.feature_set("-n max_children -v 0")
-		Dbg_Session.feature_set("-n max_depth -v 0")
-	}
+	Dbg_Session.feature_set("-n max_depth -v " (v ? 1 : 0))
 }
 
 SetBreakpointHelper:
@@ -864,6 +854,7 @@ OnDebuggerConnection(session, init)
 	Dbg_Lang := dom.selectSingleNode("/init/@language").text
 	session.property_set("-n A_DebuggerName -- " DBGp_Base64UTF8Encode("SciTE4AutoHotkey"))
 	session.feature_set("-n max_data -v " dbgMaxData)
+	session.feature_set("-n max_children -v " dbgMaxChildren)
 	SetEnableChildren(false)
 	if dbgCaptureStreams
 	{
@@ -878,7 +869,7 @@ OnDebuggerConnection(session, init)
 ; OnDebuggerBreak() - fired when we receive an asynchronous response from the debugger (including break responses).
 OnDebuggerBreak(session, ByRef response)
 {
-	global Dbg_OnBreak, Dbg_Stack, Dbg_LocalContext, Dbg_GlobalContext, Dbg_VarWin, bInBkProcess, _tempResponse
+	global Dbg_OnBreak, bInBkProcess, _tempResponse
 	if bInBkProcess
 	{
 		; A breakpoint was hit while the script running and the SciTE OnMessage thread is
@@ -898,7 +889,8 @@ OnDebuggerBreak(session, ByRef response)
 		Dbg_GetStack()
 		SciTE_UpdateCurLineOfCode()
 		ST_Update()
-		VL_Update()
+		; Update variable lists and object inspectors
+		DvRefreshAll()
 	}
 }
 
@@ -946,7 +938,6 @@ Dbg_Continue(cmd)
 	Dbg_Session[cmd]()
 	SciTE_ToggleRunButton()
 	VE_Close()
-	OE_Close()
 	ST_Clear()
 }
 
@@ -1040,288 +1031,96 @@ Dbg_GetStack()
 
 ;}
 
-;{ Variable Inspection Window
+;{ Variable Lists, Variable and Object Inspection
 
-VE_Create(name, ByRef cont, readonly := 0)
+#Include <DebugVarsGui>
+
+SetDvOwnerWindow()
 {
-	global
-	local VE_LF, VE_CRLF
-	
-	VE_Contents=
-	if readonly
-	{
-		readonly = +Disabled
-		readonly2 = +ReadOnly
-	}else
-	{
-		readonly =
-		readonly2 =
-	}
-	Gui 3:Destroy
-	Gui 3:Default
-	VE_BestChoice(VE_LF, VE_CRLF, cont)
-	Gui 3:+ToolWindow +AlwaysOnTop +LabelVEGui +Resize +MinSize -MaximizeBox
-	Gui 3:Add, Text, x8 y8 w80 h16 +Right, Variable name:
-	Gui 3:Add, Text, x92 y8 w236 h16 +Border vVE_VarName, %name%
-	Gui 3:Font, s9, %dbgTextFont%
-	Gui 3:Add, Edit, x8 y32 w320 h240 vVE_Contents hwndVE_Cont_HWND +HScroll %readonly2%, % cont
-	Gui 3:Font
-	Gui 3:Add, Button, x94 y280 w80 h32 gVE_Update %readonly%, Update
-	Gui 3:Add, Radio, x268 y280 w60 h16 Group vVE_LineEnd %VE_LF%, LF
-	Gui 3:Add, Radio, x268 y296 w60 h16 %VE_CRLF%, CR+LF
-	Gui 3:Show, w336 h320, Variable inspection
-	
-	; Don't select all the text when the window is shown
-	SendMessage, 0xB1, 0, 0,, ahk_id %VE_Cont_HWND%
+	fn := Func("ShowDvWindow")
+	DebugVarsGui.Show := fn.Bind(DebugVarsGui.Show)
+	DebugVarGui.Show := fn.Bind(DebugVarGui.Show)
 }
 
-VE_BestChoice(ByRef lf, ByRef crlf, ByRef a)
+ShowDvWindow(show, dv, options:="", title:="")
 {
-	if !InStr(a, "`r`n")
-	{
-		lf = Checked
-		crlf =
-	}else
-	{
-		lf =
-		crlf = Checked
-	}
+	%show%(dv, options, title)
+	global scitehwnd
+	Gui % dv.hGui ":+Owner" scitehwnd " +ToolWindow"
 }
-
-VE_Update:
-GuiControlGet, VE_VarName,, VE_VarName
-Gui, Submit
-VE_Close()
-if VE_LineEnd = 2
-	StringReplace, VE_Contents, VE_Contents, `n, `r`n, All
-Dbg_Session.property_set("-n " VE_VarName " -- " (VE_C2 := DBGp_Base64UTF8Encode(VE_Contents)))
-VarSetCapacity(VE_Contents, 0)
-VL_Update()
-if InStr(VE_VarName, ".") || InStr("VE_VarName", "[")
-	OE_Update(VE_C2)
-VarSetCapacity(VE_C2, 0)
-return
-
-VEGuiClose:
-VE_Close()
-return
 
 VE_Close()
 {
-	Gui 3:Destroy
+	for hwnd, ve in VarEditGui.Instances.Clone()
+		ve.Hide()
 }
 
-VEGuiSize:
-VE_neww := A_GuiWidth - 16
-VE_newh := A_GuiHeight - 80
-VE_initx := A_GuiWidth - 68
-VE_inity := VE_newh + 40
-GuiControl, Move, VE_Contents, w%VE_neww% h%VE_newh%
-GuiControl, Move, Update, % "x" (8+Floor((A_GuiWidth-84)/2)-40) " y" VE_inity
-GuiControl, MoveDraw, LF, x%VE_initx% y%VE_inity%
-GuiControl, MoveDraw, CR+LF, % "x" VE_initx " y" (VE_inity+16)
-return
-
-;}
-
-;{ Variable List Window
-
-VL_Create()
+SaveDvWindows()
 {
-	global
+	global Dbg_Ini, Dbg_VarListWin
 	
-	VL_Destroy()
-	Dbg_VarWin := true
-	Gui 4:+ToolWindow +AlwaysOnTop +LabelVLGui +Resize +MinSize -MaximizeBox
-	Gui 4:Add, ListView, x0 y0 w320 h240 gVL_Inspect vVL_Listview, Scope|Variable name|Contents (partial)
-	VL_Update()
-	Gui 4:Show, w320 h240, Variable list
-}
-
-VL_Update()
-{
-	global
-	if !Dbg_VarWin
-		return
-	; read
-	ToolTip, Updating variable list...
-	Dbg_GetContexts()
-	VL_Local := Util_UnpackNodes(Dbg_LocalContext.selectNodes("/response/property/@name"))
-	VL_Global := Util_UnpackNodes(Dbg_GlobalContext.selectNodes("/response/property/@name"))
-	VL_NVars := VL_Local.MaxIndex() + VL_Global.MaxIndex()
-	VL_LocalCont := Util_UnpackContNodes(Dbg_LocalContext.selectNodes("/response/property"))
-	VL_GlobalCont := Util_UnpackContNodes(Dbg_GlobalContext.selectNodes("/response/property"))
-	; update
-	Gui 4:Default
-	LV_Delete()
-	Loop, % VL_Local.MaxIndex()
-		LV_Add("", "Local", VL_Local[A_Index], VL_LocalCont[A_Index])
-	Loop, % VL_Global.MaxIndex()
-		LV_Add("", "Global", VL_Global[A_Index], VL_GlobalCont[A_Index])
-	ToolTip
-}
-
-VL_ShortCont(a)
-{
-	if pos := InStr(a, "`n")
-		a := Trim(SubStr(a, 1, pos-1), "`r") "..."
-	if StrLen(a) = 65
-		a .= "..."
-	return a
-}
-
-VL_Destroy()
-{
-	global
-	Gui 4:Destroy
-	Dbg_VarWin := false
-}
-
-VL_Inspect:
-if !bIsAsync && !Dbg_OnBreak
-{
-	MsgBox, 48, %g_appTitle%, You can't inspect a variable while the script is running!
-	return
-}
-if A_GuiEvent != DoubleClick
-	return
-LV_GetText(VL_Scope, A_EventInfo, 1)
-VL_Scope := VL_Scope != "Local"
-LV_GetText(VL_VarName, A_EventInfo, 2)
-SetEnableChildren(true)
-Dbg_Session.property_get("-c " VL_Scope " -n " VL_VarName, Dbg_Response)
-SetEnableChildren(false)
-dom := loadXML(Dbg_Response)
-
-if dom.selectSingleNode("/response/property/@type").text != "Object"
-{
-	VL_VarIsReadOnly := dom.selectSingleNode("/response/property/@facet").text = "Builtin"
-	VL_VarData := DBGp_Base64UTF8Decode(dom.selectSingleNode("/response/property").text)
-	VE_Create(VL_VarName, VL_VarData, VL_VarIsReadOnly)
-}else
-	OE_Create(dom)
-dom := ""
-return
-
-VLGuiClose:
-VL_Destroy()
-return
-
-VLGuiSize:
-GuiControl, Move, VL_Listview, w%A_GuiWidth% h%A_GuiHeight%
-return
-
-Dbg_GetContexts()
-{
-	global
+	IniDelete %Dbg_Ini%, Windows ; Clear old list.
 	
-	if !bIsAsync && !Dbg_OnBreak
-		return
-	Dbg_Session.feature_set("-n max_data -v 65")
-	Dbg_Session.context_get("-c 0", Dbg_LocalContext)
-	Dbg_Session.context_get("-c 1", Dbg_GlobalContext)
-	Dbg_Session.feature_set("-n max_data -v " dbgMaxData)
-	Dbg_LocalContext  := loadXML(Dbg_LocalContext)
-	Dbg_GlobalContext := loadXML(Dbg_GlobalContext)
-}
-
-;}
-
-;{ Object Inspection Window
-
-OE_Create(ByRef objdom)
-{
-	global
-	local root
-	OE_Data := {}
-
-	Gui 6:Destroy
-	Gui 6:Default
-	Gui 6:+ToolWindow +AlwaysOnTop +LabelOEGui +Resize +MinSize -MaximizeBox
-	Gui 6:Add, TreeView, x0 y0 w336 h320 vOE_Tree gOE_Event AltSubmit
-	root := TV_Add(objdom.selectSingleNode("/response/property/@name").text)
-	OE_Add(objdom.selectNodes("/response/property[1]/property"), root)
-	TV_Modify(root, "Expand")
-	Gui 6:Show, w336 h320, Object inspection
-}
-
-OE_Update(ByRef cont)
-{
-	global OE_TempNode
-	OE_TempNode.text := cont
-}
-
-OE_Add(nodes, tnode)
-{
-	global OE_Data
-	Loop, % nodes.length
+	VarSetCapacity(rect, 16, 0)
+	count := 0
+	windows := VarTreeGui.Instances
+	windows[Dbg_VarListWin.hGui] := Dbg_VarListWin ; Insert (if hidden) or overwrite.
+	for hwnd, dv in windows
 	{
-		node := nodes.item[A_Index-1]
-		ttnode := TV_Add(node.attributes.getNamedItem("name").text, tnode)
-		needToLoadChildren := node.attributes.getNamedItem("children").text
-		fullName := node.attributes.getNamedItem("fullname").text
-		nType := node.attributes.getNamedItem("type").text
-		if needToLoadChildren
-			q := TV_Add("{FAIL}", ttnode)
-		OE_Data[ttnode] := { loadC: needToLoadChildren, name: fullName, type: nType, text: node.text, dummyC: q }
+		; Get window type
+		root := dv.TLV.root
+		if (root.base = DvContextNode)
+			type := "context:" root.context
+		else if (root.base = Dv2ContextsNode)
+			type := "variables"
+		/*  ; Currently unused; see LoadDvWindows().
+		else if (root.base = DvPropertyNode)
+			type := "property:" root.fullname
+		*/
+		else
+			continue
+		++count
+		
+		; Save position
+		WinGetPos x, y,,, % "ahk_id " dv.hGui
+		DllCall("GetClientRect", "ptr", dv.hGui, "ptr", &rect)
+		w := NumGet(rect, 8, "int")
+		h := NumGet(rect, 12, "int")
+		opt := DllCall("IsWindowVisible", "ptr", dv.hGui) ? "" : " Hide"
+		IniWrite x%x% y%y% w%w% h%h%%opt%`, %type%, %Dbg_Ini%, Windows, %count%
 	}
 }
 
-OE_Preview(node)
+LoadDvWindows()
 {
-	; TODO
-}
-
-OE_Close()
-{
-	global OE_Data
-	Gui 6:Destroy
-	OE_Data := ""
-}
-
-OE_OnDoubleClick(itemId)
-{
-	global OE_Data
-	node := OE_Data[itemId]
-	fullname := node.name
-	if fullname && node.type != "object"
+	global Dbg_Ini, Dbg_Session, Dbg_VarListWin
+	
+	Loop
 	{
-		cont := DBGp_Base64UTF8Decode(node.text)
-		VE_Create(fullname, cont)
+		IniRead options, %Dbg_Ini%, Windows, %A_Index%
+		if !(p := InStr(options, ","))
+			break
+		type := Trim(SubStr(options, p+1)), options := SubStr(options, 1, p-1)
+		if (type ~= "^context:")
+		{
+			root := new DvContextNode(Dbg_Session, SubStr(type, 9))
+			dv := new DebugVarsGui(root)
+			dv.Show("NA " options)
+		}
+		else if (type == "variables")
+		{
+			root := new Dv2ContextsNode(Dbg_Session)
+			dv := new DebugVarsGui(root)
+			dv.Show("NA " options)
+			Dbg_VarListWin := dv
+		}
+		/*  ; This is unused because properties are generally undefined at
+		    ; this point, and that causes the wrong type of Gui to open.
+		else if (type ~= "^property:")
+			DvInspectProperty(Dbg_Session, SubStr(type, 10),, "NA " options)
+		*/
 	}
 }
-
-OE_OnExpand(itemId)
-{
-	global OE_Data, Dbg_Session
-	node := OE_Data[itemId]
-	if !node.loadC
-		return
-	TV_Modify(A_EventInfo, "-Expand")
-	SetEnableChildren(true)
-	Dbg_Session.property_get("-n " node.name, Dbg_Response)
-	SetEnableChildren(false)
-	dom := loadXML(Dbg_Response)
-	node.loadC := false
-	OE_Add(dom.selectNodes("/response/property[1]/property"), itemId)
-	TV_Delete(node.dummyC)
-	TV_Modify(A_EventInfo, "+Expand")
-}
-
-OE_Event:
-if A_GuiEvent = +
-	OE_OnExpand(A_EventInfo)
-else if A_GuiEvent = DoubleClick
-	OE_OnDoubleClick(A_EventInfo)
-return
-
-OEGuiSize:
-GuiControl, Move, OE_Tree, w%A_GuiWidth% h%A_GuiHeight%
-return
-
-OEGuiClose:
-OE_Close()
-return
 
 ;}
 
@@ -1452,15 +1251,6 @@ Util_UnpackNodes(nodes)
 	o := []
 	Loop, % nodes.length
 		o.Insert(nodes.item[A_Index-1].text)
-	return o
-}
-
-Util_UnpackContNodes(nodes)
-{
-	o := []
-	Loop, % nodes.length
-		node := nodes.item[A_Index-1]
-		,o.Insert(node.attributes.getNamedItem("type").text != "object" ? VL_ShortCont(DBGp_Base64UTF8Decode(node.text)) : "(Object)")
 	return o
 }
 

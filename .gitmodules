@@ -1,0 +1,9 @@
+[submodule "source/tools/Lib/DebugVars"]
+	path = source/tools/Lib/DebugVars
+	url = https://github.com/Lexikos/DebugVars.ahk
+[submodule "source/tools/Lib/dbgp"]
+	path = source/tools/Lib/dbgp
+	url = https://github.com/Lexikos/dbgp
+[submodule "source/tools/GenDocs"]
+	path = source/tools/GenDocs
+	url = https://github.com/fincs/GenDocs

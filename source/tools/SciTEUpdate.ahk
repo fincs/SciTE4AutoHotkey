@@ -9,7 +9,7 @@ SendMode Input
 SetWorkingDir, %A_ScriptDir%
 
 baseurl = http://fincs.ahk4.net/scite4ahk
-isPortable := FileExist("..\$PORTABLE")
+isPortable := InStr(FileExist("..\user"), "D")
 today := SubStr(A_Now, 1, 8)
 if !isPortable
 	LocalSciTEPath = %A_MyDocuments%\AutoHotkey\SciTE
@@ -35,6 +35,10 @@ if isSilent
 	if (lastUpdate = today)
 		ExitApp
 }
+
+curVer := GetSciTEVersion()
+if !curVer
+	ExitApp
 
 f = %A_Temp%\%A_TickCount%.txt
 if !isSilent
@@ -66,7 +70,6 @@ if RegExMatch(latestVer, "[^0-9\.\-]") || RegExMatch(latestRev, "\D")
 	ExitApp
 }
 
-FileRead, curVer, ..\$VER
 if (curVer < latestVer)
 {
 	MsgBox, 36, SciTE4AutoHotkey Updater,
@@ -267,11 +270,15 @@ class Update
 	}
 }
 
+GetSciTEVersion()
+{
+	o := GetSciTEInstance()
+	return o ? o.Version : ""
+}
+
 CloseSciTE()
 {
-	ComObjError(0)
-	o := ComObjActive("SciTE4AHK.Application")
-	ComObjError(1)
+	o := GetSciTEInstance()
 	if !o
 		return
 	hWnd := o.SciTEHandle

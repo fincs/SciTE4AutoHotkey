@@ -41,8 +41,14 @@ if 0 < 2
 SciTEDir := A_WorkingDir
 CurAhkExe := SciTEDir "\..\AutoHotkey.exe" ; Fallback AutoHotkey binary
 
-FileRead, CurrentSciTEVersion, $VER
-if CurrentSciTEVersion =
+FileGetVersion, temp, SciTE.exe
+if temp && !ErrorLevel
+{
+	temp := StrSplit(temp, ".")
+	if temp && temp.Length() = 4
+		CurrentSciTEVersion := Format("{:d}.{:d}.{:02d}.{:02d}", temp*)
+}
+if !CurrentSciTEVersion
 {
 	MsgBox, 16, SciTE4AutoHotkey Toolbar, Invalid SciTE4AutoHotkey version!
 	ExitApp
@@ -78,11 +84,10 @@ filesmenu := DllCall("GetSubMenu", "ptr", scitemenu, "int", 7, "ptr")
 ; Get the HWND of its Scintilla control
 ControlGet, scintillahwnd, Hwnd,, Scintilla1, ahk_id %scitehwnd%
 
-IsPortable := FileExist("$PORTABLE")
+LocalSciTEPath = %SciTEDir%\user
+IsPortable := InStr(FileExist(LocalSciTEPath), "D")
 if !IsPortable
 	LocalSciTEPath = %A_MyDocuments%\AutoHotkey\SciTE
-else
-	LocalSciTEPath = %SciTEDir%\user
 LocalPropsPath = %LocalSciTEPath%\UserToolbar.properties
 global ExtensionDir := LocalSciTEPath "\Extensions"
 

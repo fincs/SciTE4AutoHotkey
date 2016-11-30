@@ -157,12 +157,8 @@ end
 -- =============================================== --
 
 local NoDwellStyles = {
-	-- Some of these constants don't work due to an error in the ordering
-	-- of the constants in 3.0.06.01 (which messes with binary search).
-	--[SCLEX_AHK1] = {SCE_AHK_COMMENTBLOCK, SCE_AHK_COMMENTLINE, SCE_AHK_STRING, SCE_AHK_ESCAPE, SCE_AHK_LABEL},
-	[SCLEX_AHK1] = {2, 1, 6, 3, 10},
-	--[SCLEX_AHK2] = {SCE_AHK2_COMMENTBLOCK, SCE_AHK2_COMMENTLINE, SCE_AHK2_STRING, SCE_AHK2_ESCAPE, SCE_AHK2_LABEL},
-	[SCLEX_AHK2] = {2, 1, 5, 3, 11},
+	[SCLEX_AHK1] = {SCE_AHK_COMMENTBLOCK, SCE_AHK_COMMENTLINE, SCE_AHK_STRING, SCE_AHK_ESCAPE, SCE_AHK_LABEL},
+	[SCLEX_AHK2] = {SCE_AHK2_COMMENTBLOCK, SCE_AHK2_COMMENTLINE, SCE_AHK2_STRING, SCE_AHK2_ESCAPE, SCE_AHK2_LABEL},
 }
 function OnDwellStart(pos, word)
 	if not prepared then return end
@@ -295,7 +291,6 @@ end
 -- ============================================================ --
 
 -- Patterns for syntax matching
---local varCharPat = "[#_@%w%[%]%$%?]"
 local varCharPat = "[#_@%w%$]"
 local ifPat = "[iI][fF]"
 local altIfPat = ifPat.."%a+"

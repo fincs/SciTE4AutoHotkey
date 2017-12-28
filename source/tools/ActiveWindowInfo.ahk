@@ -13,8 +13,8 @@ IfExist, ..\toolicon.icl ; Seems useful enough to support standalone operation.
 	Menu, Tray, Icon, ..\toolicon.icl, 9
 
 isUpd := true
-txtNotFrozen := "(Win+A to freeze display)"
-txtFrozen := "(Win+A to unfreeze display)"
+txtNotFrozen := "(#a ^+a ^!a freeze display)"
+txtFrozen := "(#a ^+a ^!a  unfreeze display)"
 
 Gui, New, hwndhGui AlwaysOnTop Resize MinSize
 Gui, Add, Text,, Window Title, Class and Process:
@@ -123,8 +123,14 @@ textMangle(x)
 }
 
 #a::
+^+a::
+^!a::
+winGetPos,xScript,yScript,wScript,hScript,Active Window Info
+WinMove,Active Window Info,,% xScript + 10
+; Msgbox,:),`n (%A_ScriptName%~%A_LineNumber%) ,,2
 Gui %hGui%:Default
 isUpd := !isUpd
 SetTimer, Update, % isUpd ? "On" : "Off"
 GuiControl,, Ctrl_Freeze, % isUpd ? txtNotFrozen : txtFrozen
+WinMove,Active Window Info,,% xScript - 10
 return

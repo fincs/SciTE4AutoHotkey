@@ -1089,7 +1089,9 @@ SaveWindows()
 			continue
 		
 		; Save position
-		IniWrite % Util_GetWinState(dv.hGui) ", " type, %Dbg_Ini%, Windows, % ++count
+		state := Util_GetWinState(dv.hGui)
+		if state
+			IniWrite % state ", " type, %Dbg_Ini%, Windows, % ++count
 	}
 	
 	if Dbg_StackTraceWin
@@ -1299,12 +1301,17 @@ Util_RemoveBk(uri, line)
 
 Util_GetWinState(hwnd)
 {
+	WinGet minmax, MinMax, ahk_id %hwnd%
+	if minmax = -1
+		return
+	opt := (DllCall("IsWindowVisible", "ptr", hwnd) ? "" : " Hide") (minmax = 1 ? " Maximize" : "")
+	if minmax = 1 ; Restore to retrieve non-maximized position
+		WinRestore ahk_id %hwnd%
 	WinGetPos x, y,,, ahk_id %hwnd%
 	VarSetCapacity(rect, 16, 0)
 	DllCall("GetClientRect", "ptr", hwnd, "ptr", &rect)
 	w := NumGet(rect, 8, "int")
 	h := NumGet(rect, 12, "int")
-	opt := DllCall("IsWindowVisible", "ptr", hwnd) ? "" : " Hide"
 	return Format("x{} y{} w{} h{}{}", x, y, w, h, opt)
 }
 

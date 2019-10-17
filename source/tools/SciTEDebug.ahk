@@ -126,7 +126,7 @@ if toolbarhwnd =
 }
 
 OnExit, GuiClose ; activate an OnExit trap
-Gui, Show, Hide, SciTEDebugStub ; create a dummy GUI that SciTE will speak to
+Gui, New,, SciTEDebugStub ; create a dummy GUI that SciTE will speak to
 
 ; Run SciTE
 WinActivate, ahk_id %scitehwnd%
@@ -215,7 +215,7 @@ SciTE_Output("> Debugging " szFilename "`n", true)
 SendMessage, 0x111, 1135, 0,, ahk_id %scitehwnd%
 
 ; Restore variable list/inspector windows
-LoadDvWindows()
+LoadWindows()
 
 ; Main loop
 while !Dbg_IsClosing ; while the debugger is active
@@ -241,7 +241,7 @@ if Dbg_ExitByGuiClose ; we've got to tell SciTE that we are leaving
 	Dbg_ExitByDisconnect := true ; tell our message handler to just return true without attempting to exit
 	SciTE_Disconnect()
 }
-SaveDvWindows()
+SaveWindows()
 SciTE_Output("> Debugging stopped`n")
 OnMessage(ADM_SCITE, "") ; disable the SciTE message handler
 OnExit ; disable the OnExit trap
@@ -257,7 +257,7 @@ ExitApp
 
 SelectAttachScript(ByRef outwin, ByRef outpid)
 {
-	global SciTEPath
+	global SciTEPath, scitehwnd
 	
 	oldTM := A_TitleMatchMode, oldHW := A_DetectHiddenWindows
 	SetTitleMatchMode, 2
@@ -265,7 +265,7 @@ SelectAttachScript(ByRef outwin, ByRef outpid)
 	
 	WinGet, w, List, - AutoHotkey ahk_class AutoHotkey,, %A_ScriptFullPath%
 	
-	Gui, +LabelAttGui +ToolWindow +AlwaysOnTop
+	Gui, New, +LabelAttGui +Owner%scitehwnd% +ToolWindow, Select running script to debug
 	Gui, Add, ListView, x0 y0 w640 h240 +NoSortHdr -LV0x10 gAttGuiSelect, HWND|Name
 	
 	i := 0
@@ -292,7 +292,7 @@ SelectAttachScript(ByRef outwin, ByRef outpid)
 	LV_ModifyCol(1, "AutoHdr")
 	LV_ModifyCol(2, "AutoHdr")
 	
-	Gui, Show, w640 h240, Select running script to debug
+	Gui, Show, w640 h240
 	
 	global attSelection, attWin
 	while !attSelection
@@ -950,16 +950,16 @@ Dbg_Continue(cmd)
 
 ;{ Stacktrace Window
 
-ST_Create()
+ST_Create(opt := "w320 h240")
 {
 	global
 	
-	ST_Destroy()
-	Dbg_StackTraceWin := true
-	Gui 2:+ToolWindow +AlwaysOnTop +LabelSTGui +Resize +MinSize -MaximizeBox
-	Gui 2:Add, ListView, x0 y0 w320 h240 +NoSortHdr -LV0x10 gST_Go vST_ListView, Script filename|Line|Stack entry
+	if Dbg_StackTraceWin
+		ST_Destroy()
+	Gui, New, +HwndDbg_StackTraceWin +Owner%scitehwnd% +ToolWindow +LabelSTGui +Resize +MinSize -MaximizeBox, Callstack
+	Gui, Add, ListView, x0 y0 w320 h240 +NoSortHdr -LV0x10 gST_Go vST_ListView, Script filename|Line|Stack entry
 	ST_Update()
-	Gui 2:Show, w320 h240, Callstack
+	Gui, Show, %opt%
 }
 
 ST_Clear()
@@ -969,7 +969,7 @@ ST_Clear()
 	if !Dbg_StackTraceWin
 		return
 	
-	Gui 2:Default
+	Gui %Dbg_StackTraceWin%:Default
 	LV_Delete()
 }
 
@@ -984,7 +984,7 @@ ST_Update()
 	Loop, % aStackFile.MaxIndex()
 		aStackFile[A_Index] := DBGp_DecodeFileURI(aStackFile[A_Index])
 	
-	Gui 2:Default
+	Gui %Dbg_StackTraceWin%:Default
 	LV_Delete()
 	Loop, % aStackWhere.MaxIndex()
 		LV_Add("", ST_ShortName(aStackFile[A_Index]), aStackLine[A_Index], aStackWhere[A_Index])
@@ -1005,7 +1005,7 @@ ST_Destroy()
 	aStackWhere=
 	aStackFile=
 	aStackLine=
-	Gui 2:Destroy
+	Gui %Dbg_StackTraceWin%:Destroy
 	Dbg_StackTraceWin := False
 }
 
@@ -1060,13 +1060,12 @@ VE_Close()
 		ve.Hide()
 }
 
-SaveDvWindows()
+SaveWindows()
 {
-	global Dbg_Ini, Dbg_VarListWin
+	global Dbg_Ini, Dbg_VarListWin, Dbg_StackTraceWin
 	
 	IniDelete %Dbg_Ini%, Windows ; Clear old list.
 	
-	VarSetCapacity(rect, 16, 0)
 	count := 0
 	windows := VarTreeGui.Instances
 	windows[Dbg_VarListWin.hGui] := Dbg_VarListWin ; Insert (if hidden) or overwrite.
@@ -1078,25 +1077,23 @@ SaveDvWindows()
 			type := "context:" root.context
 		else if (root.base = Dv2ContextsNode)
 			type := "variables"
-		/*  ; Currently unused; see LoadDvWindows().
+		/*
+		; Currently unused; see LoadWindows().
 		else if (root.base = DvPropertyNode)
 			type := "property:" root.fullname
 		*/
 		else
 			continue
-		++count
 		
 		; Save position
-		WinGetPos x, y,,, % "ahk_id " dv.hGui
-		DllCall("GetClientRect", "ptr", dv.hGui, "ptr", &rect)
-		w := NumGet(rect, 8, "int")
-		h := NumGet(rect, 12, "int")
-		opt := DllCall("IsWindowVisible", "ptr", dv.hGui) ? "" : " Hide"
-		IniWrite x%x% y%y% w%w% h%h%%opt%`, %type%, %Dbg_Ini%, Windows, %count%
+		IniWrite % Util_GetWinState(dv.hGui) ", " type, %Dbg_Ini%, Windows, % ++count
 	}
+	
+	if Dbg_StackTraceWin
+		IniWrite % Util_GetWinState(Dbg_StackTraceWin) ", stacktrace", %Dbg_Ini%, Windows, % ++count
 }
 
-LoadDvWindows()
+LoadWindows()
 {
 	global Dbg_Ini, Dbg_Session, Dbg_VarListWin
 	
@@ -1119,8 +1116,11 @@ LoadDvWindows()
 			dv.Show("NA " options)
 			Dbg_VarListWin := dv
 		}
-		/*  ; This is unused because properties are generally undefined at
-		    ; this point, and that causes the wrong type of Gui to open.
+		else if (type == "stacktrace")
+			ST_Create("NA " options)
+		/*
+		; This is unused because properties are generally undefined at
+		; this point, and that causes the wrong type of Gui to open.
 		else if (type ~= "^property:")
 			DvInspectProperty(Dbg_Session, SubStr(type, 10),, "NA " options)
 		*/
@@ -1292,6 +1292,17 @@ Util_RemoveBk(uri, line)
 {
 	global Dbg_BkList
 	Dbg_BkList[uri].Remove(line)
+}
+
+Util_GetWinState(hwnd)
+{
+	WinGetPos x, y,,, ahk_id %hwnd%
+	VarSetCapacity(rect, 16, 0)
+	DllCall("GetClientRect", "ptr", hwnd, "ptr", &rect)
+	w := NumGet(rect, 8, "int")
+	h := NumGet(rect, 12, "int")
+	opt := DllCall("IsWindowVisible", "ptr", hwnd) ? "" : " Hide"
+	return Format("x{} y{} w{} h{}{}", x, y, w, h, opt)
 }
 
 loadXML(ByRef data)

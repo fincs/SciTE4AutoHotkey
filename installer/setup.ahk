@@ -14,14 +14,14 @@ global uititle := "SciTE4AutoHotkey Setup"
 global programVer ; will be filled in later
 global winVer := Util_GetWinVer()
 global ahkPath := Util_GetAhkPath()
-global intlAhkName := ""
-global v3Upgrade := false
 global ahkVer := Util_GetAhkVer()
+global intlAhkName := ""
 global hasLegacyAhk := ahkVer < "1.1"
 global previousInstallDir := ""
 global inInstall := false
 
 SplitPath, A_AhkPath, intlAhkName
+global installDebug := !InStr(intlAhkName, "InternalAHK")
 
 if winVer < 5.1
 {
@@ -29,30 +29,48 @@ if winVer < 5.1
 	ExitApp
 }
 
+if 1 = /uninstall
+{
+	MsgBox, 52, %uititle%, Are you sure you want to remove SciTE4AutoHotkey?
+	IfMsgBox, Yes
+	{
+		FileCopy, %A_AhkPath%, %A_Temp%, 1
+		FileCopy, %A_ScriptFullPath%, %A_Temp%, 1
+		runasverb := A_IsAdmin ? "" : "*RunAs "
+		Run, %runasverb%"%A_Temp%\%intlAhkName%" /CP65001 "%A_Temp%\%A_ScriptName%" /douninstall
+	}
+	ExitApp
+}
 if 1 = /douninstall
-	goto UninstallMain
+{
+	Btn_PerformUninstall()
+	ExitApp
+}
 
-FileRead, programVer, %A_ScriptDir%\$DATA\$VER
+scitepath := installDebug ? "..\source\SciTE.exe" : "SciTE.exe"
+Menu, Tray, Icon, %scitepath%
+FileGetVersion, programVer, %scitepath%
+programVer := Format("{:d}.{:d}.{:02d}.{:02d}", StrSplit(programVer, ".")*)
 
-if FileExist("SciTE.exe")
-	bUninstall := true
-else if ErrorLevel || !FileExist("$DATA\") || !FileExist("dialog.html") || !FileExist("banner.png")
+if !installDebug
+	SetWorkingDir ..
+else
+	hasLegacyAhk := true
+
+if !FileExist("dialog.html") || !FileExist("banner.png")
 {
 	MsgBox, 48, %uititle%, Oops `;p ; Short msg since so rare.
 	ExitApp
 }
 
-if bUninstall
-	goto UninstallPrompt
-
-Menu, Tray, Icon, $DATA\SciTE.exe
-
+Gui, New, +LastFound, %uititle%
 Gui, Margin, 0, 0
+try DllCall("UxTheme\SetWindowThemeAttribute", "ptr", WinExist(), "int", 1, "int64*", (3<<32)|3, "int", 8) ; Hide window title.
 Gui, Add, ActiveX, vwb w600 h400 hwndhwb, Shell.Explorer
 ComObjConnect(wb, "wb_")
 OnMessage(0x100, "gui_KeyDown", 2)
 InitUI()
-Gui, Show,, %uititle%
+Gui, Show
 return
 
 GuiClose:
@@ -61,35 +79,22 @@ if inInstall
 Gui, Destroy
 ExitApp
 
-UninstallPrompt:
-MsgBox, 52, %uititle%, Are you sure you want to remove SciTE4AutoHotkey?
-IfMsgBox, No
-	ExitApp
-
-FileCopy, %A_AhkPath%, %A_Temp%, 1
-FileCopy, %A_ScriptFullPath%, %A_Temp%, 1
-runasverb := A_IsAdmin ? "" : "*RunAs "
-Run, %runasverb%"%A_Temp%\%intlAhkName%" /CP65001 "%A_Temp%\%A_ScriptName%" /douninstall
-ExitApp
-
-UninstallMain:
-Btn_PerformUninstall()
-ExitApp
-
 InitUI()
 {
 	global wb
 	SetWBClientSite(wb)
 	wb.Silent := true
-	wb.Navigate("file://" A_ScriptDir "\dialog.html")
+	wb.Navigate("file://" A_WorkingDir "\dialog.html")
 	while wb.ReadyState != 4
 		Sleep, 10
 	doc := getDocument()
 	doc.getElementById("versionTag").innerText := "version " programVer
 	doc.getElementById("yearTag1").innerText := A_Year
 	doc.getElementById("yearTag2").innerText := A_Year
+	logicalDPI := doc.parentWindow.screen.logicalXDPI, deviceDPI := doc.parentWindow.screen.deviceXDPI
 	if (A_ScreenDPI != 96)
-		wb.document.body.style.zoom := A_ScreenDPI/96
+		doc.body.style.zoom := A_ScreenDPI/96 * (logicalDPI/deviceDPI)
+	doc.body.focus()
 }
 
 ; Fix keyboard shortcuts in WebBrowser control.
@@ -99,6 +104,8 @@ InitUI()
 gui_KeyDown(wParam, lParam, nMsg, hWnd)
 {
 	global wb
+	if (Chr(wParam) ~= "[A-Z]" || wParam = 0x74) ; Disable Ctrl+O/L/F/N and F5.
+		return
 	pipa := ComObjQuery(wb, "{00000117-0000-0000-C000-000000000046}")
 	VarSetCapacity(kMsg, 48), NumPut(A_GuiY, NumPut(A_GuiX
 	, NumPut(A_EventInfo, NumPut(lParam, NumPut(wParam
@@ -160,11 +167,6 @@ switchPage(page)
 	getWindow().switchPage(page)
 }
 
-Lnk_CompileAhk()
-{
-	Run, http://www.autohotkey.com/community/viewtopic.php?t=22975
-}
-
 Btn_Exit()
 {
 	gosub GuiClose
@@ -196,21 +198,6 @@ Btn_Install()
 		defDS := true
 	}
 	
-	if FileExist(ahkPath "\SciTE\$VER")
-	{
-		FileRead, ov, %ahkPath%\SciTE\$VER
-		if ov = 3.0.00
-		{
-			; We're upgrading from S4AHK v3.0.00 (which used a different installer)
-			v3Upgrade := true
-			RegRead, ov, HKCR, AutoHotkeyScript\Shell\Edit\command
-			defEdit := InStr(ov, "SciTE.exe")
-			defSS := FileExist(A_ProgramsCommon "\SciTE4AutoHotkey\")
-			defDS := FileExist(A_DesktopCommon "\SciTE4AutoHotkey.lnk")
-			previousInstallDir := ahkPath "\SciTE"
-		}
-	}
-	
 	document := getDocument()
 	document.getElementById("opt_installdir").value := defPath
 	SetCheckBox(document.getElementById("opt_defedit"), defEdit)
@@ -228,7 +215,7 @@ Btn_Install()
 
 Lnk_AhkWebsite()
 {
-	Run, http://www.ahkscript.org/
+	Run, https://www.autohotkey.com/
 }
 
 SetCheckBox(oCheckBox, state)
@@ -247,7 +234,7 @@ Btn_Browse()
 	Gui +OwnDialogs
 	oTextBox := getDocument().getElementById("opt_installdir")
 	FileSelectFolder, ov, % "*" oTextBox.value, 3, Please select the SciTE4AutoHotkey installation directory.
-	if ErrorLevel
+	if ErrorLevel || !ov
 		return
 	oTextBox.value := ov
 }
@@ -266,6 +253,14 @@ closeSciTE()
 Btn_PerformInstall()
 {
 	Gui +OwnDialogs
+	
+	if installDebug
+	{
+		switchPage("setuprgr")
+		MsgBox, 64, %uititle%, Not going to happen
+		return
+	}
+	
 	if !closeSciTE()
 		return
 	
@@ -288,11 +283,6 @@ Btn_PerformInstall()
 	
 	switchPage("setuprgr")
 	
-	UninstallOldBetas(0)
-	
-	if v3Upgrade
-		RemoveDir(ahkPath "\SciTE\")
-	
 	IfNotExist, %installDir%
 		FileCreateDir, %installDir%
 	else Loop, %installDir%\*.*, 1
@@ -305,10 +295,8 @@ Btn_PerformInstall()
 	
 	oShell := ComObjCreate("Shell.Application")
 	targetFolderObj := oShell.Namespace(installDir)
-	sourceFolderObj := oShell.Namespace(A_ScriptDir "\$DATA")
+	sourceFolderObj := oShell.Namespace(A_ScriptDir)
 	targetFolderObj.CopyHere(sourceFolderObj.Items, 16 | 2048)
-	FileCopy, %A_AhkPath%, %installDir%\, 1
-	FileCopy, %A_ScriptFullPath%, %installDir%\, 1
 	if (winVer < 6)
 	{
 		; Fix up Windows XP/2003's lack of Consolas font
@@ -320,7 +308,7 @@ Btn_PerformInstall()
 	}
 	
 	uninstallProg = %installDir%\%intlAhkName%
-	uninstallArgs = /CP65001 "%installDir%\%A_ScriptName%"
+	uninstallArgs = /CP65001 "%installDir%\%A_ScriptName%" /uninstall
 	key = Software\Microsoft\Windows\CurrentVersion\Uninstall\SciTE4AutoHotkey
 	RegWrite, REG_SZ, HKLM, %key%, DisplayName, SciTE4AutoHotkey v%programVer%
 	RegWrite, REG_SZ, HKLM, %key%, DisplayVersion, v%programVer%

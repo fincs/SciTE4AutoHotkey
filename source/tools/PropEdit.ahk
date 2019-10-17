@@ -56,7 +56,7 @@ stylelist := CountStylesAndChoose(ch1)
 localelist := CountLocalesAndChoose(ch2)
 p_encoding := FindInList(cplist_v, p_encoding)
 
-Gui, +ToolWindow +AlwaysOnTop
+Gui, New, +Owner%scite_hwnd% +ToolWindow, SciTE settings
 
 Gui, Add, Text, Section +Right w70, Language:
 Gui, Add, DDL, ys R10 Choose%ch2% vp_locale, %localelist%
@@ -79,7 +79,7 @@ Gui, Add, CheckBox, ys Checked%p_savepos% vp_savepos
 
 Gui, Add, Button, xs+40 Section gUpdate, Update
 Gui, Add, Button, ys xs+70 gEditStyle, Edit style
-Gui, Show,, SciTE settings
+Gui, Show
 return
 
 DDL_Choose:

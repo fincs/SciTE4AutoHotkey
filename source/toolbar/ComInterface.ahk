@@ -38,7 +38,7 @@ CoI_CallEvent(event, args*)
 			badEvts[cookie] := 1
 	}
 	for cookie in badEvts
-		CoI.EventHandlers.Remove(cookie, "")
+		CoI.EventHandlers.Delete(cookie)
 }
 
 class CoI extends InvalidUsage
@@ -55,7 +55,7 @@ class CoI extends InvalidUsage
 	
 	DisconnectEvent(cookie)
 	{
-		this.EventHandlers.Remove(cookie, "")
+		this.EventHandlers.Delete(cookie)
 	}
 	
 	Message(msg, wParam := 0, lParam := 0)
@@ -210,7 +210,7 @@ class CoI extends InvalidUsage
 		}
 	}
 
-	InsertText(text, pos=-1)
+	InsertText(text, pos := -1)
 	{
 		global scintillahwnd
 		if !IsObject(text) && text && !IsObject(pos) && (pos+0) >= -1
@@ -325,7 +325,7 @@ class CoI extends InvalidUsage
 	SendDirectorMsgRetArray(msg)
 	{
 		obj := Director_Send(msg, true, true)
-		array := ComObjArray(VT_VARIANT:=12, (t := obj.MaxIndex()) ? t : 0), ComObjFlags(array, -1)
+		array := ComObjArray(VT_VARIANT:=12, obj.Length()), ComObjFlags(array, -1)
 		for each, msg in obj
 			array[each - 1] := msg
 		return array
@@ -348,18 +348,13 @@ class CoI extends InvalidUsage
 ; Initialization code
 ;------------------------------------------------------------------------------
 
-goto _skip_file
-
 InitComInterface()
 {
 	global CLSID_SciTE4AHK, APPID_SciTE4AHK, oSciTE, hSciTE_Remote, IsPortable
 	
 	if IsPortable
-	{
 		; Register our CLSID and APPID
-		OnExit, IDCleanup
 		RegisterIDs(CLSID_SciTE4AHK, APPID_SciTE4AHK)
-	}
 	
 	; Expose it
 	if !(hSciTE_Remote := ComRemote(ComObject(9, &CoI), CLSID_SciTE4AHK))
@@ -367,13 +362,10 @@ InitComInterface()
 		MsgBox, 16, SciTE4AutoHotkey, Can't create COM interface!`nSome program functions may not work.
 		if IsPortable
 			RevokeIDs(CLSID_SciTE4AHK, APPID_SciTE4AHK)
-		OnExit
-	}
+	} else if IsPortable
+		; Revoke our CLSID and APPID on exit
+		OnExit(Func("RevokeIDs").Bind(CLSID_SciTE4AHK, APPID_SciTE4AHK))
 }
-
-IDCleanup:
-RevokeIDs(CLSID_SciTE4AHK, APPID_SciTE4AHK)
-ExitApp
 
 RegisterIDs(CLSID, APPID)
 {
@@ -394,6 +386,3 @@ Str2GUID(ByRef var, str)
 	DllCall("ole32\CLSIDFromString", "wstr", str, "ptr", &var)
 	return &var
 }
-
-_skip_file:
-_=_

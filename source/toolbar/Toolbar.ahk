@@ -11,7 +11,6 @@
 #Include ComInterface.ahk
 #Include SciTEDirector.ahk
 #Include SciTEMacros.ahk
-#Include ProfileUpdate.ahk
 #Include Extensions.ahk
 SetWorkingDir, %A_ScriptDir%\..
 SetBatchLines, -1
@@ -28,9 +27,6 @@ ATM_STOPDEBUG  := ATM_OFFSET+1
 ATM_RELOAD     := ATM_OFFSET+2
 ATM_DIRECTOR   := ATM_OFFSET+3
 ATM_DRUNTOGGLE := ATM_OFFSET+4
-
-if !A_IsAdmin
-	runasverb := "*RunAs "
 
 if 0 < 2
 {
@@ -98,7 +94,19 @@ FileRead, GlobalSettings, toolbar.properties
 FileRead, LocalSettings, %LocalPropsPath%
 FileRead, SciTEVersion, %LocalSciTEPath%\$VER
 if SciTEVersion && (SciTEVersion != CurrentSciTEVersion)
-	gosub UpdateProfile
+{
+	if (SciTEVersion > CurrentSciTEVersion) || (SciTEVersion < "3.0.00")
+		SciTEVersion := ""
+	else
+	{
+		FileDelete, %LocalSciTEPath%\_platform.properties
+		FileDelete, %LocalSciTEPath%\$VER
+		FileAppend, %CurrentSciTEVersion%, %LocalSciTEPath%\$VER
+		SciTEVersion := CurrentSciTEVersion
+		regenerateUserProps := true
+	}
+}
+
 if !IsPortable && (!FileExist(LocalPropsPath) || !SciTEVersion)
 {
 	; Create the SciTE user folder
@@ -160,23 +168,22 @@ IL_Add(_ToolIL, _IconLib, 6)
 IL_Add(_ToolIL, _IconLib, 7)
 IL_Add(_ToolIL, _IconLib, 8)
 IL_Add(_ToolIL, _IconLib, 19)
-Tools[2]  := { Path: "?switch" }
-Tools[4]  := { Path: "?run" }
-Tools[5]  := { Path: "?debug" }
-Tools[6]  := { Path: "?pause" }
-Tools[7]  := { Path: "?stop" }
-Tools[8]  := { Path: "?stepinto" }
-Tools[9]  := { Path: "?stepover" }
-Tools[10]  := { Path: "?stepout" }
-Tools[11] := { Path: "?stacktrace" }
-Tools[12] := { Path: "?varlist" }
+Tools[2]  := { Path: Func("Cmd_Switch")     }
+Tools[4]  := { Path: Func("Cmd_Run")        }
+Tools[5]  := { Path: Func("Cmd_Debug")      }
+Tools[6]  := { Path: Func("Cmd_Pause")      }
+Tools[7]  := { Path: Func("Cmd_Stop")       }
+Tools[8]  := { Path: Func("Cmd_StepInto")   }
+Tools[9]  := { Path: Func("Cmd_StepOver")   }
+Tools[10] := { Path: Func("Cmd_StepOut")    }
+Tools[11] := { Path: Func("Cmd_Stacktrace") }
+Tools[12] := { Path: Func("Cmd_Varlist")    }
 i := 11
 
 Loop, Parse, ToolbarProps, `n, `r
 {
 	curline := Trim(A_LoopField)
-	if (curline = "")
-		|| SubStr(curline, 1, 1) = ";"
+	if (curline = "") || SubStr(curline, 1, 1) = ";"
 		continue
 	else if SubStr(curline, 1, 2) = "--"
 	{
@@ -188,10 +195,9 @@ Loop, Parse, ToolbarProps, `n, `r
 		_ToolButs .= "-`n"
 		ntools++
 		continue
-	}else if !RegExMatch(curline, "^=(.*?)\x7C(.*?)(?:\x7C(.*?)(?:\x7C(.*?))?)?$", varz)
-		|| varz1 = ""
+	}else if !RegExMatch(curline, "^=(.*?)\|(.*?)(?:\|(.*?)(?:\|(.*?))?)?$", varz) || varz1 = ""
 		continue
-	ntools ++
+	ntools++
 	IfInString, varz1, `,
 	{
 		MsgBox, 16, SciTE4AutoHotkey Toolbar, A tool name can't contain a comma! Specified:`n%varz1%
@@ -226,9 +232,9 @@ ControlGetPos,,, guiw, guih,, ahk_id %scitool% ; Get size of real SciTE toolbar.
 x := DllCall("SendMessage", "ptr", scitehwnd, "uint", 1024, "ptr", 0, "ptr", 0, "ptr")
 
 ; Create and show the AutoHotkey toolbar
-Gui, New, hwndhwndgui +Parent%scitool% -Caption, AHKToolbar4SciTE
-Gui, +0x40000000 -0x80000000 ; Must be done *after* the GUI is created. Fixes focus issues. ~L
-Gui, Show, x%x% y-2 w%guiw% h%guih% NoActivate
+Gui Main:New, hwndhwndgui +Parent%scitool% -Caption LabelMain_, AHKToolbar4SciTE
+Gui +0x40000000 -0x80000000 ; Must be done *after* the GUI is created. Fixes focus issues. ~L
+Gui Show, x%x% y-2 w%guiw% h%guih% NoActivate
 WinActivate, ahk_id %scitehwnd%
 
 OnMessage(ATM_STARTDEBUG, "Msg_StartDebug")
@@ -243,24 +249,24 @@ if A_ScreenDPI >= 120
 
 ; Build the menus
 
-Menu, ExtMonMenu, Add, Install extension, ExtMonInstallExt
-Menu, ExtMonMenu, Add, Remove extension, ExtMonRemoveExt
-Menu, ExtMonMenu, Add, Create extension, ExtMonCreateExt
-Menu, ExtMonMenu, Add, Export extension, ExtMonExportExt
+Menu, ExtMonMenu, Add, Install, ExtMon_Install
+Menu, ExtMonMenu, Add, Remove, ExtMon_Remove
+Menu, ExtMonMenu, Add, Create, ExtMon_Create
+Menu, ExtMonMenu, Add, Export, ExtMon_Export
 
-Menu, ExtMenu, Add, Extension manager, extmon
+Menu, ExtMenu, Add, Extension manager, ExtMon_Show
 Menu, ExtMenu, Add, Reload extensions, reloadexts
 
 Menu, ToolMenu, Add, Extensions, :ExtMenu
 Menu, ToolMenu, Add
-Menu, ToolMenu, Add, Edit User toolbar properties, editprops
-Menu, ToolMenu, Add, Edit User autorun script, editautorun
-Menu, ToolMenu, Add, Edit User Lua script, editlua
+Menu, ToolMenu, Add, Open User toolbar properties, editprops
+Menu, ToolMenu, Add, Open User autorun script, editautorun
+Menu, ToolMenu, Add, Open User Lua script, editlua
 Menu, ToolMenu, Add
-Menu, ToolMenu, Add, View Global toolbar properties, editglobalprops
-Menu, ToolMenu, Add, View Global autorun script, editglobalautorun
+Menu, ToolMenu, Add, Open Global toolbar properties, editglobalprops
+Menu, ToolMenu, Add, Open Global autorun script, editglobalautorun
 Menu, ToolMenu, Add
-Menu, ToolMenu, Add, View platform properties, editplatforms
+Menu, ToolMenu, Add, Open platform properties, editplatforms
 Menu, ToolMenu, Add, Reload platforms, reloadplatforms
 Menu, ToolMenu, Add
 Menu, ToolMenu, Add, Reload toolbar, reloadtoolbar
@@ -349,13 +355,11 @@ OnToolbar(hToolbar, pEvent, pTxt, pPos, pId)
 		RunTool(pPos)
 }
 
-GuiClose:
-ExitApp
-
-GuiContextMenu:
-; Right click
-Menu, ToolMenu, Show
-return
+Main_ContextMenu()
+{
+	; Right click
+	Menu, ToolMenu, Show
+}
 
 check4updates:
 Run, "%A_AhkPath%" "%SciTEDir%\tools\SciTEUpdate.ahk"
@@ -395,15 +399,15 @@ Run, SciTE.exe "%LocalSciTEPath%\UserLuaScript.lua"
 return
 
 editglobalprops:
-Run, %runasverb%SciTE.exe "%SciTEDir%\toolbar.properties"
+Run, SciTE.exe "%SciTEDir%\toolbar.properties"
 return
 
 editglobalautorun:
-Run, %runasverb%SciTE.exe "%SciTEDir%\tools\Autorun.ahk"
+Run, SciTE.exe "%SciTEDir%\tools\Autorun.ahk"
 return
 
 editplatforms:
-Run, %runasverb%SciTE.exe "%SciTEDir%\platforms.properties"
+Run, SciTE.exe "%SciTEDir%\platforms.properties"
 return
 
 reloadplatforms:
@@ -465,11 +469,11 @@ return
 RunTool(toolnumber)
 {
 	global Tools, dbg_active
-	if SubStr(t := Tools[toolnumber].Path, 1, 1) = "?"
-		p := "Cmd_" SubStr(t, 2), (IsFunc(p)) ? p.() : ""
+	if IsObject(t := Tools[toolnumber].Path)
+		%t%()
 	else if !dbg_active
 	{
-		Run, % ParseCmdLine(cmd := Tools[toolnumber].Path),, UseErrorLevel
+		Run, % ParseCmdLine(t),, UseErrorLevel
 		if ErrorLevel = ERROR
 			MsgBox, 16, SciTE4AutoHotkey Toolbar, Couldn't launch specified command line! Specified:`n%cmd%
 	}
@@ -492,7 +496,7 @@ Cmd_Run()
 Cmd_Pause()
 {
 	global
-	PostMessage, 0x111, 1136, 0,, ahk_id %scitehwnd%
+	PostMessage, 0x111, 1134, 0,, ahk_id %scitehwnd%
 }
 
 Cmd_Stop()
@@ -665,15 +669,4 @@ Util_GetAhkPath()
 		SetRegView, %q%
 	}
 	return ov
-}
-
-Util_Is64bitProcess(pid)
-{
-	if !A_Is64bitOS
-		return 0
-	
-	proc := DllCall("OpenProcess", "uint", 0x0400, "uint", 0, "uint", pid, "ptr")
-	DllCall("IsWow64Process", "ptr", proc, "uint*", retval)
-	DllCall("CloseHandle", "ptr", proc)
-	return retval ? 0 : 1
 }

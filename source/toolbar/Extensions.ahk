@@ -1,84 +1,89 @@
 ﻿
 goto _skip_ext_ahk
 
-extmon:
-if extMonShown
+ExtMon_Show()
 {
-	Gui ExtMon:Show
-	return
+	global extMonShown, extMonRemoveList, extMonLV, scitehwnd
+	if extMonShown
+	{
+		Gui ExtMon:Show
+		return
+	}
+	
+	Gui ExtMon:New, +Owner%scitehwnd% +ToolWindow LabelExtMon_ Resize MinSize, Extension Manager
+	Gui Menu, ExtMonMenu
+	Gui Margin, 0, 0
+	Gui Add, ListView, w480 h320 Checked hwndextMonLV -LV0x10, Name|Version|Author|Internal name
+	Util_ExtMonLoadExt()
+	Gui Show
+	extMonShown := true
+	extMonRemoveList := {}
 }
-extMonFirstLabel := false
-Gui ExtMon:+Owner%hwndgui% LabelExtMon Resize MinSize
-Gui ExtMon:Default
-Gui, Menu, ExtMonMenu
-Gui, Margin, 0, 0
-Gui, Add, ListView, w480 h320 Checked vExtMonLV hwndExtMonLVHWND -LV0x10, Name|Version|Author|Internal name
-Util_ExtMonLoadExt()
-Gui, Show,, Extension Manager
-extMonShown := true
-extMonRemoveList := {}
-return
 
-ExtMonClose:
-Gui +OwnDialogs
-MsgBox, 35, Extension Manager, Do you want to save changes? This requires a restart.
-IfMsgBox, Cancel
-	return
-IfMsgBox, Yes
+ExtMon_Close()
 {
-	for extName,_ in extMonRemoveList
-		FileRemoveDir, %ExtensionDir%\%extName%, 1
-	Util_ExtMonSaveExt()
+	global extMonShown, extMonRemoveList
+	Gui +OwnDialogs
+	MsgBox, 35, Extension Manager, Do you want to save changes? This requires a restart.
+	IfMsgBox, Cancel
+		return true
+	IfMsgBox, Yes
+	{
+		for extName,_ in extMonRemoveList
+			FileRemoveDir, %ExtensionDir%\%extName%, 1
+		Util_ExtMonSaveExt()
+	}
+	Gui Destroy
+	extMonShown := false
+	IfMsgBox, Yes
+		gosub reloadextsForce
 }
-Gui, Destroy
-extMonShown := false
-IfMsgBox, Yes
-	gosub reloadextsForce
-return
 
-ExtMonSize:
-GuiControl, Move, ExtMonLV, w%A_GuiWidth% h%A_GuiHeight%
-return
-
-ExtMonRemoveExt:
-Gui +OwnDialogs
-selRows := LV_GetCount("S")
-if !selRows
-	return
-plural := selRows > 1 ? "s" : ""
-MsgBox, 52, Extension Manager, Are you sure you want to remove the selected extension%plural%?
-IfMsgBox, No
-	return
-Loop %selRows%
+ExtMon_Size(GuiHwnd, EventInfo, Width, Height)
 {
-	x := LV_GetNext()
-	LV_GetText(xt, x, 4)
-	extMonRemoveList[xt] := true
-	LV_Delete(x)
+	GuiControl Move, SysListView321, w%Width% h%Height%
 }
-return
 
-ExtMonExportExt:
-Gui +OwnDialogs
-if LV_GetCount("S") != 1
-	return
-extToExport := LV_GetNext()
-LV_GetText(extIntlName, extToExport, 4)
-FileSelectFile, expFile, S16, %extIntlName%.s4x, Export Extension, SciTE4AutoHotkey Extension (*.s4x)
-if ErrorLevel
-	return
-if !RegExMatch(expFile, "\.[^\\/]+$")
-	expFile .= ".exe"
-if ExportExtension(extIntlName, expFile)
-	MsgBox, 64, SciTE4AutoHotkey, Extension exported successfully!
-else
-	MsgBox, 16, SciTE4AutoHotkey, Failed to export the extension!
-return
+ExtMon_Remove()
+{
+	Gui +OwnDialogs
+	selRows := LV_GetCount("S")
+	if !selRows
+		return
+	plural := selRows > 1 ? "s" : ""
+	MsgBox, 52, Extension Manager, Are you sure you want to remove the selected extension%plural%?
+	IfMsgBox, No
+		return
+	Loop %selRows%
+	{
+		x := LV_GetNext()
+		LV_GetText(xt, x, 4)
+		extMonRemoveList[xt] := true
+		LV_Delete(x)
+	}
+}
 
-ExtMonCreateExt:
+ExtMon_Export()
+{
+	Gui +OwnDialogs
+	if LV_GetCount("S") != 1
+		return
+	extToExport := LV_GetNext()
+	LV_GetText(extIntlName, extToExport, 4)
+	FileSelectFile, expFile, S16, %extIntlName%.s4x, Export Extension, SciTE4AutoHotkey Extension (*.s4x)
+	if ErrorLevel
+		return
+	if !RegExMatch(expFile, "\.[^\\/]+$")
+		expFile .= ".exe"
+	if ExportExtension(extIntlName, expFile)
+		MsgBox, 64, SciTE4AutoHotkey, Extension exported successfully!
+	else
+		MsgBox, 16, SciTE4AutoHotkey, Failed to export the extension!
+}
+
+ExtMon_Create:
 Gui +Disabled
-Gui ExtCreate:+OwnerExtMon LabelExtCreate
-Gui ExtCreate:Default
+Gui ExtCreate:New, +OwnerExtMon +ToolWindow LabelExtCreate, New Extension
 ;Gui, Add, Text, w320, Not! Implemented! Sorry!
 Gui, Add, Text, Section Right w90, Internal name:
 Gui, Add, Edit, ys w320 vExtCreate_IntlName, com.yourname.extname
@@ -93,7 +98,7 @@ Gui, Add, CheckBox, ys vExtCreate_HasProps Checked, Has SciTE properties
 Gui, Add, CheckBox, vExtCreate_HasToolbar, Has Toolbar buttons
 Gui, Add, CheckBox, vExtCreate_HasLua, Has custom Lua script
 Gui, Add, Button, gExtCreateCreate w90, Create
-Gui, Show,, New Extension
+Gui, Show
 return
 
 ExtCreateClose:
@@ -177,7 +182,7 @@ FileAppend, % manifest, %tmpExtDir%\manifest.ini
 LV_Add("Check", ExtCreate_Name, ExtCreate_Version, ExtCreate_Author, ExtCreate_IntlName)
 return
 
-ExtMonInstallExt:
+ExtMon_Install:
 Gui +OwnDialogs
 FileSelectFile, extFile, 1,, Install Extension, SciTE4AutoHotkey Extension (*.s4x)
 if ErrorLevel
@@ -278,12 +283,12 @@ Util_ExtMonLoadExt()
 
 Util_ExtMonSaveExt()
 {
-	global ExtMonLVHWND
+	global extMonLV
 	ini := "[Installed]`n"
 	Loop, % LV_GetCount()
 	{
 		LV_GetText(extName, A_Index, 4)
-		extEn := Util_LVIsChecked(ExtMonLVHWND, A_Index)
+		extEn := Util_LVIsChecked(extMonLV, A_Index)
 		ini .= extName "=" extEn "`n"
 	}
 	FileDelete, %ExtensionDir%\extensions.ini
@@ -350,7 +355,6 @@ Util_RebuildExtensions()
 	
 	extProps := "# THIS FILE IS SCRIPT-GENERATED - DON'T TOUCH`n"
 	luaProps := "-- THIS FILE IS SCRIPT-GENERATED - DON'T TOUCH`n"
-	langMenu := "", dlgFilter := ""
 	for extName, enabled in Util_GetExtensionList()
 	{
 		if !enabled
@@ -359,8 +363,6 @@ Util_RebuildExtensions()
 		mBeh := Util_GetExtManifest(extName).Behaviour
 		mLuaScript := mBeh.LuaScript
 		mProperties := mBeh.Properties
-		langMenu .= mBeh.LanguageMenu
-		dlgFilter .= mBeh.FileFilter
 		
 		if mLuaScript
 		{
@@ -375,12 +377,6 @@ Util_RebuildExtensions()
 				extProps .= "import Extensions/" extName "/" Trim(A_LoopField) "`n"
 		}
 	}
-	
-	if langMenu
-		extProps .= "ext.menu.language=" langMenu "`n"
-	
-	if dlgFilter
-		extProps .= "filter.ext=" dlgFilter "`n"
 	
 	t := A_FileEncoding
 	FileEncoding, CP0

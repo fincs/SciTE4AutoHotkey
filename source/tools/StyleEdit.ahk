@@ -27,6 +27,8 @@ if !scite
 	ExitApp
 }
 
+scite_hwnd := scite.SciTEHandle
+
 FileEncoding UTF-8
 FileRead StyleText, %StyleFileName%
 
@@ -67,7 +69,7 @@ data := {}
 Menu, TheMenu, Add, Set Color, SetColor
 Menu, TheMenu, Add, Inherit Color, InheritColor
 
-Gui +ToolWindow +AlwaysOnTop +HwndMainWin
+Gui +Owner%scite_hwnd% +ToolWindow +HwndMainWin
 OnMessage(0x0138, "WM_CTLCOLORSTATIC")
 Gui Add, Text, Section w80 Center, Code Font:
 Gui Add, DDL, ys w210 vddlFont, % ListFonts()

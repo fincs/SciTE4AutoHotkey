@@ -5,8 +5,6 @@
 ;     version 1.0 - fincs
 ;
 
-goto _scim_skip
-
 Macro_Init()
 {
 	global SciTEMacro
@@ -17,23 +15,17 @@ Macro_Init()
 
 SciTE_OnMacro(val)
 {
-	global SciTEMacroValue
-	SciTEMacroValue := val
-	SetTimer, OnMacro, -10
+	timer := Func("HandleMacroMsg").Bind(val)
+	SetTimer, % timer, -10
 }
-
-OnMacro:
-Critical
-HandleMacroMsg(SciTEMacroValue)
-return
 
 HandleMacroMsg(rawmsg)
 {
+	Critical
 	colon := InStr(rawmsg, ":")
 	verb := SubStr(rawmsg, 1, colon-1)
 	arg := SubStr(rawmsg, colon+1)
-	func := "SciTE_OnMacro" verb
-	if IsFunc(func)
+	if func := Func("SciTE_OnMacro" verb)
 		%func%(arg)
 }
 
@@ -78,10 +70,11 @@ SciTE_OnMacroStopRecord()
 	FileAppend, % macro, %macrofile%, UTF-8
 }
 
-_run_macro:
-Director_Send("currentmacro:" A_ThisMenuItem)
-SciTE_OnMacroRun(A_ThisMenuItem)
-return
+_run_macro(itemName)
+{
+	Director_Send("currentmacro:" itemName)
+	SciTE_OnMacroRun(itemName)
+}
 
 SciTE_OnMacroRun(macro)
 {
@@ -110,6 +103,3 @@ ListMacros()
 	}
 	return macros
 }
-
-_scim_skip:
-_=_

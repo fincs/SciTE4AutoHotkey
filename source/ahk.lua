@@ -173,21 +173,6 @@ function OnDwellStart(pos, word)
 	end
 end
 
--- =========================================================== --
--- Get direction interface HWND function (used by the toolbar) --
--- =========================================================== --
-
-function get_director_HWND()
-	if prepared then return end
-	
-	if localizewin("scite4ahkToolbarTempWin") == false then
-		print("Window doesn't exist.")
-		return
-	end
-	
-	pumpmsg(4099, 0, props['WindowID'])
-end
-
 -- ============== --
 -- DBGp functions --
 -- ============== --

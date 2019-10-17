@@ -1,14 +1,22 @@
+<!DOCTYPE html>
 <html><head>
+<meta http-equiv='x-ua-compatible' content='IE=Edge'>
 <style type="text/css">
 body
 {
 	background-color: ButtonFace;
 	font-family: "Arial", sans-serif;
-	font-size: 15px;
+	font-size: 14px;
 	overflow: auto;
 	cursor: default;
 	padding: 0;
 	margin: 0;
+	border: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
 }
 h1
 {
@@ -16,8 +24,12 @@ h1
 	font-weight: normal;
 	color: #405871;
 	background-color: white;
-	/*padding: 15px 25px;*/
-	margin: 0 0; /*-15px;*/
+	margin: 0 0;
+}
+h1 img
+{
+	margin: auto auto;
+	display: block;
 }
 p
 {
@@ -41,7 +53,7 @@ a:link, a:visited
 	padding: 0.8em 1em;
 	margin: 0.3em 0;
 	position: relative;
-	width: 100%;
+	_height: 1%; /* IE6 hasLayout */
 }
 .marker
 {
@@ -54,39 +66,41 @@ a:link, a:visited
 a.button,
 .options a
 {
-	cursor: hand;
 	border: 1px solid ButtonShadow;
 	background-color: white;
 	text-decoration: none;
 }
 a.button
 {
-	font-size: 125%;
 	padding: .3em .5em;
+	text-align: center;
 }
 a.button,
 a.button:visited,
-.options a,
+.options a:link,
 .options a:visited
 {
+	cursor: hand;
 	color: #405871;
 }
 a.button:hover,
 a.button:active,
 .options a:hover,
-.options a:active
+.options a:active,
+.options a:focus
 {
 	background-color: #F8F8FF;
 	border-color: #4774B2;
 	color: #4774B2;
 }
-.options a:active
+.options a:active,
+.options a:focus
 {
 	left: 3px;
 }
 .options p
 {
-	font-size: 80%;
+	font-size: 85%;
 	margin: 0.2em 1em;
 }
 #license
@@ -97,13 +111,27 @@ a.button:active,
 }
 .page
 {
-	width: 100%;
-	/*height: 100%;*/
+	/*width: 100%;
+	height: 100%;*/
 	padding: 0 15px;
 	display: none; /* overridden by script */
 	color: ButtonText;
 }
-
+#installdir_browse
+{
+	padding: 0 0.6em;
+	margin: 7px 0 10px;
+	height: 29px;
+	line-height: 29px;
+	display: inline-block;
+	background-color: ButtonFace;
+}
+#install_button, #next-button
+{
+	font-size: 125%;
+	right: 15px;
+	width: 5em;
+}
 .pager .page
 {
 	padding: 15px 0;
@@ -113,7 +141,7 @@ a.button:active,
 	background-color: #405871;
 	color: white;
 	margin: 0 0;
-	padding: 3px 20px;
+	padding: 3px 0px;
 	width: 100%;
 }
 .nav a, .nav a:visited
@@ -167,7 +195,9 @@ label
 }
 label.indent
 {
+	padding-top: 20px;
 	padding-left: 30px;
+	width: auto;
 }
 label p
 {
@@ -175,14 +205,15 @@ label p
 	margin: .3em 25px;
 	color: #405871;
 }
-#install_button, #next-button
+.footer
 {
 	position: absolute;
-	bottom: 15px;
-	right: 15px;
-	width: 5em;
-	font-size: 125%;
-	text-align: center;
+	bottom: 1em;
+	font-size: 85%;
+}
+p.footer
+{
+	left: 2em;
 }
 #nagnote
 {
@@ -266,10 +297,10 @@ function switchPage(page)
 </script>
 
 </head>
-<body onload="switchPage('start')">
+<body scroll="no" onload="switchPage('start')">
 
 <h1><img src="banner.png" alt="SciTE4AutoHotkey Logo"></h1>
-<div class="nav" id="start_nav"><em style="text-align:right;width:100%" id="versionTag">placeholder</em></div>
+<div class="nav" id="start_nav"><em style="position:absolute;right:20px;" id="versionTag">placeholder</em>&nbsp;</div>
 
 <div class="page" id="start">
 	<p>Welcome! This program will install SciTE4AutoHotkey.</p>
@@ -279,17 +310,10 @@ function switchPage(page)
 		<a href="ahk://Btn_Exit"><span>Quit Setup</span></a>
 	</div>
 	
-	<div id="license">
-	
-	<p>SciTE and Scintilla by Neil Hodgson; AutoHotkey by Chris and Lexikos; LexAHK1 by PhiLho;
-	tools by fincs, Rajat and TheGood; logo by Ice_Tea; program icon by kon; debugging icons from famfamfam.com;
-	file hosting provided by daonlyfreez; 7-Zip by the 7-Zip team, source code hosting by GitHub,
-	installer UI originally designed and coded by Lexikos.</p>
-	
-	<p>SciTE4AutoHotkey is open source software: <a href="#" onclick="switchPage('licensepage')">read its license</a>.<br>
-	Users of pre-release builds should read <a href="#" onclick="switchPage('prerelinfo')">information targeted to them</a>.</p>
-	
-	</div>
+	<p class="footer">
+	<a href="#" onclick="switchPage('acknowledgements')">Acknowledgements</a><br>
+	SciTE4AutoHotkey is open source software: <a href="#" onclick="switchPage('licensepage')">read its license</a>.
+	</p>
 </div>
 
 <div class="page" id="licensepage">
@@ -333,20 +357,22 @@ function switchPage(page)
 	
 </div>
 
-<div class="page" id="prerelinfo">
+<div class="page" id="acknowledgements">
 
-	<p>This installer will first uninstall all pre-release builds before installing.
-	Settings from builds starting with Beta 3 will be automatically converted on startup.</p>
-
-	<p>Betas 1, 2 and 3's broken AutoHotkey_L installation will be removed. Please use
-	the official AutoHotkey installer instead, which also includes all builds and is
-	natively supported by SciTE4AutoHotkey.</p>
-
-	<p>Likewise, the old AutoHotkey_L porting pack is no longer supported, and the official
-	AutoHotkey installer should be used instead.</p>
-
-	<p><a href="ahk://Lnk_CompileAhk">Compile_AHK II</a> is no longer included nor supported.
-	Existing installations will however be preserved.</p>
+	<p>SciTE4AutoHotkey wouldn't be possible without the work and support over the years
+	by a considerable number of people. In no particular order:</p>
+	<ul>
+		<li><strong>Neil Hodgson</strong> for creating Scintilla and SciTE.</li>
+		<li><strong>Chris Mallett</strong> for starting off the awesome software that is AutoHotkey.</li>
+		<li><strong>Steve Gray (Lexikos)</strong> for doing a sterling job at continuing development of AutoHotkey where
+		Chris left off, providing extremely valuable insight, writing the installer UI, improving the
+		interactive debugger with many bugfixes and a new UI, and many other countless things.</li>
+		<li><strong>Philippe Lhoste</strong> for programming the original AutoHotkey v1.0 Scintilla lexer.</li>
+		<li><strong>Ice_Tea and kon</strong> for the logos used by SciTE4AutoHotkey.</li>
+		<li><strong>TheGood</strong> for making TillaGoto.</li>
+		<li><strong>The 7-Zip team</strong> for making 7-Zip, which is used in the installer.</li>
+		<li><strong>Mark James (famfamfam.com)</strong> for designing the icons which are used in the debugger.</li>
+	</ul>
 	
 	<div style="text-align: center">
 		<a onclick="switchPage('start')" class="button">Go back</a>
@@ -364,17 +390,17 @@ function switchPage(page)
 	a degraded user experience, such as the inability to debug scripts using the
 	interactive debugger.</p>
 	
-	<p>Please take into account that the currently installed AutoHotkey version is <span id="obsoletecounter">
+	<p>Please note that the currently installed version of AutoHotkey is <span id="obsoletecounter">
 	</span>&nbsp;and numerous bugfixes and improvements have been added since then, not to mention
-	that new scripts created by the AutoHotkey community are increasingly incompatible with it.</p>
+	that scripts created by the AutoHotkey community are essentially no longer compatible with it.</p>
 	
-	<p>Please also note that the autohotkey.com website has been taken over as of 2014 by a third-party
-	for-profit entity and is <strong>not affiliated with and/or endorsed by</strong> the AutoHotkey developers
-	or the community. This entity is responsible for the promotion of this obsolete version of AutoHotkey,
+	<p>You can always download the very latest version of AutoHotkey at <a href="ahk://Lnk_AhkWebsite">
+	autohotkey.com</a>, the official website managed by the AutoHotkey Foundation.</p>
+	
+	<p>Please also note that during the years 2012-2015, autohotkey.com had been seized by a third-party
+	for-profit entity and was <strong>not affiliated with and/or endorsed by</strong> the AutoHotkey developers
+	or the community. This entity was responsible for the promotion of this obsolete version of AutoHotkey,
 	and therefore <strong>you may be a victim.</strong></p>
-	
-	<p>You can always download the latest version of AutoHotkey at <a href="ahk://Lnk_AhkWebsite">
-	ahkscript.org</a>, the new grassroots website founded by the AutoHotkey community and developers.</p>
 	
 	<div style="text-align: center">
 		<a onclick="switchPage('setupopt')" class="button">I understand the risks</a>
@@ -386,24 +412,23 @@ function switchPage(page)
 </div>
 
 <div class="page" id="setupopt">
-	<br>
 	<label for="opt_installdir" class="indent">Install location:<br>
-	<input type="text" class="textbox" id="opt_installdir" value="" tabindex="11">
-		<a href="ahk://Btn_Browse" id="installdir_browse" class="button" tabindex="12">Browse</a>
-	</label><br>
-	<label for="opt_defedit"><input type="checkbox" id="opt_defedit" checked="checked">Set as default .ahk file editor
+		<input type="text" class="textbox" id="opt_installdir" value="">
+		<a href="ahk://Btn_Browse" id="installdir_browse" class="button">Browse</a>
+	</label>
+	<label for="opt_defedit">
+		<input type="checkbox" id="opt_defedit" checked="checked">Set as default .ahk file editor
 		<p>Setting this option will cause the 'Edit Script' option to launch SciTE4AutoHotkey.</p>
 	</label>
 	<label for="opt_startlnks"><input type="checkbox" id="opt_startlnks" checked="checked"><span id="stmtext"></span></label>
 	<label for="opt_desklnks"><input type="checkbox" id="opt_desklnks" checked="checked">Create a shortcut in the Desktop</label>
 
-	<a href="ahk://Btn_PerformInstall" id="install_button" class="button">Install</a>
+	<a href="ahk://Btn_PerformInstall" id="install_button" class="button footer">Install</a>
 </div>
 
 <div class="page" id="setuprgr">
 
 	<p style="color: #999; font-size: 120%; text-align: center; margin-top: 5em">this shouldn't take long...</p>
-	<!--<p style="text-align: center" id="install_status"></p>-->
 
 </div>
 

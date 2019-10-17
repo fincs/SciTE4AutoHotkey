@@ -335,6 +335,10 @@ GetKeyVK(key)
 GetKeySC(key)
 IsByRef(var)
 
+MenuGetHandle(MenuName) \nRetrieves the Win32 menu handle of a menu.
+MenuGetName(Handle) \nRetrieves the name of a menu given a handle to its underlying Win32 menu.
+LoadPicture(Filename [, Options, ByRef ImageType]) \nLoads a picture from file and returns a bitmap or icon handle.
+
 Object([key, value, [key2, value2...]]) \nCreates a scriptable object which is also an associative array.
 Object(obj) \nRetrieves an interface pointer from an object reference or vice versa.
 Array([values...]) \nCreates an array.
@@ -778,6 +782,7 @@ Slider
 StatusBar
 Tab
 Tab2
+Tab3
 TreeView
 UpDown
 ActiveX
@@ -887,6 +892,7 @@ Disabled
 Visible
 LastFound
 LastFoundExist
+BarBreak
 
 AltTab
 ShiftAltTab
@@ -972,11 +978,19 @@ A_CaretX
 A_CaretY
 A_ComputerName
 A_ControlDelay
+A_CoordModeToolTip
+A_CoordModePixel
+A_CoordModeMouse
+A_CoordModeCaret
+A_CoordModeMenu
 A_Cursor
 A_DD
 A_DDD
 A_DDDD
+A_DefaultGui
+A_DefaultListView
 A_DefaultMouseSpeed
+A_DefaultTreeView
 A_Desktop
 A_DesktopCommon
 A_DetectHiddenText
@@ -1013,6 +1027,9 @@ A_IsPaused
 A_IsSuspended
 A_IsUnicode
 A_KeyDelay
+A_KeyDelayPlay
+A_KeyDuration
+A_KeyDurationPlay
 A_Language
 A_LastError
 A_LineFile
@@ -1045,6 +1062,7 @@ A_MMM
 A_MMMM
 A_Mon
 A_MouseDelay
+A_MouseDelayPlay
 A_MSec
 A_MyDocuments
 A_Now
@@ -1067,11 +1085,14 @@ A_ScriptFullPath
 A_ScriptHwnd
 A_ScriptName
 A_Sec
+A_SendLevel
+A_SendMode
 A_Space
 A_StartMenu
 A_StartMenuCommon
 A_Startup
 A_StartupCommon
+A_StoreCapslockMode
 A_StringCaseSense
 A_Tab
 A_Temp

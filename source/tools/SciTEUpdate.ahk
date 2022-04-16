@@ -8,7 +8,7 @@
 SendMode Input
 SetWorkingDir, %A_ScriptDir%
 
-baseurl = http://fincs.ahk4.net/scite4ahk
+baseurl := "https://www.autohotkey.com/scite4ahk"
 isPortable := InStr(FileExist("..\user"), "D")
 today := SubStr(A_Now, 1, 8)
 if !isPortable

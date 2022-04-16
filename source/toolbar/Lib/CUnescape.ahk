@@ -13,21 +13,21 @@ CUnescape(ByRef stQ)
 		{
 			escp := false
 			if c = \
-				c = \
+				c := "\"
 			else if c = a
-				c = `a
+				c := "`a"
 			else if c = b
-				c = `b
+				c := "`b"
 			else if c = f
-				c = `f
+				c := "`f"
 			else if c = n
-				c = `n
+				c := "`n"
 			else if c = r
-				c = `r
+				c := "`r"
 			else if c = t
-				c = %A_Tab%
+				c := A_Tab
 			else if c = v
-				c = `v
+				c := "`v"
 			; TODO: octal stuff
 		}else if c = \
 		{

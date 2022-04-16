@@ -1,14 +1,31 @@
-SciTE/Scintilla 3.7.1 modified source code
-==========================================
+# SciTE4AutoHotkey patches for Scintilla, Lexilla and SciTE
 
-Patch instructions
-------------------
+## Prerequisites
 
-In order to get the modified source code, download & extract the file scite371.tgz to a new folder, open a command prompt, navigate to it and issue the following command:
+- Mercurial
+- Git
+- [msys2](https://www.msys2.org/) with clang64 environment and toolchain (`pacman -S --needed mingw-w64-clang-x86_64-toolchain`)
 
-    patch -p1 < path/to/S4AHK.patch
+All commands below assume you are using the clang64 shell provided by msys2.
 
-Build instructions
-------------------
+## Getting the source and patching it
 
-Use MSVC++ 2015 to build everything. Open SciTE4AutoHotkey.sln, select the *Win32* platform and the *Release* configuration then click on Build.
+```bash
+hg clone http://hg.code.sf.net/p/scintilla/code scintilla
+git clone https://github.com/ScintillaOrg/lexilla -b rel-5-1-6 lexilla
+hg clone http://hg.code.sf.net/p/scintilla/scite scite
+cd scintilla && hg update rel-5-2-2 && hg import --no-commit ../scintilla.diff && cd ..
+cd lexilla && git apply ../lexilla.diff && cd ..
+cd scite && hg update rel-5-2-2 && hg import --no-commit ../scite.diff && cd ..
+cp SciTE4AutoHotkey.ico scite/win32/
+```
+
+## Building the components
+
+```bash
+cd scintilla/win32 && make CLANG=1 && cd ../..
+cd lexilla/src && make CLANG=1 && cd ../..
+cd scite/win32 && make CLANG=1 && cd ../bin && strip *.exe *.dll && cd ../..
+```
+
+The resulting files (SciTE.exe, Scintilla.dll, lexilla.dll) should be present in `scite/bin`, and can be copied to the main SciTE4AutoHotkey program folder.

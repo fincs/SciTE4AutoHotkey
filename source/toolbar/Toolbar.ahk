@@ -77,9 +77,6 @@ IfWinNotExist, ahk_id %directorhwnd%
 scitemenu := DllCall("GetMenu", "ptr", scitehwnd, "ptr")
 filesmenu := DllCall("GetSubMenu", "ptr", scitemenu, "int", 7, "ptr")
 
-; Get the HWND of its Scintilla control
-ControlGet, scintillahwnd, Hwnd,, Scintilla1, ahk_id %scitehwnd%
-
 LocalSciTEPath = %SciTEDir%\user
 IsPortable := InStr(FileExist(LocalSciTEPath), "D")
 if !IsPortable

@@ -201,8 +201,7 @@ class CoI extends InvalidUsage
 	{
 		get
 		{
-			global scintillahwnd
-			return SciUtil_GetText(scintillahwnd)
+			return Director_Send("ask_fulldocument:", true).Value
 		}
 		set
 		{
@@ -212,17 +211,19 @@ class CoI extends InvalidUsage
 
 	InsertText(text, pos := -1)
 	{
-		global scintillahwnd
 		if !IsObject(text) && text && !IsObject(pos) && (pos+0) >= -1
-			SciUtil_InsertText(scintillahwnd, text, pos)
+		{
+			if (pos >= 0)
+				Director_Send("goto_raw:" pos)
+			Director_Send("insert:" CEscape(text))
+		}
 	}
 
 	Selection[]
 	{
 		get
 		{
-			global scintillahwnd
-			return SciUtil_GetSelection(scintillahwnd)
+			return this.ResolveProp("CurrentSelection")
 		}
 	}
 

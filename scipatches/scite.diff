@@ -1,0 +1,902 @@
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 00000000..d8855a64
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1,50 @@
++.hg/
++*.o
++*.a
++*.obj
++__pycache__
++*.pyc
++*.dll
++*.so
++*.dylib
++*.exe
++*.exp
++*.lib
++*.pdb
++*.ipdb
++*.res
++*.bak
++*.sbr
++*.suo
++*.aps
++*.vcxproj.*
++*.idb
++*.bsc
++*.intermediate.manifest
++*.lastbuildstate
++*.nativecodeanalysis.xml
++*.nativecodeanalysis.all.xml
++*.lastcodeanalysissucceeded
++*.ilk
++*.iobj
++*.psess
++*.ncb
++*.tlog
++*.ipch
++*.old
++*.sdf
++*.diagsession
++*.vspx
++*.opensdf
++*.tgz
++*.log
++.DS_Store
++Release
++Debug
++x64
++_UpgradeReport_Files
++UpgradeLog.XML
++bin
++BuildLog.htm
++cov-int
++.vs
+diff --git a/src/Credits.cxx b/src/Credits.cxx
+index 62ed96cf..4b3377a3 100644
+--- a/src/Credits.cxx
++++ b/src/Credits.cxx
+@@ -562,6 +562,8 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
+ 	if (wsci.Created()) {
+ 		wsci.StyleResetDefault();
+ 		std::string sVersion = " ";
++                sVersion += VERSION_S4AHK;
++                sVersion += "   SciTE:";
+ 		sVersion += VERSION_SCITE;
+ 		sVersion += "   Scintilla:";
+ 		sVersion += VERSION_SCINTILLA;
+@@ -577,7 +579,7 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
+ 		sVersion += ".";
+ 		sVersion += StdStringFromInteger(GTK_MICRO_VERSION);
+ #else
+-		constexpr int fontSize = 15;
++		constexpr int fontSize = 14;
+ #endif
+ 		sVersion += "\n";
+ 
+@@ -588,13 +590,16 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
+ 		wsci.StyleClearAll();
+ 
+ 		SetAboutStyle(wsci, 0, ColourRGB(0xff, 0xff, 0xff));
++#if defined(_WIN32)
++		wsci.StyleSetFont(StyleDefault, "Segoe UI");
++#endif
+ 		wsci.StyleSetSize(0, fontSize);
+ 		wsci.StyleSetBack(0, ColourRGB(0, 0, 0x80));
+ 		wsci.StyleSetEOLFilled(0, true);
+ 		wsci.StyleSetBold(0, true);
+ 		AddStyledText(wsci, "\t\t\t\t", 0);
+ 		AddStyledText(wsci, appTitle, 0);
+-		AddStyledText(wsci, "\n", 0);
++		AddStyledText(wsci, "\n", 1);
+ 		SetAboutStyle(wsci, 1, ColourRGB(0, 0, 0));
+ 		constexpr int trsSty = 5; // define the stylenumber to assign font for translators.
+ 		std::string translator = GetTranslationToAbout("TranslationCredit", false);
+@@ -604,14 +609,17 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
+ 		}
+ 		AddStyledText(wsci, GetTranslationToAbout("Version").c_str(), trsSty);
+ 		AddStyledText(wsci, sVersion.c_str(), 1);
+-		AddStyledText(wsci, "    " __DATE__ " " __TIME__ "\n", 1);
++		AddStyledText(wsci, "    Built on " __DATE__ " " __TIME__ "\n", 1);
+ 		SetAboutStyle(wsci, 2, ColourRGB(0, 0, 0));
+ 		wsci.StyleSetItalic(2, true);
+ 		AddStyledText(wsci, GetTranslationToAbout("by").c_str(), trsSty);
+-		AddStyledText(wsci, " Neil Hodgson.\n", 2);
++		AddStyledText(wsci, " fincs", 2);
++		AddStyledText(wsci, " - Original SciTE by ", trsSty);
++		AddStyledText(wsci, "Neil Hodgson\n", 2);
+ 		SetAboutStyle(wsci, 3, ColourRGB(0, 0, 0));
+-		AddStyledText(wsci, COPYRIGHT_DATES ".\n", 3);
++		AddStyledText(wsci, "SciTE: " COPYRIGHT_DATES " Neil Hodgson.\nSciTE4AutoHotkey: " COPYRIGHT_YEARS_S4AHK " fincs.\n", 3);
+ 		SetAboutStyle(wsci, 4, ColourRGB(0, 0x7f, 0x7f));
++		AddStyledText(wsci, "https://www.autohotkey.com/scite4ahk\n", 4);
+ 		AddStyledText(wsci, "http://www.scintilla.org\n", 4);
+ 		AddStyledText(wsci, "Lua scripting language by TeCGraf, PUC-Rio\n", 3);
+ 		AddStyledText(wsci, "    http://www.lua.org\n", 4);
+diff --git a/src/Extender.h b/src/Extender.h
+index 1fcc01b8..e84216eb 100644
+--- a/src/Extender.h
++++ b/src/Extender.h
+@@ -77,7 +77,7 @@ public:
+ 	}
+ 	virtual bool OnDoubleClick() { return false; }
+ 	virtual bool OnUpdateUI() { return false; }
+-	virtual bool OnMarginClick() { return false; }
++	virtual bool OnMarginClick(int, int) { return false; }
+ 	virtual bool OnMacro(const char *, const char *) { return false; }
+ 	virtual bool OnUserListSelection(int, const char *) { return false; }
+ 
+diff --git a/src/IFaceTable.cxx b/src/IFaceTable.cxx
+index a942bf32..c18558a3 100644
+--- a/src/IFaceTable.cxx
++++ b/src/IFaceTable.cxx
+@@ -411,6 +411,27 @@ static IFaceConstant ifaceConstants[] = {
+ 	{"SCE_ADA_STRING",7},
+ 	{"SCE_ADA_STRINGEOL",8},
+ 	{"SCE_ADA_WORD",1},
++	{"SCE_AHK1_COMMENTBLOCK",2},
++	{"SCE_AHK1_COMMENTLINE",1},
++	{"SCE_AHK1_DEFAULT",0},
++	{"SCE_AHK1_ERROR",20},
++	{"SCE_AHK1_ESCAPE",3},
++	{"SCE_AHK1_EXPOPERATOR",5},
++	{"SCE_AHK1_IDENTIFIER",8},
++	{"SCE_AHK1_LABEL",10},
++	{"SCE_AHK1_NUMBER",7},
++	{"SCE_AHK1_STRING",6},
++	{"SCE_AHK1_SYNOPERATOR",4},
++	{"SCE_AHK1_VARREF",9},
++	{"SCE_AHK1_VARREFKW",19},
++	{"SCE_AHK1_WORD_CF",11},
++	{"SCE_AHK1_WORD_CMD",12},
++	{"SCE_AHK1_WORD_DIR",14},
++	{"SCE_AHK1_WORD_FN",13},
++	{"SCE_AHK1_WORD_KB",15},
++	{"SCE_AHK1_WORD_SP",17},
++	{"SCE_AHK1_WORD_UD",18},
++	{"SCE_AHK1_WORD_VAR",16},
+ 	{"SCE_APDL_ARGUMENT",11},
+ 	{"SCE_APDL_COMMAND",8},
+ 	{"SCE_APDL_COMMENT",1},
+@@ -2733,6 +2754,7 @@ static IFaceConstant ifaceConstants[] = {
+ 	{"SCLEX_A68K",100},
+ 	{"SCLEX_ABAQUS",84},
+ 	{"SCLEX_ADA",20},
++	{"SCLEX_AHK1",200},
+ 	{"SCLEX_APDL",61},
+ 	{"SCLEX_AS",113},
+ 	{"SCLEX_ASCIIDOC",134},
+@@ -3767,7 +3789,7 @@ static IFaceProperty ifaceProperties[] = {
+ 
+ enum {
+ 	ifaceFunctionCount = 321,
+-	ifaceConstantCount = 3048,
++	ifaceConstantCount = 3070,
+ 	ifacePropertyCount = 261
+ };
+ 
+diff --git a/src/LuaExtension.cxx b/src/LuaExtension.cxx
+index f70aa64b..f38914d1 100644
+--- a/src/LuaExtension.cxx
++++ b/src/LuaExtension.cxx
+@@ -1368,6 +1368,12 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
+ 		return false;
+ 	}
+ 
++#if defined(_WIN32)
++	// Register message pump library
++	extern int MessagePumpLibInit(lua_State* L);
++	MessagePumpLibInit(luaState);
++#endif
++
+ 	// ...register standard libraries
+ 	luaL_openlibs(luaState);
+ 
+@@ -2103,8 +2109,8 @@ bool LuaExtension::OnUpdateUI() {
+ 	return CallNamedFunction("OnUpdateUI");
+ }
+ 
+-bool LuaExtension::OnMarginClick() {
+-	return CallNamedFunction("OnMarginClick");
++bool LuaExtension::OnMarginClick(int position, int margin) {
++	return CallNamedFunction("OnMarginClick", position, margin);
+ }
+ 
+ bool LuaExtension::OnUserListSelection(int listType, const char *selection) {
+diff --git a/src/LuaExtension.h b/src/LuaExtension.h
+index 9664f833..fc967153 100644
+--- a/src/LuaExtension.h
++++ b/src/LuaExtension.h
+@@ -41,7 +41,7 @@ public:
+ 	bool OnStyle(Scintilla::Position startPos, Scintilla::Position lengthDoc, int initStyle, StyleWriter *styler) override;
+ 	bool OnDoubleClick() override;
+ 	bool OnUpdateUI() override;
+-	bool OnMarginClick() override;
++	bool OnMarginClick(int, int) override;
+ 	bool OnUserListSelection(int listType, const char *selection) override;
+ 	bool OnKey(int keyval, int modifiers) override;
+ 	bool OnDwellStart(Scintilla::Position pos, const char *word) override;
+diff --git a/src/MultiplexExtension.cxx b/src/MultiplexExtension.cxx
+index 51278bca..ec8d8619 100644
+--- a/src/MultiplexExtension.cxx
++++ b/src/MultiplexExtension.cxx
+@@ -196,9 +196,9 @@ bool MultiplexExtension::OnUpdateUI() {
+ 	return false;
+ }
+ 
+-bool MultiplexExtension::OnMarginClick() {
++bool MultiplexExtension::OnMarginClick(int position, int margin) {
+ 	for (Extension *pexp : extensions) {
+-		if (pexp->OnMarginClick()) {
++		if (pexp->OnMarginClick(position, margin)) {
+ 			return true;
+ 		}
+ 	}
+diff --git a/src/MultiplexExtension.h b/src/MultiplexExtension.h
+index d0a930b2..e32baf1b 100644
+--- a/src/MultiplexExtension.h
++++ b/src/MultiplexExtension.h
+@@ -69,7 +69,7 @@ public:
+ 	bool OnStyle(Scintilla::Position, Scintilla::Position, int, StyleWriter *) override;
+ 	bool OnDoubleClick() override;
+ 	bool OnUpdateUI() override;
+-	bool OnMarginClick() override;
++	bool OnMarginClick(int, int) override;
+ 	bool OnMacro(const char *, const char *) override;
+ 	bool OnUserListSelection(int, const char *) override;
+ 
+diff --git a/src/SciTE.h b/src/SciTE.h
+index fe68c563..34c75546 100644
+--- a/src/SciTE.h
++++ b/src/SciTE.h
+@@ -16,6 +16,11 @@
+ #define VERSION_SCINTILLA "5.2.2"
+ #define VERSION_LEXILLA "5.1.6"
+ 
++// SciTE4AutoHotkey
++#define VERSION_S4AHK "3.1.00"
++#define VERSION_WORDS_S4AHK 3, 1, 0, 0
++#define COPYRIGHT_YEARS_S4AHK "2007-2022"
++
+ // Menu IDs.
+ // These are located 100 apart. No one will want more than 100 in each menu ;)
+ #define IDM_MRUFILE			1000
+@@ -313,4 +318,6 @@
+ #define IDBM_32_FILTER 408
+ #define IDBM_32_CONTEXT 409
+ 
++#define IDI_MAINICON 500
++
+ #endif
+diff --git a/src/SciTEBase.cxx b/src/SciTEBase.cxx
+index 1479c6a9..b3a37f93 100644
+--- a/src/SciTEBase.cxx
++++ b/src/SciTEBase.cxx
+@@ -219,6 +219,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), pwFocussed(&wEditor), extende
+ 
+ 	needReadProperties = false;
+ 	quitting = false;
++	debugging = false;
+ 	canUndo = false;
+ 	canRedo = false;
+ 
+@@ -668,6 +669,9 @@ void SciTEBase::SetWindowName() {
+ 		windowName += GUI_TEXT("]");
+ 	}
+ 
++	if (debugging)
++		windowName += GUI_TEXT(" [Debugging]");
++
+ 	wSciTE.SetTitle(windowName.c_str());
+ }
+ 
+@@ -1436,9 +1440,9 @@ void SciTEBase::SetOutputVisibility(bool show) {
+ 		if (heightOutput <= 0) {
+ 			if (previousHeightOutput < 20) {
+ 				if (splitVertical)
+-					heightOutput = NormaliseSplit(300);
++					heightOutput = NormaliseSplit(300, true);
+ 				else
+-					heightOutput = NormaliseSplit(100);
++					heightOutput = NormaliseSplit(100, true);
+ 				previousHeightOutput = heightOutput;
+ 			} else {
+ 				heightOutput = NormaliseSplit(previousHeightOutput);
+@@ -4089,7 +4093,7 @@ void SciTEBase::Notify(SCNotification *notification) {
+ 
+ 	case SA::Notification::MarginClick: {
+ 			if (extender)
+-				handled = extender->OnMarginClick();
++				handled = extender->OnMarginClick(notification->position, notification->margin);
+ 			if (!handled) {
+ 				if (notification->margin == 2) {
+ 					MarginClick(notification->position, notification->modifiers);
+@@ -4258,10 +4262,18 @@ void SciTEBase::ContextMenu(GUI::ScintillaWindow &wSource, GUI::Point pt, GUI::W
+ /**
+  * Ensure that a splitter bar position is inside the main window.
+  */
+-int SciTEBase::NormaliseSplit(int splitPos) {
++int SciTEBase::NormaliseSplit(int splitPos, bool applyScale) {
+ 	const GUI::Rectangle rcClient = GetClientRectangle();
+ 	const int w = rcClient.Width();
+ 	const int h = rcClient.Height();
++
++	if (applyScale) {
++		int scale = props.GetInt("ScaleFactor", 100);
++		if (scale != 100) {
++			splitPos = (splitPos * scale) / 100;
++		}
++	}
++
+ 	if (splitPos < 20)
+ 		splitPos = 0;
+ 	if (splitVertical) {
+@@ -4366,6 +4378,12 @@ void SciTEBase::PerformOne(char *action) {
+ 			extender->OnMacro("filename", filePath.AsUTF8().c_str());
+ 		} else if (isprefix(action, "askproperty:")) {
+ 			PropertyToDirector(arg);
++		} else if (isprefix(action, "ask_fulldocument:")) {
++			std::string doc;
++			if (wEditor.Created()) {
++				doc = wEditor.GetText(wEditor.TextLength());
++			}
++			extender->OnMacro("fulldocument", doc.c_str());
+ 		} else if (isprefix(action, "close:")) {
+ 			Close();
+ 			WindowSetFocus(wEditor);
+@@ -4407,6 +4425,9 @@ void SciTEBase::PerformOne(char *action) {
+ 					wEditor.SetSel(wordStart, wordEnd);
+ 				}
+ 			}
++		} else if (isprefix(action, "goto_raw:") && wEditor.Created()) {
++			const SA::Position pos = IntegerFromText(arg);
++			wEditor.GotoPos(pos);
+ 		} else if (isprefix(action, "insert:") && wEditor.Created()) {
+ 			wEditor.ReplaceSel(arg);
+ 		} else if (isprefix(action, "loadsession:")) {
+diff --git a/src/SciTEBase.h b/src/SciTEBase.h
+index 02d2ade6..96013794 100644
+--- a/src/SciTEBase.h
++++ b/src/SciTEBase.h
+@@ -392,6 +392,7 @@ protected:
+ 	Extension *extender;
+ 	bool needReadProperties;
+ 	bool quitting;
++	bool debugging;
+ 	bool canUndo;
+ 	bool canRedo;
+ 
+@@ -874,7 +875,7 @@ protected:
+ 	void Activate(bool activeApp);
+ 	GUI::Rectangle GetClientRectangle();
+ 	void Redraw();
+-	int NormaliseSplit(int splitPos);
++	int NormaliseSplit(int splitPos, bool applyScale = false);
+ 	void MoveSplit(GUI::Point ptNewDrag);
+ 
+ 	virtual void TimerStart(int mask);
+diff --git a/win32/DirectorExtension.cxx b/win32/DirectorExtension.cxx
+index 247a1991..e52e04d5 100644
+--- a/win32/DirectorExtension.cxx
++++ b/win32/DirectorExtension.cxx
+@@ -272,7 +272,7 @@ bool DirectorExtension::OnUpdateUI() {
+ 	return false;
+ }
+ 
+-bool DirectorExtension::OnMarginClick() {
++bool DirectorExtension::OnMarginClick(int, int) {
+ 	return false;
+ }
+ 
+diff --git a/win32/DirectorExtension.h b/win32/DirectorExtension.h
+index a1c87def..b46be24f 100644
+--- a/win32/DirectorExtension.h
++++ b/win32/DirectorExtension.h
+@@ -35,7 +35,7 @@ public:
+ 	bool OnStyle(Scintilla::Position startPos, Scintilla::Position lengthDoc, int initStyle, StyleWriter *styler) override;
+ 	bool OnDoubleClick() override;
+ 	bool OnUpdateUI() override;
+-	bool OnMarginClick() override;
++	bool OnMarginClick(int, int) override;
+ 	bool OnMacro(const char *command, const char *params) override;
+ 
+ 	bool SendProperty(const char *prop) override;
+diff --git a/win32/MessagePump.cxx b/win32/MessagePump.cxx
+new file mode 100644
+index 00000000..854f498c
+--- /dev/null
++++ b/win32/MessagePump.cxx
+@@ -0,0 +1,166 @@
++// SciTE4AutoHotkey v3 Lua message pumper
++
++// Includes
++#include <windows.h>
++#include <tchar.h>
++extern "C"
++{
++#include "lauxlib.h"
++}
++
++// Some defines
++#define RET_OK 1
++#define RET_FAIL 0
++#define MAX_TITLE 255
++
++// Global variables
++static HWND cWindow = 0, tWindow = 0;
++static const char* cWinTitle; // variable pointer to constant char
++
++// Private callback function to enumerate the windows.
++static BOOL CALLBACK _lib_winsearchproc(HWND hWnd, LPARAM lParam)
++{
++	char wTitle[MAX_TITLE+1];
++	// Get window title
++	GetWindowTextA(hWnd, wTitle, MAX_TITLE);
++	if (strncmp(wTitle, cWinTitle, lParam) == 0)
++	{
++		// Window found.
++		cWindow = hWnd;
++		return 0; // Cancel the enumeration
++	}
++	return 1; // Continue enumerating the windows
++}
++
++// localizewin(wintitle) -- Localizes the window with the specified window title to
++//  further send messages to it. True = sucess, false = failure.
++static int lib_localizewin(lua_State* L)
++{
++	// set the global variables
++	cWinTitle = luaL_checkstring(L, 1);
++	tWindow = cWindow, cWindow = 0;
++
++	// look for the window
++	EnumWindows((WNDENUMPROC)_lib_winsearchproc, strlen(cWinTitle));
++	if (!cWindow) // no window found?
++	{
++		// just restore the old window and return false.
++		cWindow = tWindow;
++		lua_pushboolean(L, RET_FAIL);
++		return 1;
++	}
++	// return true.
++	lua_pushboolean(L, RET_OK);
++	return 1;
++}
++
++// pumpmsg(msg, wParam, lParam) -- Sends a message to the current window.
++static int lib_pumpmsg(lua_State* L)
++{
++	int result;
++
++	// get the parameters
++	int iMsg = luaL_checkinteger(L, 1);
++	int wParam = luaL_checkinteger(L, 2);
++	int lParam = luaL_checkinteger(L, 3);
++
++	if (!IsWindow(cWindow)) // invalid window?
++		return luaL_error(L, "Invalid window handle.");
++
++	// just dispatch the message to the window
++	result = (int) SendMessageA(cWindow, (UINT)iMsg, (WPARAM)wParam, (LPARAM)lParam);
++
++	// return the number that the window gave to us
++	lua_pushinteger(L, result);
++	return 1;
++}
++
++// postmsg(msg, wParam, lParam) -- Posts a message to the current window.
++static int lib_postmsg(lua_State* L)
++{
++	int result;
++
++	// get the parameters
++	int iMsg = luaL_checkinteger(L, 1);
++	int wParam = luaL_checkinteger(L, 2);
++	int lParam = luaL_checkinteger(L, 3);
++
++	if (!IsWindow(cWindow)) // invalid window?
++		return luaL_error(L, "Invalid window handle.");
++
++	// just dispatch the message to the window
++	result = PostMessageA(cWindow, (UINT)iMsg, (WPARAM)wParam, (LPARAM)lParam);
++
++	// return the return code
++	lua_pushboolean(L, result);
++	return 1;
++}
++
++// pumpmsg(msg, wparam, lparam) -- Sends a message in which lParam will be received as a string.
++static int lib_pumpmsgstr(lua_State* L)
++{
++	DWORD pID;
++	HANDLE hProcess;
++	void* rlParam;
++	int result;
++
++	// get the parameters
++	int iMsg = luaL_checkinteger(L, 1);
++	int wParam = luaL_checkinteger(L, 2);
++	const char* lParam = luaL_checkstring(L, 3);
++	// get the string length
++	size_t lParamSize = strlen(lParam) + 1;
++
++	if (!IsWindow(cWindow)) // invalid window?
++		return luaL_error(L, "Invalid window handle.");
++
++	// inject the string at the process.
++	GetWindowThreadProcessId(cWindow, &pID);
++	hProcess = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE, 0, pID);
++	if (!hProcess)
++		return luaL_error(L, "Couldn't open the memory of the window!");
++	rlParam = VirtualAllocEx(hProcess, 0, lParamSize, MEM_COMMIT, PAGE_READWRITE);
++	if (!rlParam)
++		return luaL_error(L, "Couldn't allocate the memory at the window!");
++	if (!WriteProcessMemory(hProcess, rlParam, lParam, lParamSize, NULL))
++		return luaL_error(L, "Couldn't inject the string parameter at the window!");
++
++	// just dispatch the message to the window
++	result = (int) SendMessageA(cWindow, (UINT)iMsg, (WPARAM)wParam, (LPARAM)rlParam);
++
++	// free the memory used by the string
++	if (!VirtualFreeEx(hProcess, rlParam, 0, MEM_RELEASE))
++		return luaL_error(L, "Failed to free the memory at the window!");
++	if (!CloseHandle(hProcess))
++		return luaL_error(L, "Couldn't close the process handle!");
++
++	// return the number that the window gave to us
++	lua_pushinteger(L, result);
++	return 1;
++}
++
++// sleep(time) -- sleeps for the specified amount of time
++static int lib_sleep(lua_State* L)
++{
++	Sleep(luaL_checkinteger(L, 1));
++	return 0;
++}
++
++static const luaL_Reg pumpLib[] =
++{
++	{ "localizewin", lib_localizewin },
++	{ "pumpmsg", lib_pumpmsg },
++	{ "pumpmsgstr", lib_pumpmsgstr },
++	{ "postmsg", lib_postmsg },
++	{ "sleep", lib_sleep },
++	{ NULL, NULL }
++};
++
++int MessagePumpLibInit(lua_State* L)
++{
++	// register the library's functions in the Lua engine
++	for (const luaL_Reg* it = pumpLib; it->name; it ++)
++		lua_register(L, it->name, it->func);
++
++	return 0;
++}
+diff --git a/win32/SciTE4AutoHotkey.ico b/win32/SciTE4AutoHotkey.ico
+new file mode 100644
+index 00000000..cfa3a682
+Binary files /dev/null and b/win32/SciTE4AutoHotkey.ico differ
+diff --git a/win32/SciTERes.rc b/win32/SciTERes.rc
+index 749efb40..1dec9ba3 100644
+--- a/win32/SciTERes.rc
++++ b/win32/SciTERes.rc
+@@ -6,7 +6,7 @@
+ 
+ #include "SciTE.h"
+ 
+-SciTE ICON SciBall.ico
++IDI_MAINICON ICON SciTE4AutoHotkey.ico
+ 
+ 1 RT_MANIFEST SciTE.exe.manifest
+ 
+@@ -186,20 +186,20 @@ BEGIN
+ 	MENUITEM "&Sc1 Help",			IDM_HELP_SCITE
+ 	MENUITEM "&About Sc1",				IDM_ABOUT
+ #else
+-	MENUITEM "&SciTE Help",			IDM_HELP_SCITE
+-	MENUITEM "&About SciTE",			IDM_ABOUT
++	MENUITEM "&SciTE4AutoHotkey Help",			IDM_HELP_SCITE
++	MENUITEM "&About SciTE4AutoHotkey",			IDM_ABOUT
+ #endif
+ END
+ 
+ END
+ 
+ ABOUT DIALOGEX 26, 41, 350, 242
+-CAPTION "About SciTE"
++CAPTION "About SciTE4AutoHotkey"
+ STYLE DS_MODALFRAME | DS_3DLOOK | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+ FONT 8, "MS Shell Dlg"
+ BEGIN
+ 	CONTROL "", IDABOUTSCINTILLA, "Scintilla", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 1, 1, 346, 218
+-	ICON "SciTE", -1, 1, 221, 32, 32, WS_CHILD | WS_VISIBLE
++	ICON IDI_MAINICON, -1, 1, 221, 32, 32, WS_CHILD | WS_VISIBLE
+ 	DEFPUSHBUTTON "OK", IDOK, 26, 222, 322, 20, WS_TABSTOP
+ END
+ 
+@@ -614,8 +614,8 @@ Embedded Properties Embedded.properties
+ IDC_DRAGDROP       CURSOR  DISCARDABLE     "DragDrop.cur"
+ 
+ VS_VERSION_INFO VERSIONINFO
+-FILEVERSION	VERSION_WORDS
+-PRODUCTVERSION	VERSION_WORDS
++FILEVERSION	VERSION_WORDS_S4AHK
++PRODUCTVERSION	VERSION_WORDS_S4AHK
+ FILEFLAGSMASK	0x3fL
+ FILEFLAGS 0
+ FILEOS VOS_NT_WINDOWS32
+@@ -630,14 +630,14 @@ BEGIN
+ 	BEGIN
+ 		BLOCK "040904b0"
+ 		BEGIN
+-			VALUE	"CompanyName",	"Neil Hodgson neilh@scintilla.org\0"
+-			VALUE	"FileDescription",	"SciTE - a Scintilla based Text Editor\0"
+-			VALUE	"FileVersion",	VERSION_SCITE "\0"
+-			VALUE	"InternalName",	"SciTE\0"
+-			VALUE	"LegalCopyright",	"Copyright " COPYRIGHT_YEARS " by Neil Hodgson\0"
++			VALUE	"CompanyName",	"fincs <fincs.alt1@gmail.com>; Neil Hodgson <neilh@scintilla.org>\0"
++			VALUE	"FileDescription",	"SciTE4AutoHotkey - a SciTE distribution for AutoHotkey\0"
++			VALUE	"FileVersion",	VERSION_S4AHK "\0"
++			VALUE	"InternalName",	"SciTE4AutoHotkey\0"
++			VALUE	"LegalCopyright",	"Copyright " COPYRIGHT_YEARS_S4AHK " by fincs\0"
+ 			VALUE	"OriginalFilename",	"SciTE.EXE\0"
+-			VALUE	"ProductName",	"SciTE\0"
+-			VALUE	"ProductVersion",	VERSION_SCITE "\0"
++			VALUE	"ProductName",	"SciTE4AutoHotkey\0"
++			VALUE	"ProductVersion",	VERSION_S4AHK "\0"
+ 		END
+ 	END
+ END
+diff --git a/win32/SciTEWin.cxx b/win32/SciTEWin.cxx
+index 594861a7..72705b30 100644
+--- a/win32/SciTEWin.cxx
++++ b/win32/SciTEWin.cxx
+@@ -26,7 +26,7 @@
+ #ifdef STATIC_BUILD
+ const GUI::gui_char appName[] = GUI_TEXT("Sc1");
+ #else
+-const GUI::gui_char appName[] = GUI_TEXT("SciTE");
++const GUI::gui_char appName[] = GUI_TEXT("SciTE4AutoHotkey");
+ static const GUI::gui_char scintillaName[] = GUI_TEXT("Scintilla.DLL");
+ #endif
+ 
+@@ -229,7 +229,8 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
+ 
+ 	ReadEnvironment();
+ 
+-	SetScaleFactor(GetScaleFactor());
++	int scaleFactor = GetScaleFactor();
++	SetScaleFactor(scaleFactor);
+ 
+ 	ReadGlobalPropFile();
+ 
+@@ -240,7 +241,7 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
+ 		::ShowWindow(::GetConsoleWindow(), SW_HIDE);
+ 	}
+ 
+-	tbLarge = props.GetInt("toolbar.large");
++	tbLarge = props.GetInt("toolbar.large", scaleFactor > 100);
+ 	/// Need to copy properties to variables before setting up window
+ 	SetPropertiesInitial();
+ 	ReadAbbrevPropFile();
+@@ -286,12 +287,12 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
+ 
+ 	// Register the frame window
+ 	className = TEXT("SciTEWindow");
+-	wndclass.style = 0;
++	wndclass.style = CS_DBLCLKS;
+ 	wndclass.lpfnWndProc = SciTEWin::TWndProc;
+ 	wndclass.cbClsExtra = 0;
+ 	wndclass.cbWndExtra = sizeof(SciTEWin *);
+ 	wndclass.hInstance = hInstance;
+-	wndclass.hIcon = ::LoadIcon(hInstance, resourceName);
++	wndclass.hIcon = (HICON) ::LoadImage(hInstance, MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 0, 0, LR_SHARED);
+ 	wndclass.hCursor = {};
+ 	wndclass.hbrBackground = {};
+ 	wndclass.lpszMenuName = resourceName;
+@@ -557,12 +558,26 @@ FilePath SciTEWin::GetSciteDefaultHome() {
+ 
+ FilePath SciTEWin::GetSciteUserHome() {
+ 	// First looking for environment variable $SciTE_USERHOME
+-	// to set SciteUserHome. If not present we look for $SciTE_HOME
+-	// then defaulting to $USERPROFILE
++	// to set SciteUserHome. If not present we look for $SciTE_HOME.
++	// If not present then we try to use %SciTEDir%\user.
++	// If not present then we try to resolve %A_MyDocuments%\AutoHotkey\SciTE.
++	// If everything fails we default to $USERPROFILE.
++	WCHAR szPath[MAX_PATH+1];
+ 	GUI::gui_char *home = _wgetenv(GUI_TEXT("SciTE_USERHOME"));
+ 	if (!home) {
+ 		home = _wgetenv(GUI_TEXT("SciTE_HOME"));
+-		if (!home) {
++	}
++	if (!home) {
++		::GetModuleFileNameW(NULL, szPath, MAX_PATH+1);
++		::PathRemoveFileSpecW(szPath);
++		::PathAppendW(szPath, GUI_TEXT("user"));
++		DWORD attr = GetFileAttributes(szPath);
++		if (attr != INVALID_FILE_ATTRIBUTES && (attr & FILE_ATTRIBUTE_DIRECTORY)) {
++			home = szPath;
++		} else if (SUCCEEDED(::SHGetFolderPathW(NULL, CSIDL_PERSONAL|CSIDL_FLAG_CREATE, NULL, 0, szPath))) {
++			::PathAppendW(szPath, GUI_TEXT("AutoHotkey\\SciTE"));
++			home = szPath;
++		} else {
+ 			home = _wgetenv(GUI_TEXT("USERPROFILE"));
+ 		}
+ 	}
+@@ -717,6 +732,10 @@ HWND SciTEWin::MainHWND() noexcept {
+ 	return HwndOf(wSciTE);
+ }
+ 
++HWND SciTEWin::ToolHWND() noexcept {
++	return HwndOf(wToolBar);
++}
++
+ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
+ 	const int cmdID = ControlIDOfWParam(wParam);
+ 	if (wParam & 0x10000) {
+@@ -1565,6 +1584,16 @@ void SciTEWin::Run(const GUI::gui_char *cmdLine) {
+ 		return;	// Don't do anything else
+ 	}
+ 
++#ifndef STATIC_BUILD
++	std::string sMainHwnd = StdStringFromSizeT(reinterpret_cast<size_t>(MainHWND()));
++	props.Set("scite.hwnd", sMainHwnd.c_str());
++
++	std::string autorun = props.GetExpandedString("command.autorun");
++	if (autorun.length() != 0) {
++		ShellExec(autorun, "");
++	}
++#endif
++
+ 	// OK, the instance will be displayed
+ 	SizeSubWindows();
+ 	wSciTE.Show();
+@@ -2054,6 +2083,10 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
+ 		case WM_KEYUP:
+ 			return KeyUp(wParam);
+ 
++		case WM_LBUTTONDBLCLK:
++			::SendMessage(MainHWND(), WM_COMMAND, IDM_NEW, 0);
++			return 0;
++
+ 		case WM_APPCOMMAND:
+ 			switch (GET_APPCOMMAND_LPARAM(lParam)) {
+ 				case APPCOMMAND_BROWSER_BACKWARD:
+@@ -2154,6 +2187,20 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
+ 		case WM_COPYDATA:
+ 			return uniqueInstance.CopyData(reinterpret_cast<COPYDATASTRUCT *>(lParam));
+ 
++		case WM_USER:
++			SIZE uTSize;
++			::SendMessage(ToolHWND(), TB_GETMAXSIZE, 0, (LPARAM)&uTSize);
++			return (LRESULT) uTSize.cx;
++
++		case WM_USER+1:
++			ReloadProperties();
++			return 0;
++
++		case WM_USER+2:
++			debugging = wParam != 0;
++			SetWindowName();
++			break;
++
+ 		default:
+ 			return ::DefWindowProcW(MainHWND(), iMessage, wParam, lParam);
+ 		}
+diff --git a/win32/SciTEWin.h b/win32/SciTEWin.h
+index 5e3221a8..88e157e4 100644
+--- a/win32/SciTEWin.h
++++ b/win32/SciTEWin.h
+@@ -322,6 +322,7 @@ protected:
+ 	void FullScreenToggle();
+ 	void Command(WPARAM wParam, LPARAM lParam);
+ 	HWND MainHWND() noexcept;
++	HWND ToolHWND() noexcept;
+ 
+ 	void UserStripShow(const char *description) override;
+ 	void UserStripSet(int control, const char *value) override;
+diff --git a/win32/SciTEWinDlg.cxx b/win32/SciTEWinDlg.cxx
+index 45f8c0c4..e0cc4a74 100644
+--- a/win32/SciTEWinDlg.cxx
++++ b/win32/SciTEWinDlg.cxx
+@@ -1731,7 +1731,7 @@ BOOL SciTEWin::AboutMessage(HWND hDlg, UINT message, WPARAM wParam) {
+ 			const LONG_PTR subclassedProc = ::SetWindowLongPtr(hwndCredits, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(CreditsWndProc));
+ 			::SetWindowLongPtr(hwndCredits, GWLP_USERDATA, subclassedProc);
+ 			ss.SetScintilla(hwndCredits);
+-			SetAboutMessage(ss, staticBuild ? "Sc1  " : "SciTE");
++			SetAboutMessage(ss, staticBuild ? "Sc1  " : "SciTE4AutoHotkey");
+ 		}
+ 		return TRUE;
+ 
+diff --git a/win32/deps.mak b/win32/deps.mak
+index 9f421433..ed3c2f52 100644
+--- a/win32/deps.mak
++++ b/win32/deps.mak
+@@ -25,6 +25,12 @@ GUIWin.o: \
+ 	GUIWin.cxx \
+ 	../../scintilla/include/ScintillaTypes.h \
+ 	../src/GUI.h
++MessagePump.o: \
++	MessagePump.cxx \
++	../lua/src/lauxlib.h \
++	../lua/src/lua.h \
++	../lua/src/luaconf.h \
++	../src/scite_lua_win.h
+ SciTEWin.o: \
+ 	SciTEWin.cxx \
+ 	SciTEWin.h \
+diff --git a/win32/makefile b/win32/makefile
+index f277dffc..d5318c76 100644
+--- a/win32/makefile
++++ b/win32/makefile
+@@ -17,20 +17,20 @@ else
+ 	normalize = $(subst /,\,$1)
+ endif
+ 
+-PYTHON = $(if $(windir),pyw,python3)
++PYTHON = $(if $(WINDIR),pyw,python3)
+ 
+ WARNINGS += -Wall -pedantic -Wextra
+ 
+ ifdef CLANG
+ # Can choose aspect to sanitize: address and undefined can simply change SANITIZE but for
+ # thread also need to create Position Independent Executable -> search online documentation
+-SANITIZE = address
++#SANITIZE = address
+ #SANITIZE = undefined
+ CXX = clang++
+ CC = clang
+ # Microsoft headers are used so _CRT_SECURE_NO_DEPRECATE avoids warnings for standard library like strcat,
+ DEFINES += -D_CRT_SECURE_NO_DEPRECATE
+-BASE_FLAGS += -fsanitize=$(SANITIZE)
++#BASE_FLAGS += -fsanitize=$(SANITIZE)
+ # Clang doesn't like omitting braces in array initialization but they just add noise,
+ WARNINGS += -Wno-deprecated-register
+ WARNINGS += -Wno-missing-braces
+@@ -75,7 +75,7 @@ vpath %.h ../src ../../lexilla/include ../../lexilla/access ../../scintilla/incl
+ vpath %.cxx ../src ../../lexilla/access ../../scintilla/call
+ vpath %.a ../../lexilla/bin ../../scintilla/bin
+ 
+-LIBS += -lgdi32 -luser32 -limm32 -lole32 -luuid -loleaut32 -lmsimg32 -lshell32 -lcomdlg32 -lcomctl32 -ladvapi32
++LIBS += -lgdi32 -luser32 -limm32 -lole32 -luuid -loleaut32 -lmsimg32 -lshell32 -lcomdlg32 -lcomctl32 -ladvapi32 -lshlwapi
+ 
+ CXXFLAGS += --std=c++17
+ 
+@@ -111,7 +111,7 @@ RCINCLUDEDIRS=--include-dir ../src
+ 
+ CBASEFLAGS = $(LUA_DEFINES) $(WIDEFLAGS)
+ 
+-LDFLAGS += -mwindows
++LDFLAGS += -static -mwindows
+ 
+ %.o: %.cxx
+ 	$(CXX) $(DEFINES) $(INCLUDES) $(WARNINGS) $(CPPFLAGS) $(BASE_FLAGS) $(CXXFLAGS) -c $< -o $@
+@@ -135,6 +135,7 @@ SHAREDOBJS=\
+ 	JobQueue.o \
+ 	LexillaAccess.o \
+ 	MatchMarker.o \
++	MessagePump.o \
+ 	MultiplexExtension.o \
+ 	PathMatch.o \
+ 	PropSetFile.o \
+diff --git a/win32/nmdeps.mak b/win32/nmdeps.mak
+index 67c3c8d6..8d18d6bb 100644
+--- a/win32/nmdeps.mak
++++ b/win32/nmdeps.mak
+@@ -25,6 +25,12 @@ GUIWin.obj: \
+ 	GUIWin.cxx \
+ 	../../scintilla/include/ScintillaTypes.h \
+ 	../src/GUI.h
++MessagePump.obj: \
++	MessagePump.cxx \
++	../lua/src/lauxlib.h \
++	../lua/src/lua.h \
++	../lua/src/luaconf.h \
++	../src/scite_lua_win.h
+ SciTEWin.obj: \
+ 	SciTEWin.cxx \
+ 	SciTEWin.h \

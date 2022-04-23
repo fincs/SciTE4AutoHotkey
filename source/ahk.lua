@@ -34,17 +34,12 @@ end
 -- ====================================== --
 
 function OnChar(curChar)
-	local ignoreStylesTable = {
-		[SCLEX_AHK1] = {SCE_AHK1_COMMENTLINE, SCE_AHK1_COMMENTBLOCK, SCE_AHK1_STRING, SCE_AHK1_ERROR, SCE_AHK1_ESCAPE},
-		--[SCLEX_AHK2] = {SCE_AHK2_COMMENTLINE, SCE_AHK2_COMMENTBLOCK, SCE_AHK2_STRING, SCE_AHK2_ERROR, SCE_AHK2_ESCAPE},
-	}
-	
 	-- This function should only run when the Editor pane is focused.
 	if not editor.Focus then return false end
-	-- This function only works with the AutoHotkey lexer
-	if not InAHKLexer() then return false end
+	-- This function only works with the AutoHotkey v1 lexer
+	if not IsAHKv1() then return false end
 	
-	local ignoreStyles = ignoreStylesTable[editor.Lexer]
+	local ignoreStyles = {SCE_AHK1_COMMENTLINE, SCE_AHK1_COMMENTBLOCK, SCE_AHK1_STRING, SCE_AHK1_ERROR, SCE_AHK1_ESCAPE}
 
 	if curChar == "\n" then
 		local prevStyle = editor.StyleAt[getPrevLinePos()]
@@ -69,7 +64,7 @@ function OnChar(curChar)
 		if isInTable(ignoreStyles, curStyle) then
 			-- ... but allow it in variable %dereferences% (which are set to 'error'
 			-- when they are typed because of the missing closing percent sign.
-			if not IsAHKv2() and curStyle == SCE_AHK1_ERROR and editor.CharAt[pos-1] == 37
+			if curStyle == SCE_AHK1_ERROR and editor.CharAt[pos-1] == 37
 			  and not isInTable(ignoreStyles, editor.StyleAt[pos-1]) then
 				return false
 			end
@@ -414,8 +409,8 @@ end
 
 -- This function is called when the user presses {Enter}
 function AutoIndent_OnNewLine()
-	local cmtLineStyle = IsAHKv2() and SCE_AHK2_COMMENTLINE or SCE_AHK1_COMMENTLINE
-	local cmtBlockStyle = IsAHKv2() and SCE_AHK2_COMMENTBLOCK or SCE_AHK1_COMMENTBLOCK
+	local cmtLineStyle = SCE_AHK1_COMMENTLINE
+	local cmtBlockStyle = SCE_AHK1_COMMENTBLOCK
 	local prevprevPos = editor:LineFromPosition(editor.CurrentPos) - 2
 	local prevPos = editor:LineFromPosition(editor.CurrentPos) - 1
 	local prevLine = GetFilteredLine(prevPos, cmtLineStyle, cmtBlockStyle)
@@ -445,8 +440,8 @@ end
 
 -- This function is called when the user presses {
 function AutoIndent_OnOpeningBrace()
-	local cmtLineStyle = IsAHKv2() and SCE_AHK2_COMMENTLINE or SCE_AHK1_COMMENTLINE
-	local cmtBlockStyle = IsAHKv2() and SCE_AHK2_COMMENTBLOCK or SCE_AHK1_COMMENTBLOCK
+	local cmtLineStyle = SCE_AHK1_COMMENTLINE
+	local cmtBlockStyle = SCE_AHK1_COMMENTBLOCK
 	local prevPos = editor:LineFromPosition(editor.CurrentPos) - 1
 	local curPos = prevPos+1
 	if prevPos == -1 then return false end
@@ -466,8 +461,8 @@ end
 
 -- This function is called when the user presses }
 function AutoIndent_OnClosingBrace()
-	local cmtLineStyle = IsAHKv2() and SCE_AHK2_COMMENTLINE or SCE_AHK1_COMMENTLINE
-	local cmtBlockStyle = IsAHKv2() and SCE_AHK2_COMMENTBLOCK or SCE_AHK1_COMMENTBLOCK
+	local cmtLineStyle = SCE_AHK1_COMMENTLINE
+	local cmtBlockStyle = SCE_AHK1_COMMENTBLOCK
 	local curPos = editor:LineFromPosition(editor.CurrentPos)
 	local curLine = GetFilteredLine(curPos, cmtLineStyle, cmtBlockStyle)
 	local prevPos = curPos - 1
@@ -592,12 +587,16 @@ end
 -- Helper Functions --
 -- ================ --
 
-function InAHKLexer()
-	return editor.Lexer == SCLEX_AHK1 or editor.Lexer == SCLEX_AHK2
+function IsAHKv1()
+	return editor.Lexer == SCLEX_AHK1
 end
 
 function IsAHKv2()
 	return editor.Lexer == SCLEX_AHK2
+end
+
+function InAHKLexer()
+	return IsAHKv1() or IsAHKv2()
 end
 
 function GetWord(pos)

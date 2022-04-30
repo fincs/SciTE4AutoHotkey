@@ -134,6 +134,7 @@ p_encoding := GetItem(cplist_v, p_encoding)
 
 FileRead, qvar, %LocalSciTEPath%\Styles\%p_style%.style.properties
 p_extra := ""
+/*
 if RegExMatch(qvar, "`am)^s4ahk\.style=1$")
 	p_extra =
 	(LTrim
@@ -166,6 +167,7 @@ if RegExMatch(qvar, "`am)^s4ahk\.style=1$")
 	`tstyle.ahk1.19=$(s4ahk.style.old.bivderef)
 
 	)
+*/
 
 UserProps =
 (

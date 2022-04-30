@@ -15,6 +15,11 @@ local prepared = false
 local bkall = {}
 local bkcur = nil
 
+local lexerIgnoreStyles = {
+	[SCLEX_AHK1] = {SCE_AHK1_COMMENTLINE, SCE_AHK1_COMMENTBLOCK, SCE_AHK1_STRING, SCE_AHK1_ERROR, SCE_AHK1_ESCAPE, SCE_AHK1_LABEL},
+	[SCLEX_AHK2] = {SCE_AHK2_ERROR, SCE_AHK2_COMMENT_LINE, SCE_AHK2_COMMENT_BLOCK, SCE_AHK2_LABEL, SCE_AHK2_STRING, SCE_AHK2_ESCAPE},
+}
+
 -- ================================================== --
 -- OnClear event - fired when SciTE changes documents --
 -- ================================================== --
@@ -24,7 +29,7 @@ function OnClear()
 		-- Remove the current line markers.
 		ClearCurrentLineMarkers()
 	end
-	
+
 	SetMarkerColors()
 	editor.MarginSensitiveN[1] = true
 end
@@ -33,53 +38,32 @@ end
 -- OnChar event - needed by some features --
 -- ====================================== --
 
+function isAutoCompleteIgnoreException(ignoreStyles, curStyle)
+	-- Allow AutoComplete in variable %dereferences% (which are set to 'error'
+	-- when they are typed because of the missing closing percent sign)
+	return editor.Lexer == SCLEX_AHK1 and curStyle == SCE_AHK1_ERROR and
+		editor.CharAt[pos-1] == 37 and not isInTable(ignoreStyles, editor.StyleAt[pos-1])
+end
+
 function OnChar(curChar)
 	-- This function should only run when the Editor pane is focused.
 	if not editor.Focus then return false end
-	-- This function only works with the AutoHotkey v1 lexer
-	if not IsAHKv1() then return false end
-	
-	local ignoreStyles = {SCE_AHK1_COMMENTLINE, SCE_AHK1_COMMENTBLOCK, SCE_AHK1_STRING, SCE_AHK1_ERROR, SCE_AHK1_ESCAPE}
 
-	if curChar == "\n" then
-		local prevStyle = editor.StyleAt[getPrevLinePos()]
-		if not isInTable(ignoreStyles, prevStyle) then
-			return AutoIndent_OnNewLine()
-		end
-	elseif curChar == "{" then
-		local curStyle = editor.StyleAt[editor.CurrentPos-2]
-		if not isInTable(ignoreStyles, curStyle) then
-			AutoIndent_OnOpeningBrace()
-		end
-	elseif curChar == "}" then
-		local curStyle = editor.StyleAt[editor.CurrentPos-2]
-		if not isInTable(ignoreStyles, curStyle) then
-			AutoIndent_OnClosingBrace()
-		end
-	else
+	-- Cancel AutoComplete inside certain lexer-specific styles
+	local ignoreStyles = lexerIgnoreStyles[editor.Lexer]
+	if ignoreStyles ~= nil then
 		local curStyle = editor.StyleAt[editor.CurrentPos-2]
 		local pos = editor:WordStartPosition(editor.CurrentPos)
-		
-		-- Disable AutoComplete on comment/string/error/etc.
-		if isInTable(ignoreStyles, curStyle) then
-			-- ... but allow it in variable %dereferences% (which are set to 'error'
-			-- when they are typed because of the missing closing percent sign.
-			if curStyle == SCE_AHK1_ERROR and editor.CharAt[pos-1] == 37
-			  and not isInTable(ignoreStyles, editor.StyleAt[pos-1]) then
-				return false
+
+		if isInTable(ignoreStyles, curStyle) and not isAutoCompleteIgnoreException(ignoreStyles, curStyle) then
+			if editor:AutoCActive() then
+				editor:AutoCCancel()
 			end
-			return CancelAutoComplete()
+			return true
 		end
 	end
-	
-	return false
-end
 
-function CancelAutoComplete()
-	if editor:AutoCActive() then
-		editor:AutoCCancel()
-	end
-	return true
+	return AutoIndent_Main(curChar, ignoreStyles)
 end
 
 -- ================================================== --
@@ -125,7 +109,7 @@ end
 function OnMarginClick(position, margin)
 	-- This function only works with the AutoHotkey lexer
 	if not bkcur then return false end
-	
+
 	if margin ~= 1 then
 		return false
 	end
@@ -151,14 +135,10 @@ end
 -- OnDwellStart event - used to implement hovering --
 -- =============================================== --
 
-local NoDwellStyles = {
-	[SCLEX_AHK1] = {SCE_AHK1_COMMENTBLOCK, SCE_AHK1_COMMENTLINE, SCE_AHK1_STRING, SCE_AHK1_ESCAPE, SCE_AHK1_LABEL},
-	--[SCLEX_AHK2] = {SCE_AHK2_COMMENTBLOCK, SCE_AHK2_COMMENTLINE, SCE_AHK2_STRING, SCE_AHK2_ESCAPE, SCE_AHK2_LABEL},
-}
 function OnDwellStart(pos, word)
 	if not prepared then return end
 	if word ~= '' then
-		if isInTable(NoDwellStyles[editor.Lexer], editor.StyleAt[pos]) then
+		if isInTable(lexerIgnoreStyles[editor.Lexer], editor.StyleAt[pos]) then
 			return
 		end
 		local line, wordpos, wordlen = GetCurLineAndWordPos(pos)
@@ -176,12 +156,12 @@ end
 
 function DBGp_Connect()
 	if prepared then return end
-	
+
 	if localizewin("SciTEDebugStub") == false then
 		print("Window doesn't exist.")
 		return
 	end
-	
+
 	-- Initialize
 	pumpmsg(4112, 0, 0)
 	prepared = true
@@ -190,7 +170,7 @@ end
 
 function DBGp_BkReset()
 	if not bkcur then return end
-	
+
 	local bkstr = {}
 	for file, lines in pairs(bkall) do
 		local bklines = {}
@@ -199,7 +179,7 @@ function DBGp_BkReset()
 		end
 		table.insert(bkstr, file .. "|" .. table.concat(bklines, " "))
 	end
-	
+
 	-- Send all filenames|breakpoints as a single string
 	pumpmsgstr(4112, 5, table.concat(bkstr, "\n"))
 end
@@ -208,14 +188,14 @@ function DBGp_Disconnect()
 	-- Deinitialize
 	u = pumpmsg(4112, 255, 0)
 	if u == 0 then return false end
-	
+
 	prepared = false
 	ClearCurrentLineMarkers()
 end
 
 function DBGp_Inspect()
 	if not prepared then return end
-	
+
 	local word = editor:GetSelText()
 	if word == "" then
 		local line, wordpos, wordlen = GetCurLineAndWordPos(pos)
@@ -407,6 +387,29 @@ function isStartBlockStatement(line)
 		or isTryLine(line) or isCatchLineAllowBraces(line) or isFinallyAllowBraces(line)
 end
 
+function AutoIndent_Main(curChar, ignoreStyles)
+	if not IsAHKv1() then return false end
+
+	if curChar == "\n" then
+		local prevStyle = editor.StyleAt[getPrevLinePos()]
+		if not isInTable(ignoreStyles, prevStyle) then
+			return AutoIndent_OnNewLine()
+		end
+	elseif curChar == "{" then
+		local curStyle = editor.StyleAt[editor.CurrentPos-2]
+		if not isInTable(ignoreStyles, curStyle) then
+			AutoIndent_OnOpeningBrace()
+		end
+	elseif curChar == "}" then
+		local curStyle = editor.StyleAt[editor.CurrentPos-2]
+		if not isInTable(ignoreStyles, curStyle) then
+			AutoIndent_OnClosingBrace()
+		end
+	end
+
+	return false
+end
+
 -- This function is called when the user presses {Enter}
 function AutoIndent_OnNewLine()
 	local cmtLineStyle = SCE_AHK1_COMMENTLINE
@@ -416,9 +419,9 @@ function AutoIndent_OnNewLine()
 	local prevLine = GetFilteredLine(prevPos, cmtLineStyle, cmtBlockStyle)
 	local curPos = prevPos + 1
 	local curLine = editor:GetLine(curPos)
-	
+
 	if curLine ~= nil and string.find(curLine, "^%s*[^%s]+") then return end
-	
+
 	if isIndentStatement(prevLine) then
 		editor:Home()
 		editor:Tab()
@@ -445,12 +448,12 @@ function AutoIndent_OnOpeningBrace()
 	local prevPos = editor:LineFromPosition(editor.CurrentPos) - 1
 	local curPos = prevPos+1
 	if prevPos == -1 then return false end
-	
+
 	if editor.LineIndentation[curPos] == 0 then return false end
-	
+
 	local prevLine = GetFilteredLine(prevPos, cmtLineStyle, cmtBlockStyle)
 	local curLine = GetFilteredLine(curPos, cmtLineStyle, cmtBlockStyle)
-	
+
 	if string.find(curLine, "^%s*{%s*$") and isStartBlockStatement(prevLine)
 		and (editor.LineIndentation[curPos] > editor.LineIndentation[prevPos]) then
 		editor:Home()
@@ -468,10 +471,10 @@ function AutoIndent_OnClosingBrace()
 	local prevPos = curPos - 1
 	local prevprevPos = prevPos - 1
 	local secondChance = false
-	
+
 	if curPos == 0 then return false end
 	if editor.LineIndentation[curPos] == 0 then return false end
-	
+
 	if prevprevPos >= 0 then
 		local prevprevLine = GetFilteredLine(prevprevPos, cmtLineStyle, cmtBlockStyle)
 		local lowLvl = editor.LineIndentation[prevprevPos]
@@ -482,7 +485,7 @@ function AutoIndent_OnClosingBrace()
 			secondChance = true
 		end
 	end
-	
+
 	if string.find(curLine, "^%s*}%s*$") and (editor.LineIndentation[curPos] >= editor.LineIndentation[prevPos] or secondChance) then
 		editor:Home()
 		editor:BackTab()
@@ -497,12 +500,12 @@ end
 function OnBeforeSave(filename)
 	-- This function only works with the AutoHotkey lexer
 	if not InAHKLexer() then return false end
-	
+
 	if props['make.backup'] == "1" then
 		os.remove(filename .. ".bak")
 		os.rename(filename, filename .. ".bak")
 	end
-	
+
 	-- Also update breakpoints.  It's called from here and not OnSave
 	-- because OnBeforeSave is more reliable.  OnSave is not called if
 	-- the file is saved asynchronously and some other file is active
@@ -517,7 +520,7 @@ end
 function OpenInclude()
 	-- This function only works with the AutoHotkey lexer
 	if not InAHKLexer() then return false end
-	
+
 	local CurrentLine = editor:GetLine(editor:LineFromPosition(editor.CurrentPos))
 	if not string.find(CurrentLine, "^%s*%#[Ii][Nn][Cc][Ll][Uu][Dd][Ee]") then
 		print("Not an include line!")
@@ -538,19 +541,19 @@ function OpenInclude()
 	if cplace then
 		IncFile = string.sub(IncFile, 1, cplace-1)
 	end
-	
+
 	-- Delete spaces at the beginning and the end
 	IncFile = string.gsub(IncFile, "^%s*", "")
 	IncFile = string.gsub(IncFile, "%s*$", "")
-	
+
 	-- Replace variables
 	IncFile = string.gsub(IncFile, "%%[Aa]_[Ss][Cc][Rr][Ii][Pp][Tt][Dd][Ii][Rr]%%", props['FileDir'])
 	IncFile = string.gsub(IncFile, "%%[Aa]_[Ll][Ii][Nn][Ee][Ff][Ii][Ll][Ee]%%", props['FilePath'])
-	
+
 	a,b,IncLib = string.find(IncFile, "^<(.+)>$")
-	
+
 	if IncLib ~= nil then
-	
+
 		local IncLib2 = IncLib
 		local RawIncLib = IncLib
 		a,b,whatmatch = string.find(IncLib, "^(.-)_")
@@ -559,11 +562,11 @@ function OpenInclude()
 		end
 		IncLib = "\\"..IncLib..".ahk"
 		IncLib2 = "\\"..IncLib2..".ahk"
-		
+
 		local GlobalLib = props['AutoHotkeyDir'].."\\Lib"
 		local UserLib = props['SciteUserHome'].."\\..\\Lib"
 		local LocalLib = props['FileDir'].."\\Lib"
-		
+
 		for i,LibDir in ipairs({GlobalLib, UserLib, LocalLib}) do
 			if FileExists(LibDir..IncLib) then
 				scite.Open(LibDir..IncLib)
@@ -573,9 +576,9 @@ function OpenInclude()
 				return
 			end
 		end
-		
+
 		print("Library not found! Specified: '"..RawIncLib.."'")
-		
+
 	elseif FileExists(IncFile) then
 		scite.Open(IncFile)
 	else
@@ -631,12 +634,10 @@ function getPrevLinePos()
 	return linepos + string.len(linetxt) - 1
 end
 
-function isInTable(table, elem)
-	if table == null then return false end
-	for k,i in ipairs(table) do
-		if i == elem then
-			return true
-		end
+function isInTable(tbl, elem)
+	if tbl == nil then return false end
+	for i,v in ipairs(tbl) do
+		if v == elem then return true end
 	end
 	return false
 end

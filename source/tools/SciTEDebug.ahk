@@ -957,7 +957,7 @@ ST_Create(opt := "w320 h240")
 	
 	if Dbg_StackTraceWin
 		ST_Destroy()
-	Gui, New, +HwndDbg_StackTraceWin +Owner%scitehwnd% +ToolWindow +LabelSTGui +Resize +MinSize -MaximizeBox, Callstack
+	Gui, New, +HwndDbg_StackTraceWin +Owner%scitehwnd% +ToolWindow +LabelSTGui +Resize -MaximizeBox -DPIScale, Callstack
 	Gui, Add, ListView, x0 y0 w320 h240 +NoSortHdr -LV0x10 gST_Go vST_ListView, Script filename|Line|Stack entry
 	ST_Update()
 	Gui, Show, %opt%

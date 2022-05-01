@@ -38,7 +38,7 @@ end
 -- OnChar event - needed by some features --
 -- ====================================== --
 
-function isAutoCompleteIgnoreException(ignoreStyles, curStyle)
+function isAutoCompleteIgnoreException(ignoreStyles, curStyle, pos)
 	-- Allow AutoComplete in variable %dereferences% (which are set to 'error'
 	-- when they are typed because of the missing closing percent sign)
 	return editor.Lexer == SCLEX_AHK1 and curStyle == SCE_AHK1_ERROR and
@@ -55,7 +55,7 @@ function OnChar(curChar)
 		local curStyle = editor.StyleAt[editor.CurrentPos-2]
 		local pos = editor:WordStartPosition(editor.CurrentPos)
 
-		if isInTable(ignoreStyles, curStyle) and not isAutoCompleteIgnoreException(ignoreStyles, curStyle) then
+		if isInTable(ignoreStyles, curStyle) and not isAutoCompleteIgnoreException(ignoreStyles, curStyle, pos) then
 			if editor:AutoCActive() then
 				editor:AutoCCancel()
 			end

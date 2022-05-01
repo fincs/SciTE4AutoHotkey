@@ -114,39 +114,11 @@ class CoI extends InvalidUsage
 	{
 		get
 		{
-			global filesmenu
-			static VT_BSTR := 8
-			
-			filescount := DllCall("GetMenuItemCount", "ptr", filesmenu, "int") - 5
-			tabs := ComObjArray(VT_BSTR, filescount)
-			
-			; This code is not 64-bit compatible.
-			Loop, %filescount%
-				; Prepare a structure
-				VarSetCapacity(MENUITEMINFO, 12*4, 0)
-				
-				; MENUITEMINFO.cbSize = sizeof(MENUITEMINFO)
-				, NumPut(12*4, MENUITEMINFO, "UInt")
-				
-				; MENUITEMINFO.fMask = MIIM_STRING
-				, NumPut(0x00000040, MENUITEMINFO, 1*4, "UInt")
-				
-				; Get the size of the item name
-				, DllCall("GetMenuItemInfo", "ptr", filesmenu, "uint", 4+A_Index, "int", 1, "ptr", &MENUITEMINFO)
-				
-				; Prepare a buffer for holding the data
-				, VarSetCapacity(_data, (cch := NumGet(MENUITEMINFO, 10*4, "UInt")) * (!!A_IsUnicode + 1))
-				
-				; Fill the structure with the buffer
-				, NumPut(&_data, MENUITEMINFO, 9*4), NumPut(cch + 1, MENUITEMINFO, 10*4, "UInt")
-				
-				; Retrieve the item name
-				, DllCall("GetMenuItemInfo", "ptr", filesmenu, "uint", 4+A_Index, "int", 1, "ptr", &MENUITEMINFO)
-				, VarSetCapacity(_data, -1)
-				
-				; Append the item to the list
-				, tabs[A_Index-1] := RegExReplace(RegExReplace(_data, "^&\d\s"), "&&", "&")
-				
+			obj := Director_Send("ask_bufferlist:", true, true)
+			tabs := ComObjArray(VT_BSTR := 8, obj.Length())
+			for each, msg in obj
+				tabs[each - 1] := msg.value
+
 			; Return the Tabs object
 			return new CoI.__Tabs(tabs)
 		}

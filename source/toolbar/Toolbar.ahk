@@ -73,10 +73,6 @@ IfWinNotExist, ahk_id %directorhwnd%
 	ExitApp
 }
 
-; Get the HMENU of the "Files" menu
-scitemenu := DllCall("GetMenu", "ptr", scitehwnd, "ptr")
-filesmenu := DllCall("GetSubMenu", "ptr", scitemenu, "int", 7, "ptr")
-
 LocalSciTEPath = %SciTEDir%\user
 IsPortable := InStr(FileExist(LocalSciTEPath), "D")
 if !IsPortable

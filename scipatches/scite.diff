@@ -271,10 +271,18 @@ index fe68c563..34c75546 100644
 +
  #endif
 diff --git a/src/SciTEBase.cxx b/src/SciTEBase.cxx
-index 1479c6a9..b3a37f93 100644
+index 1479c6a9..e1a470c2 100644
 --- a/src/SciTEBase.cxx
 +++ b/src/SciTEBase.cxx
-@@ -219,6 +219,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), pwFocussed(&wEditor), extende
+@@ -188,6 +188,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), pwFocussed(&wEditor), extende
+ 	imeAutoComplete = false;
+ 	callTipUseEscapes = false;
+ 	callTipIgnoreCase = false;
++	callTipAhkMode = false;
+ 	autoCCausedByOnlyOne = false;
+ 	autoCompleteVisibleItemCount = 9;
+ 	startCalltipWord = 0;
+@@ -219,6 +220,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), pwFocussed(&wEditor), extende
  
  	needReadProperties = false;
  	quitting = false;
@@ -282,7 +290,7 @@ index 1479c6a9..b3a37f93 100644
  	canUndo = false;
  	canRedo = false;
  
-@@ -668,6 +669,9 @@ void SciTEBase::SetWindowName() {
+@@ -668,6 +670,9 @@ void SciTEBase::SetWindowName() {
  		windowName += GUI_TEXT("]");
  	}
  
@@ -292,7 +300,7 @@ index 1479c6a9..b3a37f93 100644
  	wSciTE.SetTitle(windowName.c_str());
  }
  
-@@ -1436,9 +1440,9 @@ void SciTEBase::SetOutputVisibility(bool show) {
+@@ -1436,9 +1441,9 @@ void SciTEBase::SetOutputVisibility(bool show) {
  		if (heightOutput <= 0) {
  			if (previousHeightOutput < 20) {
  				if (splitVertical)
@@ -304,7 +312,50 @@ index 1479c6a9..b3a37f93 100644
  				previousHeightOutput = heightOutput;
  			} else {
  				heightOutput = NormaliseSplit(previousHeightOutput);
-@@ -4089,7 +4093,7 @@ void SciTEBase::Notify(SCNotification *notification) {
+@@ -1552,12 +1557,7 @@ void SciTEBase::Redraw() {
+ 
+ std::string SciTEBase::GetNearestWords(const char *wordStart, size_t searchLen,
+ 				       const char *separators, bool ignoreCase /*=false*/, bool exactLen /*=false*/) {
+-	std::string words;
+-	while (words.empty() && *separators) {
+-		words = apis.GetNearestWords(wordStart, searchLen, ignoreCase, *separators, exactLen);
+-		separators++;
+-	}
+-	return words;
++	return apis.GetNearestWords(wordStart, searchLen, ignoreCase, separators, exactLen);
+ }
+ 
+ void SciTEBase::FillFunctionDefinition(SA::Position pos /*= -1*/) {
+@@ -1644,6 +1644,9 @@ bool SciTEBase::StartCallTip() {
+ 	while (startCalltipWord > 0 &&
+ 			Contains(calltipWordCharacters, line[startCalltipWord - 1])) {
+ 		startCalltipWord--;
++		if (callTipAhkMode && line[startCalltipWord] == '.') {
++			break;
++		}
+ 	}
+ 
+ 	line.at(current) = '\0';
+@@ -1678,7 +1681,7 @@ void SciTEBase::ContinueCallTip() {
+ 			commas--;
+ 		// If it reached the end of the argument list it means that the user typed in more
+ 		// arguments than the ones listed in the calltip
+-		if (Contains(calltipParametersEnd, functionDefinition[startHighlight]))
++		if (Contains(calltipParametersEnd, functionDefinition[startHighlight]) && (!callTipAhkMode || functionDefinition[startHighlight]))
+ 			commas = 0;
+ 		else
+ 			startHighlight++;
+@@ -1738,6 +1741,9 @@ bool SciTEBase::StartAutoComplete() {
+ 			(Contains(calltipWordCharacters, line[startword - 1]) ||
+ 			 Contains(autoCompleteStartCharacters, line[startword - 1]))) {
+ 		startword--;
++		if (callTipAhkMode && line[startword] == '.') {
++			break;
++		}
+ 	}
+ 
+ 	const std::string root = line.substr(startword, current - startword);
+@@ -4089,7 +4095,7 @@ void SciTEBase::Notify(SCNotification *notification) {
  
  	case SA::Notification::MarginClick: {
  			if (extender)
@@ -313,7 +364,7 @@ index 1479c6a9..b3a37f93 100644
  			if (!handled) {
  				if (notification->margin == 2) {
  					MarginClick(notification->position, notification->modifiers);
-@@ -4258,10 +4262,18 @@ void SciTEBase::ContextMenu(GUI::ScintillaWindow &wSource, GUI::Point pt, GUI::W
+@@ -4258,10 +4264,18 @@ void SciTEBase::ContextMenu(GUI::ScintillaWindow &wSource, GUI::Point pt, GUI::W
  /**
   * Ensure that a splitter bar position is inside the main window.
   */
@@ -333,7 +384,7 @@ index 1479c6a9..b3a37f93 100644
  	if (splitPos < 20)
  		splitPos = 0;
  	if (splitVertical) {
-@@ -4366,6 +4378,12 @@ void SciTEBase::PerformOne(char *action) {
+@@ -4366,6 +4380,21 @@ void SciTEBase::PerformOne(char *action) {
  			extender->OnMacro("filename", filePath.AsUTF8().c_str());
  		} else if (isprefix(action, "askproperty:")) {
  			PropertyToDirector(arg);
@@ -343,10 +394,19 @@ index 1479c6a9..b3a37f93 100644
 +				doc = wEditor.GetText(wEditor.TextLength());
 +			}
 +			extender->OnMacro("fulldocument", doc.c_str());
++		} else if (isprefix(action, "ask_bufferlist:")) {
++			for (int pos = 0; pos < buffers.lengthVisible; pos ++) {
++				Buffer &buffer = buffers.buffers[pos];
++				if (buffer.file.IsUntitled()) {
++					extender->OnMacro("buffer", "*");
++				} else {
++					extender->OnMacro("buffer", buffer.file.AbsolutePath().AsUTF8().c_str());
++				}
++			}
  		} else if (isprefix(action, "close:")) {
  			Close();
  			WindowSetFocus(wEditor);
-@@ -4407,6 +4425,9 @@ void SciTEBase::PerformOne(char *action) {
+@@ -4407,6 +4436,9 @@ void SciTEBase::PerformOne(char *action) {
  					wEditor.SetSel(wordStart, wordEnd);
  				}
  			}
@@ -357,7 +417,7 @@ index 1479c6a9..b3a37f93 100644
  			wEditor.ReplaceSel(arg);
  		} else if (isprefix(action, "loadsession:")) {
 diff --git a/src/SciTEBase.h b/src/SciTEBase.h
-index 02d2ade6..96013794 100644
+index 02d2ade6..4ba2aff4 100644
 --- a/src/SciTEBase.h
 +++ b/src/SciTEBase.h
 @@ -392,6 +392,7 @@ protected:
@@ -368,7 +428,15 @@ index 02d2ade6..96013794 100644
  	bool canUndo;
  	bool canRedo;
  
-@@ -874,7 +875,7 @@ protected:
+@@ -418,6 +419,7 @@ protected:
+ 	bool imeAutoComplete;
+ 	bool callTipUseEscapes;
+ 	bool callTipIgnoreCase;
++	bool callTipAhkMode;
+ 	bool autoCCausedByOnlyOne;
+ 	int autoCompleteVisibleItemCount;
+ 	std::string calltipWordCharacters;
+@@ -874,7 +876,7 @@ protected:
  	void Activate(bool activeApp);
  	GUI::Rectangle GetClientRectangle();
  	void Redraw();
@@ -377,6 +445,103 @@ index 02d2ade6..96013794 100644
  	void MoveSplit(GUI::Point ptNewDrag);
  
  	virtual void TimerStart(int mask);
+diff --git a/src/SciTEProps.cxx b/src/SciTEProps.cxx
+index cfe56afc..bace49c2 100644
+--- a/src/SciTEProps.cxx
++++ b/src/SciTEProps.cxx
+@@ -448,8 +448,8 @@ std::string SciTEBase::FindLanguageProperty(const char *pattern, const char *def
+ 	std::string ret = props.GetExpandedString(key.c_str());
+ 	if (ret == "")
+ 		ret = props.GetExpandedString(pattern);
+-	if (ret == "")
+-		ret = defaultValue;
++	//if (ret == "")
++	//	ret = defaultValue;
+ 	return ret;
+ }
+ 
+@@ -1097,6 +1097,8 @@ void SciTEBase::ReadProperties() {
+ 	callTipIgnoreCase = sval == "1";
+ 	sval = FindLanguageProperty("calltip.*.use.escapes");
+ 	callTipUseEscapes = sval == "1";
++	sval = FindLanguageProperty("calltip.*.ahk.mode");
++	callTipAhkMode = sval == "1";
+ 
+ 	calltipWordCharacters = FindLanguageProperty("calltip.*.word.characters",
+ 				"_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+diff --git a/src/StringList.cxx b/src/StringList.cxx
+index fce6791a..229326a5 100644
+--- a/src/StringList.cxx
++++ b/src/StringList.cxx
+@@ -194,11 +194,11 @@ std::string StringList::GetNearestWord(const char *wordStart, size_t searchLen,
+  * there may be extra spaces after the identifier that should not be
+  * counted in the length.
+  */
+-static size_t LengthWord(const char *word, char otherSeparator) noexcept {
++static size_t LengthWord(const char *word, const char *otherSeparators) noexcept {
+ 	const char *endWord = nullptr;
+ 	// Find an otherSeparator
+-	if (otherSeparator)
+-		endWord = strchr(word, otherSeparator);
++	if (otherSeparators)
++		endWord = strpbrk(word, otherSeparators);
+ 	// Find a '('. If that fails go to the end of the string.
+ 	if (!endWord)
+ 		endWord = strchr(word, '(');
+@@ -219,16 +219,16 @@ static size_t LengthWord(const char *word, char otherSeparator) noexcept {
+ }
+ 
+ template<typename Compare>
+-static std::string GetMatches(std::vector<char *>::iterator start, std::vector<char *>::iterator end, const char *wordStart, char otherSeparator, bool exactLen, Compare comp) {
++static std::string GetMatches(std::vector<char *>::iterator start, std::vector<char *>::iterator end, const char *wordStart, const char *otherSeparators, bool exactLen, Compare comp) {
+ 	std::string wordList;
+-	const size_t wordStartLength = LengthWord(wordStart, otherSeparator);
++	const size_t wordStartLength = LengthWord(wordStart, otherSeparators);
+ 	std::vector<char *>::iterator elem = std::lower_bound(start, end, wordStart, comp);
+ 	// Found a matching element, now accumulate all matches
+ 	for (; elem < end; ++elem) {
+ 		if (comp(wordStart, *elem) || comp(*elem, wordStart))
+ 			break;	// Not a match so stop
+ 		// length of the word part (before the '(' brace) of the api array element
+-		const size_t wordlen = LengthWord(*elem, otherSeparator);
++		const size_t wordlen = LengthWord(*elem, otherSeparators);
+ 		if (!exactLen || (wordlen == wordStartLength)) {
+ 			if (wordList.length() > 0)
+ 				wordList.append(" ", 1);
+@@ -250,17 +250,17 @@ std::string StringList::GetNearestWords(
+ 	const char *wordStart,
+ 	size_t searchLen,
+ 	bool ignoreCase,
+-	char otherSeparator /*= '\0'*/,
++	const char *otherSeparators /*=nullptr*/,
+ 	bool exactLen /*=false*/) {
+ 
+ 	if (words.empty())
+ 		return std::string();
+ 	SortIfNeeded(ignoreCase);
+ 	if (ignoreCase) {
+-		return GetMatches(wordsNoCase.begin(), wordsNoCase.end(), wordStart, otherSeparator, exactLen, CompareStringInsensitive(searchLen));
++		return GetMatches(wordsNoCase.begin(), wordsNoCase.end(), wordStart, otherSeparators, exactLen, CompareStringInsensitive(searchLen));
+ 	} else {
+ 		// Preserve the letter case
+-		return GetMatches(words.begin(), words.end(), wordStart, otherSeparator, exactLen, CompareString(searchLen));
++		return GetMatches(words.begin(), words.end(), wordStart, otherSeparators, exactLen, CompareString(searchLen));
+ 	}
+ }
+ 
+diff --git a/src/StringList.h b/src/StringList.h
+index 40ae993a..42860099 100644
+--- a/src/StringList.h
++++ b/src/StringList.h
+@@ -32,7 +32,7 @@ public:
+ 	std::string GetNearestWord(const char *wordStart, size_t searchLen,
+ 				   bool ignoreCase, const std::string &wordCharacters, int wordIndex);
+ 	std::string GetNearestWords(const char *wordStart, size_t searchLen,
+-				    bool ignoreCase, char otherSeparator='\0', bool exactLen=false);
++				    bool ignoreCase, const char *otherSeparators=nullptr, bool exactLen=false);
+ };
+ 
+ class AutoCompleteWordList {
 diff --git a/win32/DirectorExtension.cxx b/win32/DirectorExtension.cxx
 index 247a1991..e52e04d5 100644
 --- a/win32/DirectorExtension.cxx

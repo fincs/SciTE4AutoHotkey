@@ -6,7 +6,9 @@
 #NoTrayIcon
 #SingleInstance Ignore
 SendMode Input
-SetWorkingDir, %A_ScriptDir%
+SetWorkingDir %A_ScriptDir%
+SetBatchLines -1
+ListLines, Off
 
 Menu, Tray, Icon, ..\toolicon.icl, 17
 
@@ -41,6 +43,7 @@ p_encoding := FindProp("code\.page=(" cplist_v ")", 0)
 p_backup := FindProp("make\.backup=([01])", 1)
 p_savepos := FindProp("save\.position=([01])", 1)
 p_zoom := FindProp("magnification=(-?\d+)", -1)
+p_font := FindProp("default\.text\.font=(.+)", "Consolas")
 
 if 1 = /regenerate
 {
@@ -56,29 +59,32 @@ stylelist := CountStylesAndChoose(ch1)
 localelist := CountLocalesAndChoose(ch2)
 p_encoding := FindInList(cplist_v, p_encoding)
 
-Gui, New, +Owner%scite_hwnd% +ToolWindow, SciTE settings
+Gui, New, +Owner%scite_hwnd% +ToolWindow, SciTE4AutoHotkey settings
 
 Gui, Add, Text, Section +Right w70, Language:
-Gui, Add, DDL, ys R10 Choose%ch2% vp_locale, %localelist%
+Gui, Add, DDL, ys w150 R10 Choose%ch2% vp_locale, %localelist%
 
 Gui, Add, Text, xs Section +Right w70, Style:
-Gui, Add, DDL, ys Choose%ch1% vp_style gDDL_Choose, %stylelist%|New...
+Gui, Add, DDL, ys w150 Choose%ch1% vp_style gDDL_Choose, %stylelist%|New...
 
-Gui, Add, Text, xs Section +Right w70, File codepage:
-Gui, Add, DDL, ys +AltSubmit Choose%p_encoding% vp_encoding, %cplist_n%
+Gui, Add, Text, xs Section +Right w70, Encoding:
+Gui, Add, DDL, ys w150 +AltSubmit Choose%p_encoding% vp_encoding, %cplist_n%
 
-Gui, Add, Text, xs Section +Right w70, Default zoom:
+Gui, Add, Text, xs Section +Right w70, Code font:
+Gui, Add, DDL, ys w150 vp_font, % ListFonts()
+GuiControl ChooseString, p_font, %p_font%
+
+Gui, Add, Text, xs Section +Right w70, Text zoom:
 Gui, Add, Edit, ys w50
 Gui, Add, UpDown, vp_zoom Range-10-10, %p_zoom%
+Gui, Add, Text, ys, (requires restart)
 
-Gui, Add, Text, xs Section +Right w70, Auto-backups:
-Gui, Add, CheckBox, ys Checked%p_backup% vp_backup
+Gui, Add, CheckBox, xs+15 Checked%p_backup% vp_backup, Auto-backups
 
-Gui, Add, Text, xs Section +Right, Remember window position:
-Gui, Add, CheckBox, ys Checked%p_savepos% vp_savepos
+Gui, Add, CheckBox, xs+15 Checked%p_savepos% vp_savepos, Remember window position
 
-Gui, Add, Button, xs+40 Section gUpdate, Update
-Gui, Add, Button, ys xs+70 gEditStyle, Edit style
+Gui, Add, Button, xs+50 w60 Section gUpdate, Update
+Gui, Add, Button, ys xs+90 w60 gEditStyle, Edit style
 Gui, Show
 return
 
@@ -92,7 +98,7 @@ if (n_style != "New...")
 }
 GuiControl, ChooseString, p_style, %p_style%
 FileRead, qvar, %LocalSciTEPath%\Styles\%p_style%.style.properties
-if !RegExMatch(qvar, "`am)^s4ahk\.style=1$")
+if !RegExMatch(qvar, "`am)^s4ahk\.style=\d+$")
 	p_style := "Blank" ; cannot fork an old-format style
 InputBox, newStyleName, SciTE properties editor, Enter the name of the new style...,,,,,,,, %p_style%_Edited
 if ErrorLevel
@@ -178,6 +184,7 @@ code.page=%p_encoding%
 output.code.page=%p_encoding%
 save.position=%p_savepos%
 magnification=%p_zoom%
+default.text.font=%p_font%
 import Styles\%p_style%.style
 %p_extra%import _extensions
 )
@@ -221,7 +228,7 @@ CountStylesAndChoose(ByRef choosenum)
 {
 	global p_style, LocalSciTEPath
 	i := 1
-	
+
 	Loop, %LocalSciTEPath%\Styles\*.properties
 	{
 		if !RegExMatch(A_LoopFileName, "\.style\.properties$")
@@ -240,7 +247,7 @@ CountLocalesAndChoose(ByRef choosenum)
 {
 	global p_locale
 	i := 1
-	
+
 	Loop, %A_ScriptDir%\..\locales\*.properties
 	{
 		if !RegExMatch(A_LoopFileName, "\.locale\.properties$")
@@ -253,6 +260,24 @@ CountLocalesAndChoose(ByRef choosenum)
 	}
 	StringTrimLeft, list, list, 1
 	return list
+}
+
+ListFonts()
+{
+	VarSetCapacity(logfont, 128, 0), NumPut(1, logfont, 23, "UChar")
+	obj := []
+	DllCall("EnumFontFamiliesEx", "ptr", DllCall("GetDC", "ptr", 0), "ptr", &logfont, "ptr", RegisterCallback("EnumFontProc"), "ptr", &obj, "uint", 0)
+	for font in obj
+		list .= "|" font
+	StringTrimLeft list, list, 1
+	return list
+}
+
+EnumFontProc(lpFont, tm, fontType, lParam)
+{
+	obj := Object(lParam)
+	obj[StrGet(lpFont+28)] := 1
+	return 1
 }
 
 FindInList(ByRef list, item, delim := "|")

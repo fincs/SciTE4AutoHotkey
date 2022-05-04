@@ -29,39 +29,72 @@ if !scite
 
 scite_hwnd := scite.SciTEHandle
 
-FileEncoding UTF-8
-FileRead StyleText, %StyleFileName%
+FileEncoding UTF-8-RAW
+FileRead StyleText, *t %StyleFileName%
 
-if !RegExMatch(StyleText, "`am)^s4ahk\.style=1$")
+if !RegExMatch(StyleText, "`am)^s4ahk\.style=(\d+)$", o)
 {
 	; Legacy style file which cannot be edited by this program.
 	scite.OpenFile(StyleFilename)
 	ExitApp
 }
 
+styleVersion := o1+0
+if (styleVersion > 2)
+{
+	MsgBox 16, SciTE Style Editor, Unrecognised style version: %styleVersion%
+	ExitApp
+}
+
+if (styleVersion < 2)
+{
+	; Convert style1 into style2
+	StyleText := RegExReplace(StyleText, "`am)^(s4ahk\.style=)(\d+)", "${1}2")
+	StyleText := RegExReplace(StyleText, "`am)^(default\.text\.font=.*)$", "# Disabled: $1")
+	StyleText := RegExReplace(StyleText, "`am)^style\.\*\.32=.*(back:[#0-9a-fA-F]+,fore:[#0-9a-fA-F]+).*$", "s4ahk.style.base=${1}")
+	StyleText := RegExReplace(StyleText, "`am)^s4ahk\.style\.var", "s4ahk.style.ident.top")
+	StyleText := RegExReplace(StyleText, "`am)^s4ahk\.style\.objprop", "s4ahk.style.ident.obj")
+	StyleText := RegExReplace(StyleText, "`am)^s4ahk\.style\.wordop", "s4ahk.style.ident.reserved")
+	StyleText := RegExReplace(StyleText, "`am)^s4ahk\.style\.biv", "s4ahk.style.known.var")
+	StyleText := RegExReplace(StyleText, "`am)^s4ahk\.style\.bif", "s4ahk.style.known.func")
+	StyleText := RegExReplace(StyleText, "`am)^s4ahk\.style\.func", "s4ahk.style.known.class")
+	StyleText := RegExReplace(StyleText, "`am)^s4ahk\.style\.biobjprop", "s4ahk.style.known.obj.prop")
+	StyleText := RegExReplace(StyleText, "`am)^s4ahk\.style\.biobjmethod", "s4ahk.style.known.obj.method")
+}
+
 isv2 := InStr(scite.ResolveProp("ahk.platform"), "v2") = 1
 
-styles := [{prop: "style.*.32", name: "Base Style" }
+styles := [{prop: "s4ahk.style.base", name: "Base style" }
+, "Syntax features"
 , {prop: "s4ahk.style.default", name: "Default" }
-, {prop: "s4ahk.style.comment.line", name: "Line Comment" }
-, {prop: "s4ahk.style.comment.block", name: "Block Comment" }
-, {prop: "s4ahk.style.escape", name: "Escaped Char" }
-, {prop: "s4ahk.style.operator", name: "Operator" }
-, {prop: "s4ahk.style.string", name: "String" }
-, {prop: "s4ahk.style.number", name: "Number" }
-, {prop: "s4ahk.style.wordop", name: isv2 ? "Word operator" : "Keyword" }
-, {prop: "s4ahk.style.var", name: "Variable" }
-, {prop: "s4ahk.style.func", name: isv2 ? "Function" : "Built-in Function" }
+, {prop: "s4ahk.style.error", name: "Syntax error" }
+, {prop: "s4ahk.style.comment.line", name: "Line comment" }
+, {prop: "s4ahk.style.comment.block", name: "Block comment" }
 , {prop: "s4ahk.style.directive", name: "Directive" }
 , {prop: "s4ahk.style.label", name: "Label && Hotkey" }
-, {prop: "s4ahk.style.flow", name: "Flow of Control" }
-, {prop: "s4ahk.style.biv", name: "Built-in Variable" }
-, {prop: "s4ahk.style.bif", name: isv2 ? "Built-in Function" : "Command" }
-, {prop: "s4ahk.style.error", name: "Syntax Error" } ]
-if (!isv2)
+, {prop: "s4ahk.style.flow", name: "Control Flow" }
+, {prop: "s4ahk.style.number", name: "Number" }
+, {prop: "s4ahk.style.string", name: "String && Hotstring" }
+, {prop: "s4ahk.style.escape", name: "Escaped char." }
+, {prop: "s4ahk.style.operator", name: "Operator" }
+, {prop: "s4ahk.style.ident.top", name: "Identifier" }
+, {prop: "s4ahk.style.ident.obj", name: "Object syntax" }
+, {prop: "s4ahk.style.ident.reserved", name: "Reserved word" }
+, "AutoHotkey built-ins"
+, {prop: "s4ahk.style.known.var", name: "Variable" }
+, {prop: "s4ahk.style.known.func", name: isv2 ? "Function" : "Command" }
+, {prop: "s4ahk.style.known.class", name: isv2 ? "Class" : "Function" }
+, {prop: "s4ahk.style.known.obj.prop", name: isv2 ? "Object property" : "(v2) Obj. property" }
+, {prop: "s4ahk.style.known.obj.method", name: isv2 ? "Object method" : "(v2) Obj. method" }]
+
+if RegExMatch(StyleText, "`am)^s4ahk\.style\.old\.")
 {
-	styles.Insert({prop: "s4ahk.style.old.key", name: "Key && Button"})
-	styles.Insert({prop: "s4ahk.style.old.user", name: "User Keyword"})
+	styles.Insert("AutoHotkey v1.x deprecated styles")
+	styles.Insert({prop: "s4ahk.style.old.synop", name: "Syntax operator"})
+	styles.Insert({prop: "s4ahk.style.old.deref", name: "%Dereference%"})
+	styles.Insert({prop: "s4ahk.style.old.key", name: "Keys && Buttons"})
+	styles.Insert({prop: "s4ahk.style.old.user", name: "User identifier"})
+	styles.Insert({prop: "s4ahk.style.old.bivderef", name: "%A_Dereference%"})
 }
 
 data := {}
@@ -71,12 +104,7 @@ Menu, TheMenu, Add, Inherit Color, InheritColor
 
 Gui +Owner%scite_hwnd% +ToolWindow +HwndMainWin
 OnMessage(0x0138, "WM_CTLCOLORSTATIC")
-Gui Add, Text, Section w80 Center, Code Font:
-Gui Add, DDL, ys w210 vddlFont, % ListFonts()
-GuiControl ChooseString, ddlFont, % GetTheProp("default.text.font")
-Gui Add, Edit, ys w40 Number, 10
-Gui Add, UpDown, veditFontSize
-Gui Add, Text, xs Section w80 Center
+Gui Add, Text, Section w90 Center
 Gui Add, Text, ys w80 Center, Text color
 Gui Add, Text, ys w80 Center, Back color
 Gui Font, Bold
@@ -88,25 +116,32 @@ Gui Font
 Gui Font, Underline
 Gui Add, Text, ys w25, U
 Gui Font
-Gui Add, Text, ys w30, EolFilled
+Gui Add, Text, ys w30, Eol
 for _,style in styles
 {
-	isFirst := A_Index = 1, Check3 := isFirst ? "" : "Check3"
+	isSpecial := IsBaseStyle(style.prop), Check3 := isSpecial ? "" : "Check3"
+	if !IsObject(style)
+	{
+		Gui Font, Bold s10
+		Gui Add, Text, xs, % style
+		Gui Font
+		continue
+	}
 	data[style.prop] := StrSplit(GetTheProp(style.prop), ",", " `t")
-	Gui Add, Text, xs Section w80 Center, % style.name
+	Gui Add, Text, xs Section w90 Right, % style.name
 	Gui Add, Text, ys Border w80 Center vtxtFgClr%A_Index% gChooseColor, % GetStyleParam(style.prop, "fore:")
 	Gui Add, Text, ys Border w80 Center vtxtBgClr%A_Index% gChooseColor, % GetStyleParam(style.prop, "back:")
-	cB := GetStyleCheck(style.prop, "bold", isFirst)
-	cI := GetStyleCheck(style.prop, "italics", isFirst)
-	cU := GetStyleCheck(style.prop, "underlined", isFirst)
-	cE := GetStyleCheck(style.prop, "eolfilled", isFirst)
+	cB := GetStyleCheck(style.prop, "bold", isSpecial)
+	cI := GetStyleCheck(style.prop, "italics", isSpecial)
+	cU := GetStyleCheck(style.prop, "underlined", isSpecial)
+	cE := GetStyleCheck(style.prop, "eolfilled", isSpecial)
 	Gui Add, CheckBox, ys %Check3% w25 vchkB%A_Index% Checked%cB%
 	Gui Add, CheckBox, ys %Check3% w25 vchkI%A_Index% Checked%cI%
 	Gui Add, CheckBox, ys %Check3% w25 vchkU%A_Index% Checked%cU%
 	Gui Add, CheckBox, ys %Check3% w25 vchkE%A_Index% Checked%cE%
 }
 GuiControl,, editFontSize, % GetStyleParam(styles[1].prop, "size:")
-Gui Add, Button, xs+150 Section gSaveStyle, Save Style
+Gui Add, Button, xs+160 Section gSaveStyle, Save Style
 Gui Show,, SciTE4AutoHotkey Style Editor
 WinSet, Redraw,, ahk_id %MainWin%
 return
@@ -140,7 +175,9 @@ Gui Submit, NoHide
 Gui +OwnDialogs
 for id,which in styles
 {
-	isntFirst := id>1
+	if !IsObject(which)
+		continue
+	isSpecial := IsBaseStyle(which.prop)
 	parts := data[which.prop]
 	; Remove all style props
 	parts2 := []
@@ -150,14 +187,7 @@ for id,which in styles
 			continue
 		if InStr(part, "fore:") = 1 || InStr(part, "back:") = 1
 			continue
-		if !isntFirst && (InStr(part, "font:") = 1 || InStr(part, "size:") = 1)
-			continue
 		parts2.Insert(part)
-	}
-	if !isntFirst
-	{
-		parts2.Insert("font:$(default.text.font)")
-		parts2.Insert("size:" editFontSize)
 	}
 	; Set colors
 	GuiControlGet fore,, txtFgClr%id%
@@ -167,10 +197,10 @@ for id,which in styles
 	if (back != "Inherited")
 		parts2.Insert("back:" back)
 	; Set style
-	(val:=chkB%A_Index%) = 1 ? parts2.Insert("bold")       : (isntFirst&&chkB1&&!val) ? parts2.Insert("notbold")       : ""
-	(val:=chkI%A_Index%) = 1 ? parts2.Insert("italics")    : (isntFirst&&chkI1&&!val) ? parts2.Insert("notitalics")    : ""
-	(val:=chkU%A_Index%) = 1 ? parts2.Insert("underlined") : (isntFirst&&chkU1&&!val) ? parts2.Insert("notunderlined") : ""
-	(val:=chkS%A_Index%) = 1 ? parts2.Insert("eolfilled")  : (isntFirst&&chkE1&&!val) ? parts2.Insert("noteolfilled")  : ""
+	(val:=chkB%A_Index%) = 1 ? parts2.Insert("bold")       : (!isSpecial&&!val) ? parts2.Insert("notbold")       : ""
+	(val:=chkI%A_Index%) = 1 ? parts2.Insert("italics")    : (!isSpecial&&!val) ? parts2.Insert("notitalics")    : ""
+	(val:=chkU%A_Index%) = 1 ? parts2.Insert("underlined") : (!isSpecial&&!val) ? parts2.Insert("notunderlined") : ""
+	(val:=chkE%A_Index%) = 1 ? parts2.Insert("eolfilled")  : (!isSpecial&&!val) ? parts2.Insert("noteolfilled")  : ""
 	; Build string
 	str := ""
 	for _,part in parts2
@@ -178,7 +208,6 @@ for id,which in styles
 	StringTrimLeft str, str, 1
 	SetTheProp(which.prop, str)
 }
-SetTheProp("default.text.font", ddlFont)
 FileDelete, %StyleFileName%
 FileAppend, % StyleText, %StyleFileName%
 scite.ReloadProps()
@@ -208,6 +237,11 @@ GuiControl,, %lastCtrl%, Inherited
 GuiControl, MoveDraw, %lastCtrl%
 return
 
+IsBaseStyle(name)
+{
+	return name == "s4ahk.style.base"
+}
+
 GetStyleParam(name, isit)
 {
 	global data
@@ -234,37 +268,19 @@ GetTheProp(name)
 	StringReplace name, name, ., \., All
 	StringReplace name, name, *, \*, All
 	if !RegExMatch(StyleText, "`am)^" name "=(.*)$", o)
-	{
-		MsgBox Bad format!
-		ExitApp
-	}
+		return ""
 	return o1
 }
 
-SetTheProp(name, val)
+SetTheProp(nam_, val)
 {
 	global StyleText
-	StringReplace name, name, ., \., All
+	StringReplace name, nam_, ., \., All
 	StringReplace name, name, *, \*, All
-	StyleText := RegExReplace(StyleText, "`am)^(" name ")=.*$", "$1=" val)
-}
-
-ListFonts()
-{
-	VarSetCapacity(logfont, 128, 0), NumPut(1, logfont, 23, "UChar")
-	obj := []
-	DllCall("EnumFontFamiliesEx", "ptr", DllCall("GetDC", "ptr", 0), "ptr", &logfont, "ptr", RegisterCallback("EnumFontProc"), "ptr", &obj, "uint", 0)
-	for font in obj
-		list .= "|" font
-	StringTrimLeft list, list, 1
-	return list
-}
-
-EnumFontProc(lpFont, tm, fontType, lParam)
-{
-	obj := Object(lParam)
-	obj[StrGet(lpFont+28)] := 1
-	return 1
+	if RegExMatch(StyleText, "`am)^" name "=")
+		StyleText := RegExReplace(StyleText, "`am)^(" name ")=.*$", "$1=" val)
+	else if (val != "")
+		StyleText .= "`n" nam_ "=" val "`n"
 }
 
 ChooseColor(initColor := -1)

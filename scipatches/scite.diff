@@ -129,10 +129,10 @@ index 1fcc01b8..e84216eb 100644
  	virtual bool OnUserListSelection(int, const char *) { return false; }
  
 diff --git a/src/IFaceTable.cxx b/src/IFaceTable.cxx
-index a942bf32..c18558a3 100644
+index a942bf32..fac7c8ed 100644
 --- a/src/IFaceTable.cxx
 +++ b/src/IFaceTable.cxx
-@@ -411,6 +411,27 @@ static IFaceConstant ifaceConstants[] = {
+@@ -411,6 +411,41 @@ static IFaceConstant ifaceConstants[] = {
  	{"SCE_ADA_STRING",7},
  	{"SCE_ADA_STRINGEOL",8},
  	{"SCE_ADA_WORD",1},
@@ -157,23 +157,38 @@ index a942bf32..c18558a3 100644
 +	{"SCE_AHK1_WORD_SP",17},
 +	{"SCE_AHK1_WORD_UD",18},
 +	{"SCE_AHK1_WORD_VAR",16},
++	{"SCE_AHK2_COMMENT_BLOCK",3},
++	{"SCE_AHK2_COMMENT_LINE",2},
++	{"SCE_AHK2_DEFAULT",0},
++	{"SCE_AHK2_DIRECTIVE",4},
++	{"SCE_AHK2_ERROR",1},
++	{"SCE_AHK2_ESCAPE",9},
++	{"SCE_AHK2_FLOW",6},
++	{"SCE_AHK2_ID_OBJECT",12},
++	{"SCE_AHK2_ID_RESERVED",13},
++	{"SCE_AHK2_ID_TOP_LEVEL",11},
++	{"SCE_AHK2_LABEL",5},
++	{"SCE_AHK2_NUMBER",7},
++	{"SCE_AHK2_OPERATOR",10},
++	{"SCE_AHK2_STRING",8},
  	{"SCE_APDL_ARGUMENT",11},
  	{"SCE_APDL_COMMAND",8},
  	{"SCE_APDL_COMMENT",1},
-@@ -2733,6 +2754,7 @@ static IFaceConstant ifaceConstants[] = {
+@@ -2733,6 +2768,8 @@ static IFaceConstant ifaceConstants[] = {
  	{"SCLEX_A68K",100},
  	{"SCLEX_ABAQUS",84},
  	{"SCLEX_ADA",20},
 +	{"SCLEX_AHK1",200},
++	{"SCLEX_AHK2",201},
  	{"SCLEX_APDL",61},
  	{"SCLEX_AS",113},
  	{"SCLEX_ASCIIDOC",134},
-@@ -3767,7 +3789,7 @@ static IFaceProperty ifaceProperties[] = {
+@@ -3767,7 +3804,7 @@ static IFaceProperty ifaceProperties[] = {
  
  enum {
  	ifaceFunctionCount = 321,
 -	ifaceConstantCount = 3048,
-+	ifaceConstantCount = 3070,
++	ifaceConstantCount = 3085,
  	ifacePropertyCount = 261
  };
  
@@ -995,18 +1010,10 @@ index 9f421433..ed3c2f52 100644
  	SciTEWin.cxx \
  	SciTEWin.h \
 diff --git a/win32/makefile b/win32/makefile
-index f277dffc..d5318c76 100644
+index f277dffc..91de39f2 100644
 --- a/win32/makefile
 +++ b/win32/makefile
-@@ -17,20 +17,20 @@ else
- 	normalize = $(subst /,\,$1)
- endif
- 
--PYTHON = $(if $(windir),pyw,python3)
-+PYTHON = $(if $(WINDIR),pyw,python3)
- 
- WARNINGS += -Wall -pedantic -Wextra
- 
+@@ -24,13 +24,13 @@ WARNINGS += -Wall -pedantic -Wextra
  ifdef CLANG
  # Can choose aspect to sanitize: address and undefined can simply change SANITIZE but for
  # thread also need to create Position Independent Executable -> search online documentation

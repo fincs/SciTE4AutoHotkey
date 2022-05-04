@@ -14,7 +14,7 @@ All commands below assume you are using the clang64 shell provided by msys2.
 hg clone http://hg.code.sf.net/p/scintilla/code scintilla
 git clone https://github.com/ScintillaOrg/lexilla -b rel-5-1-6 lexilla
 hg clone http://hg.code.sf.net/p/scintilla/scite scite
-cd scintilla && hg update rel-5-2-2 && hg import --no-commit ../scintilla.diff && cd ..
+cd scintilla && hg update rel-5-2-2 && cd ..
 cd lexilla && git apply ../lexilla.diff && cd ..
 cd scite && hg update rel-5-2-2 && hg import --no-commit ../scite.diff && cd ..
 cp SciTE4AutoHotkey.ico scite/win32/

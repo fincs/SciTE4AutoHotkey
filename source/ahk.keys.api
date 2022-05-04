@@ -1,4 +1,8 @@
 Alt
+AltTab
+AltTabAndMenu
+AltTabMenu
+AltTabMenuDismiss
 AppsKey
 Backspace
 Browser_Back
@@ -105,6 +109,7 @@ RShift
 RWin
 ScrollLock
 Shift
+ShiftAltTab
 Sleep
 Space
 Tab

@@ -584,6 +584,7 @@ ZeroDivisionError
 .Extra
 .File
 .Handle
+.Hwnd
 .IsBuiltIn
 .IsVariadic
 .Length
@@ -620,7 +621,7 @@ ZeroDivisionError
 .HasBase
 .HasMethod
 .HasOwnProp
-.HasPropClone
+.HasProp
 .InsertAt
 .IsByRef
 .IsOptional

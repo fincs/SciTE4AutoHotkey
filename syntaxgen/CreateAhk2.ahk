@@ -33,7 +33,7 @@ g_knownClasses := Set()
 
 g_knownProps := Set(
 	; Meta-properties and other conventions
-	"__Item", "__Class", "Ptr", "Size", "Handle",
+	"__Item", "__Class", "Ptr", "Size", "Handle", "Hwnd",
 
 	; Any
 	"base",
@@ -62,7 +62,7 @@ g_knownMethods := Set(
 	"__Init", "__New", "__Delete", "__Get", "__Set", "__Call", "__Enum", "Call",
 
 	; Any
-	"GetMethod", "HasBase", "HasMethod", "HasProp"
+	"GetMethod", "HasBase", "HasMethod", "HasProp",
 
 	; Object
 	"Clone", "DefineProp", "DeleteProp", "GetOwnPropDesc", "HasOwnProp", "OwnProps",

@@ -97,6 +97,16 @@ if SciTEVersion && (SciTEVersion != CurrentSciTEVersion)
 		FileAppend, %CurrentSciTEVersion%, %LocalSciTEPath%\$VER
 		SciTEVersion := CurrentSciTEVersion
 		regenerateUserProps := true
+
+		if !IsPortable
+		{
+			; Copy new styles into Styles folder
+			Loop Files, %SciTEDir%\newuser\Styles\*.*
+			{
+				if !FileExist(LocalSciTEPath "\Styles\" A_LoopFileName) || A_LoopFileName == "Blank.style.properties"
+					FileCopy %A_LoopFileLongPath%, %LocalSciTEPath%\Styles\%A_LoopFileName%, 1
+			}
+		}
 	}
 }
 
@@ -327,15 +337,18 @@ if 3 != /NoAutorun
 ; Safety SciTE window existance timer
 SetTimer, check4scite, 1000
 
+IfNotExist, %LocalSciTEPath%\_config.properties
+	regenerateUserProps := true
+
+if regenerateUserProps
+	RunWait, "%A_AhkPath%" "%SciTEDir%\tools\PropEdit.ahk" /regenerate
+
 if FirstTime
 {
 	CoI.OpenFile(SciTEDir "\TestSuite.ahk")
 	MsgBox, 64, SciTE4AutoHotkey, Welcome to SciTE4AutoHotkey!
 	Run, "%A_AhkPath%" "%SciTEDir%\tools\PropEdit.ahk"
 }
-
-if regenerateUserProps
-	Run, "%A_AhkPath%" "%SciTEDir%\tools\PropEdit.ahk" /regenerate
 return
 
 ; Toolbar event handler

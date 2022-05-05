@@ -9,6 +9,7 @@ SendMode Input
 SetWorkingDir %A_ScriptDir%
 SetBatchLines -1
 ListLines, Off
+FileEncoding, UTF-8-RAW
 
 Menu, Tray, Icon, ..\toolicon.icl, 17
 
@@ -25,28 +26,32 @@ LocalSciTEPath := scite.UserDir
 
 UserPropsFile = %LocalSciTEPath%\_config.properties
 
-IfNotExist, %UserPropsFile%
-{
-	MsgBox, 16, SciTE properties editor, Can't find user properties file!
-	ExitApp
-}
-
-FileEncoding, UTF-8
-FileRead, UserProps, %UserPropsFile%
+IfExist, %UserPropsFile%
+	FileRead, UserProps, %UserPropsFile%
+else
+	UserProps := ""
 
 cplist_v := "0|65001|932|936|949|950|1361"
 cplist_n := "System default|UTF-8|Shift-JIS|Chinese GBK|Korean Wansung|Chinese Big5|Korean Johab"
 
-p_style  := FindProp("import Styles\\(.*)\.style", "Classic")
+p_style  := FindProp("import Styles\\(.*)\.style", "SciTE4AutoHotkey Light")
 p_locale := FindProp("locale\.properties=locales\\(.*)\.locale\.properties", "English")
-p_encoding := FindProp("code\.page=(" cplist_v ")", 0)
+p_encoding := FindProp("code\.page=(" cplist_v ")", 65001)
 p_backup := FindProp("make\.backup=([01])", 1)
 p_savepos := FindProp("save\.position=([01])", 1)
-p_zoom := FindProp("magnification=(-?\d+)", -1)
+p_zoom := FindProp("magnification=(-?\d+)", 0)
 p_font := FindProp("default\.text\.font=(.+)", "Consolas")
+p_lineno := FindProp("line\.margin\.visible=([01])", 1)
+p_autoupd := FindProp("automatic\.updates=([01])", 1)
 
 if 1 = /regenerate
 {
+	; Upgrade old styles to comparable modern equivalents
+	if p_style in Classic,PSPad,Light,VisualStudio
+		p_style := "SciTE4AutoHotkey Light"
+	else if p_style in HatOfGod,Noir,tidRich_Zenburn
+		p_style := "SciTE4AutoHotkey Dark"
+
 	regenMode := true
 	gosub Update2
 	ExitApp
@@ -54,6 +59,7 @@ if 1 = /regenerate
 
 org_locale := p_locale
 org_zoom := p_zoom
+org_lineno := p_lineno
 
 stylelist := CountStylesAndChoose(ch1)
 localelist := CountLocalesAndChoose(ch2)
@@ -79,9 +85,10 @@ Gui, Add, Edit, ys w50
 Gui, Add, UpDown, vp_zoom Range-10-10, %p_zoom%
 Gui, Add, Text, ys, (requires restart)
 
+Gui, Add, CheckBox, xs+15 Checked%p_lineno% vp_lineno, Show line numbers (requires restart)
 Gui, Add, CheckBox, xs+15 Checked%p_backup% vp_backup, Auto-backups
-
 Gui, Add, CheckBox, xs+15 Checked%p_savepos% vp_savepos, Remember window position
+Gui, Add, CheckBox, xs+15 Checked%p_autoupd% vp_autoupd, Automatically check for updates
 
 Gui, Add, Button, xs+50 w60 Section gUpdate, Update
 Gui, Add, Button, ys xs+90 w60 gEditStyle, Edit style
@@ -134,6 +141,16 @@ ExitApp
 
 Update:
 Gui, Submit, NoHide
+
+if (p_locale != org_locale || p_zoom != org_zoom || p_lineno != org_lineno)
+{
+	Gui, +OwnDialogs
+	MsgBox, 52, SciTE properties editor, Changing the language or certain other settings requires restarting SciTE.`nReopen SciTE?
+	IfMsgBox, No
+		return
+	restartSciTE := true
+}
+
 Update2:
 
 p_encoding := GetItem(cplist_v, p_encoding)
@@ -184,7 +201,9 @@ code.page=%p_encoding%
 output.code.page=%p_encoding%
 save.position=%p_savepos%
 magnification=%p_zoom%
+line.margin.visible=%p_lineno%
 default.text.font=%p_font%
+automatic.updates=%p_autoupd%
 import Styles\%p_style%.style
 %p_extra%import _extensions
 )
@@ -195,19 +214,14 @@ FileAppend, %UserProps%, %UserPropsFile%
 ; Reload properties
 scite.ReloadProps()
 
-if !regenMode && (p_locale != org_locale || p_zoom != org_zoom)
+if restartSciTE
 {
-	Gui, +OwnDialogs
-	MsgBox, 52, SciTE properties editor, Changing the language or the zoom value requires restarting SciTE.`nReopen SciTE?
-	IfMsgBox, Yes
-	{
-		Gui, Destroy
-		WinClose, ahk_id %scite_hwnd%
-		WinWaitClose,,, 10
-		if !ErrorLevel
-			Run, "%A_ScriptDir%\..\SciTE.exe"
-		ExitApp
-	}
+	Gui, Destroy
+	WinClose, ahk_id %scite_hwnd%
+	WinWaitClose,,, 10
+	if !ErrorLevel
+		Run, "%A_ScriptDir%\..\SciTE.exe"
+	ExitApp
 }
 
 return

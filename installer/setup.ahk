@@ -23,9 +23,9 @@ global inInstall := false
 SplitPath, A_AhkPath, intlAhkName
 global installDebug := !InStr(intlAhkName, "InternalAHK")
 
-if winVer < 5.1
+if (winVer < 6) or !A_Is64bitOS
 {
-	MsgBox, 16, %uititle%, Windows 2000 and earlier are not supported.
+	MsgBox, 16, %uititle%, This version of Microsoft Windows is not supported by SciTE4AutoHotkey.
 	ExitApp
 }
 
@@ -50,7 +50,7 @@ if 1 = /douninstall
 scitepath := installDebug ? "..\source\SciTE.exe" : "SciTE.exe"
 Menu, Tray, Icon, %scitepath%
 FileGetVersion, programVer, %scitepath%
-programVer := Format("{:d}.{:d}.{:02d}.{:02d}", StrSplit(programVer, ".")*)
+programVer := Format("{:d}.{:d}.{:d}", StrSplit(programVer, ".")*)
 
 if !installDebug
 	SetWorkingDir ..
@@ -65,8 +65,8 @@ if !FileExist("dialog.html") || !FileExist("banner.png")
 
 Gui, New, +LastFound, %uititle%
 Gui, Margin, 0, 0
-try DllCall("UxTheme\SetWindowThemeAttribute", "ptr", WinExist(), "int", 1, "int64*", (3<<32)|3, "int", 8) ; Hide window title.
-Gui, Add, ActiveX, vwb w600 h400 hwndhwb, Shell.Explorer
+try DllCall("UxTheme\SetWindowThemeAttribute", "ptr", installerHwnd := WinExist(), "int", 1, "int64*", (3<<32)|3, "int", 8) ; Hide window title.
+Gui, Add, ActiveX, vwb w600 h420 hwndhwb, Shell.Explorer
 ComObjConnect(wb, "wb_")
 OnMessage(0x100, "gui_KeyDown", 2)
 InitUI()
@@ -74,10 +74,8 @@ Gui, Show
 return
 
 GuiClose:
-if inInstall
-	return
-Gui, Destroy
-ExitApp
+Btn_Exit()
+return
 
 InitUI()
 {
@@ -169,7 +167,11 @@ switchPage(page)
 
 Btn_Exit()
 {
-	gosub GuiClose
+	global inInstall, installerHwnd
+	if inInstall
+		return
+	Gui %installerHwnd%:Destroy
+	ExitApp
 }
 
 Btn_Install()
@@ -180,7 +182,7 @@ Btn_Install()
 		MsgBox, 16, %uititle%, Could not find existing AutoHotkey installation!
 		return
 	}
-	
+
 	RegRead, existingSciTEPath, HKLM, Software\SciTE4AutoHotkey, InstallDir
 	previousInstall := !ErrorLevel
 	if previousInstall
@@ -197,7 +199,7 @@ Btn_Install()
 		defSS := true
 		defDS := true
 	}
-	
+
 	document := getDocument()
 	document.getElementById("opt_installdir").value := defPath
 	SetCheckBox(document.getElementById("opt_defedit"), defEdit)
@@ -215,7 +217,7 @@ Btn_Install()
 
 Lnk_AhkWebsite()
 {
-	Run, https://www.autohotkey.com/
+	Run, https://www.autohotkey.com/download
 }
 
 SetCheckBox(oCheckBox, state)
@@ -253,36 +255,36 @@ closeSciTE()
 Btn_PerformInstall()
 {
 	Gui +OwnDialogs
-	
+
 	if installDebug
 	{
 		switchPage("setuprgr")
 		MsgBox, 64, %uititle%, Not going to happen
 		return
 	}
-	
+
 	if !closeSciTE()
 		return
-	
+
 	document := getDocument()
 	installDir := document.getElementById("opt_installdir").value
 	bDefaultEditor := document.getElementById("opt_defedit").checked != 0
 	bStartShortcuts := document.getElementById("opt_startlnks").checked != 0
 	bDesktopShortcuts := document.getElementById("opt_desklnks").checked != 0
-	
+
 	folderExists := InStr(FileExist(installDir), "D")
-	
+
 	if !previousInstallDir && folderExists
 	{
 		MsgBox, 52, %uititle%, The specified installation folder already exists. Setup will first delete all of its contents before installing. Are you sure?
 		IfMsgBox, No
 			return
 	}
-	
+
 	inInstall := true
-	
+
 	switchPage("setuprgr")
-	
+
 	IfNotExist, %installDir%
 		FileCreateDir, %installDir%
 	else Loop, %installDir%\*.*, 1
@@ -292,21 +294,12 @@ Btn_PerformInstall()
 		else
 			FileDelete, %A_LoopFileLongPath%
 	}
-	
+
 	oShell := ComObjCreate("Shell.Application")
 	targetFolderObj := oShell.Namespace(installDir)
 	sourceFolderObj := oShell.Namespace(A_ScriptDir)
 	targetFolderObj.CopyHere(sourceFolderObj.Items, 16 | 2048)
-	if (winVer < 6)
-	{
-		; Fix up Windows XP/2003's lack of Consolas font
-		_tmpf := installDir "\newuser\_config.properties"
-		FileRead, _tmp, %_tmpf%
-		StringReplace, _tmp, _tmp, VisualStudio, Classic
-		FileDelete, %_tmpf%
-		FileAppend, % _tmp, %_tmpf%
-	}
-	
+
 	uninstallProg = %installDir%\%intlAhkName%
 	uninstallArgs = /CP65001 "%installDir%\%A_ScriptName%" /uninstall
 	key = Software\Microsoft\Windows\CurrentVersion\Uninstall\SciTE4AutoHotkey
@@ -314,14 +307,17 @@ Btn_PerformInstall()
 	RegWrite, REG_SZ, HKLM, %key%, DisplayVersion, v%programVer%
 	RegWrite, REG_SZ, HKLM, %key%, Publisher, fincs
 	RegWrite, REG_SZ, HKLM, %key%, DisplayIcon, %installDir%\SciTE.exe
-	RegWrite, REG_SZ, HKLM, %key%, URLInfoAbout, http://www.autohotkey.net/~fincs/SciTE4AutoHotkey_3/web/
+	RegWrite, REG_SZ, HKLM, %key%, URLInfoAbout, https://www.autohotkey.com/scite4ahk/
 	RegWrite, REG_SZ, HKLM, %key%, UninstallString, "%uninstallProg%" %uninstallArgs%
-	
-	; COM registering
+
+	; ProgID registering
 	RegWrite, REG_SZ, HKLM, Software\Classes\SciTE4AHK.Application,, SciTE4AHK.Application
 	RegWrite, REG_SZ, HKLM, Software\Classes\SciTE4AHK.Application\CLSID,, {D7334085-22FB-416E-B398-B5038A5A0784}
+	RegWrite, REG_SZ, HKLM, Software\Classes\SciTE4AHK.Application\Shell\Open\command,, "%installDir%\SciTE.exe" "`%1"
+	RegWrite, REG_SZ, HKLM, Software\Classes\SciTE4AHK.Application\Shell\Open, FriendlyAppName, SciTE4AutoHotkey
 	RegWrite, REG_SZ, HKLM, Software\Classes\CLSID\{D7334085-22FB-416E-B398-B5038A5A0784},, SciTE4AHK.Application
-	
+	RegWrite, REG_SZ, HKCR, .ahk\OpenWithProgids, SciTE4AHK.Application
+
 	if bDefaultEditor
 		RegWrite, REG_SZ, HKCR, AutoHotkeyScript\Shell\Edit\command,, "%installDir%\SciTE.exe" "`%1"
 
@@ -334,13 +330,13 @@ Btn_PerformInstall()
 		Util_CreateShortcut(A_ProgramsCommon "\SciTE4AutoHotkey\SciTE4AutoHotkey.lnk", installDir "\SciTE.exe", "AutoHotkey Script Editor")
 		Util_CreateShortcut(A_ProgramsCommon "\SciTE4AutoHotkey\Uninstall.lnk", uninstallProg, "Uninstall SciTE4AutoHotkey...", uninstallArgs, installDir "\toolicon.icl", 20)
 	}
-	
+
 	; Write installer information
 	RegWrite, REG_SZ, HKLM, Software\SciTE4AutoHotkey, InstallDir, %installDir%
 	RegWrite, REG_DWORD, HKLM, Software\SciTE4AutoHotkey, InstallDefEditor, %bDefaultEditor%
 	RegWrite, REG_DWORD, HKLM, Software\SciTE4AutoHotkey, InstallDefSS, %bStartShortcuts%
 	RegWrite, REG_DWORD, HKLM, Software\SciTE4AutoHotkey, InstallDefDS, %bDesktopShortcuts%
-	
+
 	MsgBox, 64, %uititle%, Done! Thank you for choosing SciTE4AutoHotkey.
 	Util_UserRun(installDir "\SciTE.exe")
 	inInstall := false
@@ -351,31 +347,32 @@ Btn_PerformUninstall()
 {
 	if !closeSciTE()
 		return
-	
+
 	RegRead, installDir, HKLM, Software\SciTE4AutoHotkey, InstallDir
 	RegRead, defEdit, HKLM, Software\SciTE4AutoHotkey, InstallDefEditor
 	RegRead, defSS, HKLM, Software\SciTE4AutoHotkey, InstallDefSS
 	RegRead, defDS, HKLM, Software\SciTE4AutoHotkey, InstallDefDS
-	
+
 	RemoveDir(installDir "\")
-	
+
 	RegDelete, HKLM, Software\SciTE4AutoHotkey
 	RegDelete, HKLM, Software\Microsoft\Windows\CurrentVersion\Uninstall\SciTE4AutoHotkey
 	RegDelete, HKLM, Software\Classes\SciTE4AHK.Application
 	RegDelete, HKLM, Software\Classes\CLSID\{D7334085-22FB-416E-B398-B5038A5A0784}
-	
+	RegDelete, HKCR, .ahk\OpenWithProgids, SciTE4AHK.Application
+
 	if defEdit
 		RegWrite, REG_SZ, HKCR, AutoHotkeyScript\Shell\Edit\command,, notepad.exe `%1
-	
+
 	if defSS
 		RemoveDir(A_ProgramsCommon "\SciTE4AutoHotkey\")
-	
+
 	if defDS
 		FileDelete, %A_DesktopCommon%\SciTE4AutoHotkey.lnk
-	
+
 	MsgBox, 52, %uititle%, Do you want to remove the user profile?
 	IfMsgBox, Yes
 		WipeProfile(A_MyDocuments "\AutoHotkey\SciTE\")
-	
+
 	MsgBox, 64, %uititle%, SciTE4AutoHotkey uninstalled successfully!
 }

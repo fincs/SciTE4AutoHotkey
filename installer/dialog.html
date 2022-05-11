@@ -15,8 +15,8 @@ body
 	position: absolute;
 	top: 0;
 	left: 0;
-	width: 100%;
-	height: 100%;
+	width: 600px;
+	height: 420px;
 }
 h1
 {
@@ -304,12 +304,12 @@ function switchPage(page)
 
 <div class="page" id="start">
 	<p>Welcome! This program will install SciTE4AutoHotkey.</p>
-	
+
 	<div class="options">
 		<a href="ahk://Btn_Install" id="start_instbutton"><span><strong>Install</strong></span><div class="marker">&#187;</div></a>
 		<a href="ahk://Btn_Exit"><span>Quit Setup</span></a>
 	</div>
-	
+
 	<p class="footer">
 	<a href="#" onclick="switchPage('acknowledgements')">Acknowledgements</a><br>
 	SciTE4AutoHotkey is open source software: <a href="#" onclick="switchPage('licensepage')">read its license</a>.
@@ -319,7 +319,7 @@ function switchPage(page)
 <div class="page" id="licensepage">
 
 	<p>Full license text:</p>
-	
+
 	<h4>SciTE and Scintilla (SciTE.exe and SciLexer.dll)</h4>
 
 	<p>Copyright 1998-<span id="yearTag1"></span> by Neil Hodgson (neilh@scintilla.org)</p>
@@ -349,12 +349,12 @@ function switchPage(page)
 	the extent permitted by applicable law. You can redistribute it and/or
 	modify it under the terms of the WTFPL, Version 2, as published by
 	Sam Hocevar. The full license text can be found at http://sam.zoy.org/wtfpl/COPYING.</p>
-	
+
 	<div style="text-align: center">
 		<a onclick="switchPage('start')" class="button" id="Btn_GoHome">Go back</a>
 		<br>&nbsp;
 	</div>
-	
+
 </div>
 
 <div class="page" id="acknowledgements">
@@ -373,7 +373,7 @@ function switchPage(page)
 		<li><strong>The 7-Zip team</strong> for making 7-Zip, which is used in the installer.</li>
 		<li><strong>Mark James (famfamfam.com)</strong> for designing the icons which are used in the debugger.</li>
 	</ul>
-	
+
 	<div style="text-align: center">
 		<a onclick="switchPage('start')" class="button">Go back</a>
 		<br>&nbsp;
@@ -383,32 +383,21 @@ function switchPage(page)
 
 <div class="page" id="legacyahkinfo">
 
-	<p id="nagnote"><strong>WARNING</strong> - Legacy AutoHotkey version detected</p>
-	
+	<p id="nagnote"><strong>ERROR</strong> - Unsupported AutoHotkey version</p>
+
 	<p>Setup has detected that AutoHotkey <span id="ahkver">q</span> is installed.
-	Usage of such legacy versions of AutoHotkey with SciTE4AutoHotkey may result in
-	a degraded user experience, such as the inability to debug scripts using the
-	interactive debugger.</p>
-	
-	<p>Please note that the currently installed version of AutoHotkey is <span id="obsoletecounter">
+	This legacy version of AutoHotkey is neither actively developed nor supported anymore.
+	Please note that the currently installed version of AutoHotkey is <span id="obsoletecounter">
 	</span>&nbsp;and numerous bugfixes and improvements have been added since then, not to mention
 	that scripts created by the AutoHotkey community are essentially no longer compatible with it.</p>
-	
-	<p>You can always download the very latest version of AutoHotkey at <a href="ahk://Lnk_AhkWebsite">
+
+	<p>You can always download the latest version of AutoHotkey at <a href="ahk://Lnk_AhkWebsite">
 	autohotkey.com</a>, the official website managed by the AutoHotkey Foundation.</p>
-	
-	<p>Please also note that during the years 2012-2015, autohotkey.com had been seized by a third-party
-	for-profit entity and was <strong>not affiliated with and/or endorsed by</strong> the AutoHotkey developers
-	or the community. This entity was responsible for the promotion of this obsolete version of AutoHotkey,
-	and therefore <strong>you may be a victim.</strong></p>
-	
+
 	<div style="text-align: center">
-		<a onclick="switchPage('setupopt')" class="button">I understand the risks</a>
-		<span>&nbsp;&nbsp;&nbsp;</span>
 		<a href="ahk://Btn_Exit" class="button">Quit Setup</a>
-		<br>&nbsp;
 	</div>
-	
+
 </div>
 
 <div class="page" id="setupopt">

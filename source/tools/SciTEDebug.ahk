@@ -328,12 +328,6 @@ return
 
 ;{ Toolbar Commands
 
-F5::
-if Dbg_OnBreak
-	goto cmd_run
-else
-	goto cmd_pause
-
 cmd_run:
 Dbg_Continue("run")
 return
@@ -374,17 +368,14 @@ if bIsAttach
 OnExit
 goto GuiClose
 
-F10::
 cmd_stepinto:
 Dbg_Continue("step_into")
 return
 
-F11::
 cmd_stepover:
 Dbg_Continue("step_over")
 return
 
-+F11::
 cmd_stepout:
 Dbg_Continue("step_out")
 return
@@ -1175,7 +1166,7 @@ SciTE_EnsureFileIsOpen(fname)
 }
 
 SciTE_GetFile()
-{	
+{
 	global oSciTE
 	return oSciTE.CurrentFile
 }

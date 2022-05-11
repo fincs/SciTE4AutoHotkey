@@ -112,8 +112,21 @@ if SciTEVersion && (SciTEVersion != CurrentSciTEVersion)
 
 if !IsPortable && (!FileExist(LocalPropsPath) || !SciTEVersion)
 {
+	; Rename the old SciTE folder
+	IfExist, %LocalSciTEPath%
+	{
+		FileMoveDir, %LocalSciTEPath%, %LocalSciTEPath%%A_TickCount%, R
+		if ErrorLevel
+		{
+			MsgBox, 16, SciTE4AutoHotkey Toolbar, Could not safely rename old SciTE settings folder!
+			ExitApp
+		}
+	}
+
 	; Create the SciTE user folder
-	RunWait, "%A_AhkPath%" "%SciTEDir%\tools\NewUser.ahk"
+	FileCreateDir, %A_MyDocuments%\AutoHotkey\Lib ; ensure dir structure exists
+	FileCopyDir, %SciTEDir%\newuser, %LocalSciTEPath%
+
 	FileDelete, %LocalSciTEPath%\$VER
 	FileAppend, %CurrentSciTEVersion%, %LocalSciTEPath%\$VER
 

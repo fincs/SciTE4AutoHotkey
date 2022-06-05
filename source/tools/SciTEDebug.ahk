@@ -19,10 +19,6 @@ ATM_STOPDEBUG  := ATM_OFFSET+1
 ATM_DRUNTOGGLE := ATM_OFFSET+4
 SciControl_InitConstants()
 
-global A_Args := []
-Loop, %0%
-	A_Args.Push(%A_Index%)
-
 if A_IsCompiled
 {
 	MsgBox, 16, %g_appTitle%, This program *must* be a uncompiled script!
@@ -54,34 +50,7 @@ global dbgMaxData := oSciTE.ResolveProp("ahk.debugger.max.data")+0
 if A_Args[1] = "/attach"
 	bIsAttach := true
 else
-{
-	AhkExecutable := A_Args.RemoveAt(1)
-	IfNotExist, %AhkExecutable%
-	{
-		MsgBox, 16, %g_appTitle%, The AutoHotkey executable doesn't exist!
-		ExitApp
-	}
-
-	Loop, Files, %AhkExecutable%
-	{
-		AhkExecutable := A_LoopFileLongPath
-		break
-	}
-	
-	ahkType := AHKType(AhkExecutable)
-	
-	if ahkType = FAIL
-	{
-		MsgBox, 16, %g_appTitle%, Invalid AutoHotkey executable!
-		ExitApp
-	}
-	
-	if ahkType = Legacy
-	{
-		MsgBox, 16, %g_appTitle%, Debugging is not supported in legacy versions of AutoHotkey (prior to v1.1).
-		ExitApp
-	}
-}
+	AhkLauncher := oSciTE.ResolveProp("ahk.launcher")
 
 ; Get the HWND of SciTE and its Scintilla controls
 scitehwnd := oSciTE.SciTEHandle
@@ -166,7 +135,7 @@ SplitPath, szFilename,, szDir
 
 allArgs := ObjJoin(A_Args,, """")
 if !bIsAttach
-	Run, "%AhkExecutable%" /Debug=%dbgAddr%:%dbgPort% "%szFilename%" %allArgs%, %szDir%,, Dbg_PID ; run AutoHotkey and store its process ID
+	Run, %AhkLauncher% /Debug=%dbgAddr%:%dbgPort% "%szFilename%" %allArgs%, %szDir%,, Dbg_PID ; run AutoHotkey and store its process ID
 else
 {
 	; Set the Last Found Window

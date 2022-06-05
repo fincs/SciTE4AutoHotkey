@@ -7,7 +7,7 @@
 #NoTrayIcon
 #SingleInstance Ignore
 #Include %A_ScriptDir%
-#Include PlatformRead.ahk
+#Include PlatformDetect.ahk
 #Include ComInterface.ahk
 #Include SciTEDirector.ahk
 #Include SciTEMacros.ahk
@@ -235,7 +235,7 @@ Loop, Parse, ToolbarProps, `n, `r
 		curtool.Picture := Trim(varz4)
 		curtool.IconNumber := 1
 	}
-	
+
 	_ToolButs .= curtool.Name "," (i ++) ",,autosize`n"
 	IL_Add(_ToolIL, curtool.Picture, curtool.IconNumber)
 }
@@ -282,9 +282,6 @@ Menu, ToolMenu, Add
 Menu, ToolMenu, Add, Open Global toolbar properties, editglobalprops
 Menu, ToolMenu, Add, Open Global autorun script, editglobalautorun
 Menu, ToolMenu, Add
-Menu, ToolMenu, Add, Open platform properties, editplatforms
-Menu, ToolMenu, Add, Reload platforms, reloadplatforms
-Menu, ToolMenu, Add
 Menu, ToolMenu, Add, Reload toolbar, reloadtoolbar
 Menu, ToolMenu, Add, Reload toolbar (with autorun), reloadtoolbarautorun
 Menu, ToolMenu, Add
@@ -326,13 +323,28 @@ if DirectorReady && !IsPortable
 Macro_Init()
 
 ; Initialize the platforms
-platforms := Util_ParsePlatforms("platforms.properties", platlist)
+global g_Platforms := Plat_DetectAll()
+curplatform := ""
 IfExist, %LocalSciTEPath%\_platform.properties
 {
 	FileReadLine, ov, %LocalSciTEPath%\_platform.properties, 2
 	curplatform := SubStr(ov, 14)
-}else
-	curplatform = Default
+}
+
+if !g_Platforms.HasKey(curplatform) {
+	; Convert old platform names to new names
+	switch curplatform {
+		case "ANSI":    curplatform := "Latest v1.1 (32-bit ANSI)"
+		case "Unicode": curplatform := "Latest v1.1 (32-bit Unicode)"
+		case "x64":     curplatform := "Latest v1.1 (64-bit Unicode)"
+		case "v2(x86)": curplatform := "Latest v2 (32-bit)"
+		case "v2(x64)": curplatform := "Latest v2 (64-bit)"
+	}
+
+	if !g_Platforms.HasKey(curplatform) {
+		curplatform := "Default"
+	}
+}
 
 Util_PopulatePlatformsMenu()
 
@@ -425,16 +437,6 @@ editglobalautorun:
 Run, SciTE.exe "%SciTEDir%\tools\Autorun.ahk"
 return
 
-editplatforms:
-Run, SciTE.exe "%SciTEDir%\platforms.properties"
-return
-
-reloadplatforms:
-Menu, PlatformMenu, DeleteAll
-platforms := Util_ParsePlatforms("platforms.properties", platlist)
-Util_PopulatePlatformsMenu()
-goto changeplatform
-
 reloadtoolbar:
 Director_Send("closing:")
 Msg_Reload()
@@ -472,12 +474,16 @@ return
 platswitch:
 curplatform := A_ThisMenuItem
 platswitch2:
-for i,plat in platlist
-	Menu, PlatformMenu, Uncheck, %plat%
-Menu, PlatformMenu, Check, %curplatform%
+for plat in g_Platforms
+{
+	if (plat == curplatform)
+		Menu, PlatformMenu, Check, %A_Index%&
+	else
+		Menu, PlatformMenu, Uncheck, %A_Index%&
+}
 changeplatform:
 FileDelete, %LocalSciTEPath%\_platform.properties
-FileAppend, % platforms[curplatform], %LocalSciTEPath%\_platform.properties
+FileAppend, % g_Platforms[curplatform], %LocalSciTEPath%\_platform.properties
 SendMessage, 1024+1, 0, 0,, ahk_id %scitehwnd%
 if DirectorReady
 	CurAhkExe := CoI.ResolveProp("AutoHotkey")
@@ -623,7 +629,7 @@ _ReloadWithAutoRun()
 GetSciTEOpenedFile()
 {
 	global scitehwnd, DirectorReady
-	
+
 	if DirectorReady
 		return Director_Send("askfilename:", true).value
 	else
@@ -651,7 +657,7 @@ ParseCmdLine(cmdline)
 {
 	global _IconLib, curplatform, LocalSciTEPath, SciTEDir, CurAhkExe
 	a := GetSciTEOpenedFile()
-	
+
 	StringReplace, cmdline, cmdline, `%FILENAME`%, % GetFilename(a), All
 	StringReplace, cmdline, cmdline, `%FILEPATH`%, % GetPath(a), All
 	StringReplace, cmdline, cmdline, `%FULLFILENAME`%, % a, All
@@ -667,13 +673,13 @@ ParseCmdLine(cmdline)
 
 Util_PopulatePlatformsMenu()
 {
-	global platlist, curplatform
-	
-	for i,plat in platlist
+	global curplatform
+
+	for plat in g_Platforms
 	{
 		Menu, PlatformMenu, Add, %plat%, platswitch
-		if (plat = curplatform)
-			Menu, PlatformMenu, Check, %plat%
+		if (plat == curplatform)
+			Menu, PlatformMenu, Check, %A_Index%&
 	}
 }
 

@@ -349,7 +349,7 @@ if !g_Platforms.HasKey(curplatform) {
 Util_PopulatePlatformsMenu()
 
 FileRead, temp, %LocalSciTEPath%\_platform.properties
-if platforms[curplatform] != temp
+if g_Platforms[curplatform] != temp
 	gosub changeplatform
 
 if DirectorReady

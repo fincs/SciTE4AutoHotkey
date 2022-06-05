@@ -5,5 +5,6 @@
 	ForegroundText="dark"
 	Square150x150Logo="tools\s4ahk-big.png"
 	Square70x70Logo="tools\s4ahk-small.png"
+	ShortDisplayName="SciTE4AHK"
 />
 </Application>

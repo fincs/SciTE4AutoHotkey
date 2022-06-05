@@ -318,6 +318,10 @@ Btn_PerformInstall()
 	RegWrite, REG_SZ, HKLM, Software\Classes\CLSID\{D7334085-22FB-416E-B398-B5038A5A0784},, SciTE4AHK.Application
 	RegWrite, REG_SZ, HKCR, .ahk\OpenWithProgids, SciTE4AHK.Application
 
+	; Misc
+	RegWrite, REG_SZ, HKCR, Applications\SciTE.exe, NoOpenWith
+	RegWrite, REG_DWORD, HKCU, Software\Microsoft\Windows\CurrentVersion\ApplicationAssociationToasts, SciTE4AHK.Application_.ahk, 0
+
 	if bDefaultEditor
 		RegWrite, REG_SZ, HKCR, AutoHotkeyScript\Shell\Edit\command,, "%installDir%\SciTE.exe" "`%1"
 
@@ -360,6 +364,7 @@ Btn_PerformUninstall()
 	RegDelete, HKLM, Software\Classes\SciTE4AHK.Application
 	RegDelete, HKLM, Software\Classes\CLSID\{D7334085-22FB-416E-B398-B5038A5A0784}
 	RegDelete, HKCR, .ahk\OpenWithProgids, SciTE4AHK.Application
+	RegDelete, HKCR, Applications\SciTE.exe
 
 	if defEdit
 		RegWrite, REG_SZ, HKCR, AutoHotkeyScript\Shell\Edit\command,, notepad.exe `%1

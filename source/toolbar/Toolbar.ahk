@@ -348,7 +348,7 @@ if !g_Platforms.HasKey(curplatform) {
 
 Util_PopulatePlatformsMenu()
 
-FileRead, temp, %LocalSciTEPath%\_platform.properties
+FileRead, temp, *t %LocalSciTEPath%\_platform.properties
 if g_Platforms[curplatform] != temp
 	gosub changeplatform
 
@@ -485,6 +485,7 @@ changeplatform:
 FileDelete, %LocalSciTEPath%\_platform.properties
 FileAppend, % g_Platforms[curplatform], %LocalSciTEPath%\_platform.properties
 SendMessage, 1024+1, 0, 0,, ahk_id %scitehwnd%
+PostMessage, 0x111, 1136, 0,, ahk_id %scitehwnd%
 if DirectorReady
 	CurAhkExe := CoI.ResolveProp("AutoHotkey")
 CoI_CallEvent("OnPlatformChange", curplatform)

@@ -37,6 +37,7 @@ Plat_OnBoardDefault(plats, path, name) {
 	platdata .= "file.patterns.ahk" ahkver "=$(file.patterns.ahk)`n"
 
 	if (ahkver == 2) {
+		platdata .= "ahk.version.autodetect=1`n"
 		platdata .= "ahk.launcher=""" exe """ """ path "\UX\launcher.ahk""`n"
 
 		if Util_FileExistProperly(helpfile := path "\v2\AutoHotkey.chm")

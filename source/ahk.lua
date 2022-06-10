@@ -15,6 +15,8 @@ local prepared = false
 local bkall = {}
 local bkcur = nil
 
+local g_AhkVerTable = {}
+
 local lexerIgnoreStyles = {
 	[SCLEX_AHK1] = {SCE_AHK1_COMMENTLINE, SCE_AHK1_COMMENTBLOCK, SCE_AHK1_STRING, SCE_AHK1_ERROR, SCE_AHK1_ESCAPE, SCE_AHK1_LABEL},
 	[SCLEX_AHK2] = {SCE_AHK2_ERROR, SCE_AHK2_COMMENT_LINE, SCE_AHK2_COMMENT_BLOCK, SCE_AHK2_LABEL, SCE_AHK2_STRING, SCE_AHK2_ESCAPE},
@@ -70,6 +72,62 @@ end
 -- File/buffer events - needed to set up breakpoints  --
 -- ================================================== --
 
+function IsAhkVersionAutoDetectEnabled()
+	return props['ahk.version.autodetect'] == '1'
+end
+
+function DetectAhkVersion(filename)
+	-- Placeholder logic
+	if string.find(filename, "SciTE4AHK\\source") then
+		return 1
+	else
+		return 2
+	end
+end
+
+function SetAhkVersion(ahkver)
+	if ahkver == 1 then
+		props['ahk.version'] = '1'
+		props['file.patterns.ahk1'] = '$(file.patterns.ahk)'
+		props['file.patterns.ahk2'] = ''
+	elseif ahkver == 2 then
+		props['ahk.version'] = '2'
+		props['file.patterns.ahk1'] = ''
+		props['file.patterns.ahk2'] = '$(file.patterns.ahk)'
+	else
+		props['ahk.version'] = nil
+		props['file.patterns.ahk1'] = nil
+		props['file.patterns.ahk2'] = nil
+	end
+
+	scite.ReloadProperties()
+end
+
+function UpdateAhkVersionMode(filename)
+	--print('UpdateAhkVersionMode: ' .. filename)
+
+	ahkver = g_AhkVerTable[filename]
+	if ahkver == nil then
+		ahkver = DetectAhkVersion(filename)
+		--print('Deciding that '..filename..' is v'..ahkver)
+		g_AhkVerTable[filename] = ahkver
+	end
+
+	if tostring(ahkver) ~= props['ahk.version'] then
+		SetAhkVersion(ahkver)
+	end
+end
+
+function OnPlatformChange()
+	if IsAhkVersionAutoDetectEnabled() then
+		if not InAHKLexer() then return end
+		UpdateAhkVersionMode(props['FilePath'])
+	else
+		-- Remove overrides
+		SetAhkVersion(nil)
+	end
+end
+
 function OnOpen(filename)
 	if not InAHKLexer() then return end
 	bkcur = bkall[filename]
@@ -82,10 +140,20 @@ function OnOpen(filename)
 		bkcur = {}
 		bkall[filename] = bkcur
 	end
+
+	if IsAhkVersionAutoDetectEnabled() then
+		UpdateAhkVersionMode(filename)
+	end
 end
 
 function OnSwitchFile(filename)
+	if not InAHKLexer() then return false end
+
 	bkcur = bkall[filename]
+
+	if IsAhkVersionAutoDetectEnabled() then
+		UpdateAhkVersionMode(filename)
+	end
 end
 
 function UpdateBreakpoints(filename) -- Called by OnBeforeSave

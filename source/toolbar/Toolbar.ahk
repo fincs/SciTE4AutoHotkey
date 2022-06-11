@@ -14,6 +14,7 @@
 #Include Extensions.ahk
 SetWorkingDir, %A_ScriptDir%\..
 SetBatchLines, -1
+SetWinDelay, -1
 DetectHiddenWindows, On
 ListLines, Off
 
@@ -150,11 +151,9 @@ IfExist, %LocalSciTEPath%\$NODEFTOOLBAR
 ToolbarProps := GlobalSettings "`n" Util_ReadExtToolbarDef() LocalSettings
 
 ; Load the tools
-ntools = 13
+ntools = 11
 _ToolButs =
 (LTrim Join`n
--
-Set current platform,1,,autosize
 -
 Run script (F5),2,,autosize
 Debug script (F7),3,,autosize
@@ -184,16 +183,15 @@ IL_Add(_ToolIL, _IconLib, 6)
 IL_Add(_ToolIL, _IconLib, 7)
 IL_Add(_ToolIL, _IconLib, 8)
 IL_Add(_ToolIL, _IconLib, 19)
-Tools[2]  := { Path: Func("Cmd_Switch")     }
-Tools[4]  := { Path: Func("Cmd_Run")        }
-Tools[5]  := { Path: Func("Cmd_Debug")      }
-Tools[6]  := { Path: Func("Cmd_Pause")      }
-Tools[7]  := { Path: Func("Cmd_Stop")       }
-Tools[8]  := { Path: Func("Cmd_StepInto")   }
-Tools[9]  := { Path: Func("Cmd_StepOver")   }
-Tools[10] := { Path: Func("Cmd_StepOut")    }
-Tools[11] := { Path: Func("Cmd_Stacktrace") }
-Tools[12] := { Path: Func("Cmd_Varlist")    }
+Tools[2]  := { Path: Func("Cmd_Run")        }
+Tools[3]  := { Path: Func("Cmd_Debug")      }
+Tools[4]  := { Path: Func("Cmd_Pause")      }
+Tools[5]  := { Path: Func("Cmd_Stop")       }
+Tools[6]  := { Path: Func("Cmd_StepInto")   }
+Tools[7]  := { Path: Func("Cmd_StepOver")   }
+Tools[8]  := { Path: Func("Cmd_StepOut")    }
+Tools[9]  := { Path: Func("Cmd_Stacktrace") }
+Tools[10] := { Path: Func("Cmd_Varlist")    }
 i := 11
 
 Loop, Parse, ToolbarProps, `n, `r
@@ -240,28 +238,52 @@ Loop, Parse, ToolbarProps, `n, `r
 	IL_Add(_ToolIL, curtool.Picture, curtool.IconNumber)
 }
 
-;  Get HWND of real SciTE toolbar. ~L
-ControlGet, scitool, Hwnd,, ToolbarWindow321, ahk_id %scitehwnd%
-ControlGetPos,,, guiw, guih,, ahk_id %scitool% ; Get size of real SciTE toolbar. ~L
-; Get width of real SciTE toolbar to determine placement for our toolbar. ~L
-; Use DllCall() instead of AHK's built-in SendMessage in order not to use a timeout.
-x := DllCall("SendMessage", "ptr", scitehwnd, "uint", 1024, "ptr", 0, "ptr", 0, "ptr")
-
-; Create and show the AutoHotkey toolbar
-Gui Main:New, hwndhwndgui +Parent%scitool% -Caption LabelMain_, AHKToolbar4SciTE
-Gui +0x40000000 -0x80000000 ; Must be done *after* the GUI is created. Fixes focus issues. ~L
-Gui Show, x%x% y-2 w%guiw% h%guih% NoActivate
-WinActivate, ahk_id %scitehwnd%
-
 OnMessage(ATM_STARTDEBUG, "Msg_StartDebug")
 OnMessage(ATM_STOPDEBUG, "Msg_StopDebug")
 OnMessage(ATM_RELOAD, "Msg_Reload")
 OnMessage(ATM_DRUNTOGGLE, "Msg_DebugRunToggle")
-hToolbar := Toolbar_Add(hwndgui, "OnToolbar", "FLAT TOOLTIPS", _ToolIL)
+
+; Layout calculations for the AutoHotkey Toolbar
+GuiLyt_Padding    := 4   * A_ScreenDPI // 96
+GuiLyt_ComboSize  := 128 * A_ScreenDPI // 96
+GuiLyt_PosX_Version := GuiLyt_Padding
+GuiLyt_PosX_Variant := GuiLyt_PosX_Version + GuiLyt_ComboSize + GuiLyt_Padding
+GuiLyt_PosX_Chkbox  := GuiLyt_PosX_Variant + GuiLyt_ComboSize + GuiLyt_Padding
+GuiLyt_ToolbarButtonSize := A_ScreenDPI >= 120 ? 24 : 16
+
+;  Get HWND of real SciTE toolbar. ~L
+ControlGet, scitool, Hwnd,, ToolbarWindow321, ahk_id %scitehwnd%
+ControlGetPos,,, GuiLyt_PosW, GuiLyt_PosH,, ahk_id %scitool% ; Get size of real SciTE toolbar. ~L
+; Get width of real SciTE toolbar to determine placement for our toolbar. ~L
+; Use DllCall() instead of AHK's built-in SendMessage in order not to use a timeout.
+GuiLyt_PosX := DllCall("SendMessage", "ptr", scitehwnd, "uint", 1024, "ptr", 0, "ptr", 0, "ptr")
+
+; Build the AutoHotkey Toolbar
+Gui Main:New, hwndhwndgui +Parent%scitool% -Caption -DPIScale LabelMain_, AHKToolbar4SciTE
+Gui +0x40000000 -0x80000000 ; Must be done *after* the GUI is created. Fixes focus issues. ~L
+Gui Font, s9, Segoe UI
+Gui Margin, 0, 0
+Gui Add, DDL, vDDL_Version gMain_ChangeVersion x%GuiLyt_PosX_Version% y0 w%GuiLyt_ComboSize% r32
+Gui Add, DDL, vDDL_Variant gMain_ChangeVariant x%GuiLyt_PosX_Variant% y0 w%GuiLyt_ComboSize% r32 Hidden
+Gui Add, Checkbox, vCB_UIAccess gMain_ChangeVariant x%GuiLyt_PosX_Chkbox% y0 h%GuiLyt_PosH% Hidden, UI access
+
+; Vertically center the DDLs
+GuiControlGet _temp, Pos, DDL_Version
+GuiLyt_PosY_DDL := (GuiLyt_PosH - _tempH) // 2
+GuiControl Move, DDL_Version, y%GuiLyt_PosY_DDL%
+GuiControl Move, DDL_Variant, y%GuiLyt_PosY_DDL%
+
+; Calculate position for the toolbar
+GuiControlGet _temp, Pos, CB_UIAccess
+GuiLyt_PosX_Toolbar := GuiLyt_PosX_Chkbox + _tempW + GuiLyt_Padding
+;GuiLyt_PosY_Toolbar := (GuiLyt_PosH - GuiLyt_ToolbarButtonSize) // 2 - 2
+GuiLyt_PosY_Toolbar := A_ScreenDPI != 120 ? 0 : 3 ; XX: This is horrid. SciTE only supports 100% or 125% icons. TODO: Future overhaul
+
+; Create and add the toolbar to the Gui
+hToolbar := Toolbar_Add(hwndgui, "OnToolbar", "FLAT TOOLTIPS", _ToolIL, "x" GuiLyt_PosX_Toolbar " y" GuiLyt_PosY_Toolbar " w" GuiLyt_PosW " h" GuiLyt_PosH)
 Toolbar_Insert(hToolbar, _ToolButs)
 Toolbar_SetMaxTextRows(hToolbar, 0)
-if A_ScreenDPI >= 120
-	Toolbar_SetButtonSize(hToolbar, 24, 24)
+Toolbar_SetButtonSize(hToolbar, GuiLyt_ToolbarButtonSize, GuiLyt_ToolbarButtonSize)
 
 ; Build the menus
 
@@ -324,6 +346,7 @@ Macro_Init()
 
 ; Initialize the platforms
 global g_Platforms := Plat_DetectAll()
+global g_VersionSelect := Plat_GroupByVersion(g_Platforms)
 curplatform := ""
 IfExist, %LocalSciTEPath%\_platform.properties
 {
@@ -334,6 +357,7 @@ IfExist, %LocalSciTEPath%\_platform.properties
 if !g_Platforms.HasKey(curplatform) {
 	; Convert old platform names to new names
 	switch curplatform {
+		case "Default": curplatform := "Automatic"
 		case "ANSI":    curplatform := "Latest v1.1 (32-bit ANSI)"
 		case "Unicode": curplatform := "Latest v1.1 (32-bit Unicode)"
 		case "x64":     curplatform := "Latest v1.1 (64-bit Unicode)"
@@ -342,11 +366,12 @@ if !g_Platforms.HasKey(curplatform) {
 	}
 
 	if !g_Platforms.HasKey(curplatform) {
-		curplatform := "Default"
+		curplatform := "Automatic"
 	}
 }
 
-Util_PopulatePlatformsMenu()
+GuiControl,, DDL_Version, % Plat_MapToDDL(g_VersionSelect)
+Main_UpdateForPlatform(curplatform)
 
 FileRead, temp, *t %LocalSciTEPath%\_platform.properties
 if g_Platforms[curplatform] != temp
@@ -354,6 +379,9 @@ if g_Platforms[curplatform] != temp
 
 if DirectorReady
 	CurAhkExe := CoI.ResolveProp("AutoHotkey")
+
+; Finally show the toolbar Gui
+Gui Show, x%GuiLyt_PosX% y0 w%GuiLyt_PosW% h%GuiLyt_PosH% NoActivate
 
 ; Run the autorun script
 if 3 != /NoAutorun
@@ -471,16 +499,90 @@ until Tools[toolnumber].Hotkey = curhotkey
 RunTool(toolnumber)
 return
 
-platswitch:
-curplatform := A_ThisMenuItem
-platswitch2:
-for plat in g_Platforms
+Main_UpdateForPlatform(platname)
 {
-	if (plat == curplatform)
-		Menu, PlatformMenu, Check, %A_Index%&
-	else
-		Menu, PlatformMenu, Uncheck, %A_Index%&
+	global hToolbar, GuiLyt_PosX_Toolbar, GuiLyt_PosY_Toolbar, GuiLyt_PosX_Variant, GuiLyt_PosX_Chkbox
+
+	plat := Plat_ParsePlatformName(platname)
+	GuiControl ChooseString, DDL_Version, % version := plat[1]
+	if IsObject(variant := plat[2]) {
+		GuiControl,, DDL_Variant, % Plat_MapToDDL(g_VersionSelect[version])
+		GuiControl ChooseString, DDL_Variant, % variant[1]
+
+		hasUIAccess := InStr(variant[2], "UI access")
+		variantSupportsUIAccess := hasUIAccess || g_Platforms.HasKey(Format("{} ({}; UI access)", version, variant[1]))
+
+		if variantSupportsUIAccess {
+			GuiControl,, CB_UIAccess, % InStr(variant[2], "UI access")
+			WinMove ahk_id %hToolbar%,, %GuiLyt_PosX_Toolbar%, %GuiLyt_PosY_Toolbar%
+			GuiControl Show, DDL_Variant
+			GuiControl Show, CB_UIAccess
+		} else {
+			WinMove ahk_id %hToolbar%,, %GuiLyt_PosX_Chkbox%, %GuiLyt_PosY_Toolbar%
+			GuiControl Show, DDL_Variant
+			GuiControl Hide, CB_UIAccess
+		}
+	} else {
+		GuiControl Hide, DDL_Variant
+		GuiControl Hide, CB_UIAccess
+		WinMove ahk_id %hToolbar%,, %GuiLyt_PosX_Variant%, %GuiLyt_PosY_Toolbar%
+	}
 }
+
+Main_ChangeVersion()
+{
+	global curplatform
+
+	GuiControlGet newVersion,, DDL_Version
+	variantList := g_VersionSelect[newVersion]
+
+	if not IsObject(variantList) {
+		curplatform := newVersion
+		gosub platswitch2
+	} else {
+		GuiControlGet curVariant,, DDL_Variant
+		GuiControlGet preferUIAccess,, CB_UIAccess
+		prefer64bit := !InStr(curVariant, "32-bit")
+		preferUnicode := !InStr(curVariant, "ANSI")
+		newVariant := Main_SelectBestVariant(variantList, prefer64bit, preferUnicode)
+		Main_SwitchToVariant(newVersion, newVariant, preferUIAccess)
+	}
+}
+
+Main_ChangeVariant()
+{
+	GuiControlGet curVersion,, DDL_Version
+	GuiControlGet newVariant,, DDL_Variant
+	GuiControlGet preferUIAccess,, CB_UIAccess
+	Main_SwitchToVariant(curVersion, newVariant, preferUIAccess)
+}
+
+Main_SelectBestVariant(variantList, prefer64bit, preferUnicode) {
+	maxScore := -1
+	maxVariant := ""
+	for variant in variantList {
+		has64bit := !InStr(variant, "32-bit")
+		hasUnicode := !InStr(variant, "ANSI")
+		score := ((has64bit&prefer64bit)<<1) | (hasUnicode&preferUnicode)
+		if (score > maxScore) {
+			maxScore := score
+			maxVariant := variant
+		}
+	}
+	return maxVariant
+}
+
+Main_SwitchToVariant(newVersion, newVariant, preferUIAccess) {
+	global curplatform
+
+	if !preferUIAccess || !g_Platforms[curplatform := Format("{} ({}; UI access)", newVersion, newVariant)]
+		curplatform := Format("{} ({})", newVersion, newVariant)
+	gosub platswitch2
+}
+
+platswitch2:
+Gui Main:Default
+Main_UpdateForPlatform(curplatform)
 changeplatform:
 FileDelete, %LocalSciTEPath%\_platform.properties
 FileAppend, % g_Platforms[curplatform], %LocalSciTEPath%\_platform.properties
@@ -503,11 +605,6 @@ RunTool(toolnumber)
 		if ErrorLevel = ERROR
 			MsgBox, 16, SciTE4AutoHotkey Toolbar, Couldn't launch specified command line! Specified:`n%cmd%
 	}
-}
-
-Cmd_Switch()
-{
-	Menu, PlatformMenu, Show
 }
 
 Cmd_Run()
@@ -670,18 +767,6 @@ ParseCmdLine(cmdline)
 	StringReplace, cmdline, cmdline, `%PLATFORM`%, %curplatform%, All
 
 	return cmdline
-}
-
-Util_PopulatePlatformsMenu()
-{
-	global curplatform
-
-	for plat in g_Platforms
-	{
-		Menu, PlatformMenu, Add, %plat%, platswitch
-		if (plat == curplatform)
-			Menu, PlatformMenu, Check, %A_Index%&
-	}
 }
 
 Util_GetAhkPath()

@@ -4,7 +4,7 @@ Plat_DetectAll() {
 
 	plats := {}
 
-	Plat_OnBoardDefault(plats, AhkDir, "Default")
+	Plat_OnBoardDefault(plats, AhkDir, "Automatic")
 	Plat_OnBoardV1(plats, AhkDir, "Latest v1.1")
 
 	if InStr(FileExist(AhkDir "\v2"), "D") {
@@ -22,6 +22,38 @@ Plat_DetectAll() {
 	}
 
 	return plats
+}
+
+Plat_ParsePlatformName(name) {
+	if RegExMatch(name, "^(.+?)\s*\((.+?)\)$", o) {
+		return [ o1, StrSplit(Trim(o2), ";", " `t") ]
+	} else {
+		return [ name, "" ]
+	}
+}
+
+Plat_MapToDDL(map) {
+	ddl := ""
+	for key in map
+		ddl .= "|" key
+	return ddl ; Leave out initial | in order to overwrite previous list
+}
+
+Plat_GroupByVersion(plats) {
+	versions := {}
+	for plat in plats {
+		plat := Plat_ParsePlatformName(plat)
+		curver := plat[1]
+		if IsObject(variant := plat[2]) {
+			if not IsObject(vervar := versions[curver]) {
+				vervar := versions[curver] := {}
+			}
+			vervar[variant[1]] := true
+		} else {
+			versions[curver] := ""
+		}
+	}
+	return versions
 }
 
 Plat_OnBoardDefault(plats, path, name) {

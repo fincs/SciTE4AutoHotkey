@@ -222,8 +222,8 @@ class CoI extends InvalidUsage
 		}
 		set
 		{
-			global platforms, curplatform
-			if !platforms[value]
+			global curplatform
+			if !g_Platforms[value]
 				throw Exception("Invalid platform",, value)
 			else
 			{

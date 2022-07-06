@@ -667,15 +667,15 @@ Cmd_Varlist()
 Msg_StartDebug(a,b,msg)
 {
 	global
-	Toolbar_SetButton(hToolbar, 4, "-hidden")
-	Toolbar_SetButton(hToolbar, 5, "hidden")
-	Toolbar_SetButton(hToolbar, 6, "hidden")
+	Toolbar_SetButton(hToolbar, 2, "-hidden")
+	Toolbar_SetButton(hToolbar, 3, "hidden")
+	Toolbar_SetButton(hToolbar, 4, "hidden")
+	Toolbar_SetButton(hToolbar, 5, "-hidden")
+	Toolbar_SetButton(hToolbar, 6, "-hidden")
 	Toolbar_SetButton(hToolbar, 7, "-hidden")
 	Toolbar_SetButton(hToolbar, 8, "-hidden")
 	Toolbar_SetButton(hToolbar, 9, "-hidden")
 	Toolbar_SetButton(hToolbar, 10, "-hidden")
-	Toolbar_SetButton(hToolbar, 11, "-hidden")
-	Toolbar_SetButton(hToolbar, 12, "-hidden")
 	dbg_active := true
 	dbg_runshown := true
 }
@@ -683,15 +683,15 @@ Msg_StartDebug(a,b,msg)
 Msg_StopDebug()
 {
 	global
-	Toolbar_SetButton(hToolbar, 4, "-hidden")
-	Toolbar_SetButton(hToolbar, 5, "-hidden")
+	Toolbar_SetButton(hToolbar, 2, "-hidden")
+	Toolbar_SetButton(hToolbar, 3, "-hidden")
+	Toolbar_SetButton(hToolbar, 4, "hidden")
+	Toolbar_SetButton(hToolbar, 5, "hidden")
 	Toolbar_SetButton(hToolbar, 6, "hidden")
 	Toolbar_SetButton(hToolbar, 7, "hidden")
 	Toolbar_SetButton(hToolbar, 8, "hidden")
 	Toolbar_SetButton(hToolbar, 9, "hidden")
 	Toolbar_SetButton(hToolbar, 10, "hidden")
-	Toolbar_SetButton(hToolbar, 11, "hidden")
-	Toolbar_SetButton(hToolbar, 12, "hidden")
 	dbg_active := false
 }
 
@@ -703,12 +703,12 @@ Msg_DebugRunToggle()
 	dbg_runshown := !dbg_runshown
 	if dbg_runshown
 	{
-		Toolbar_SetButton(hToolbar, 4, "-hidden")
-		Toolbar_SetButton(hToolbar, 6, "hidden")
+		Toolbar_SetButton(hToolbar, 2, "-hidden")
+		Toolbar_SetButton(hToolbar, 4, "hidden")
 	}else
 	{
-		Toolbar_SetButton(hToolbar, 4, "hidden")
-		Toolbar_SetButton(hToolbar, 6, "-hidden")
+		Toolbar_SetButton(hToolbar, 2, "hidden")
+		Toolbar_SetButton(hToolbar, 4, "-hidden")
 	}
 }
 

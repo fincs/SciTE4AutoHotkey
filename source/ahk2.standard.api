@@ -408,10 +408,13 @@ PixelSearch
 PostMessage
 ProcessClose
 ProcessExist
+ProcessGetName
+ProcessGetPath
 ProcessSetPriority
 ProcessWait
 ProcessWaitClose
 Random
+RegCreateKey
 RegDelete
 RegDeleteKey
 RegExMatch
@@ -552,7 +555,6 @@ Gui
 IndexError
 InputHook
 Integer
-KeyError
 Map
 MemberError
 MemoryError
@@ -569,6 +571,8 @@ String
 TargetError
 TimeoutError
 TypeError
+UnsetError
+UnsetItemError
 ValueError
 VarRef
 ZeroDivisionError

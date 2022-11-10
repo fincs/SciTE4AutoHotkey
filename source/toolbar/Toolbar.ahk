@@ -450,7 +450,7 @@ Run, SciTE.exe "%LocalPropsPath%"
 return
 
 editautorun:
-Run, SciTE.exe "%LocalSciTEPath%\tools\Autorun.ahk"
+Run, SciTE.exe "%LocalSciTEPath%\Autorun.ahk"
 return
 
 editlua:

@@ -20,7 +20,7 @@ if !ji || !ji.length
 ; XX: Overrides for expression-directives. For some reason these are tagged as
 ; taking a string, even though they really take an integer (or a boolean).
 g_directivesExpr := Set("ClipboardTimeout","HotIfTimeout","InputLevel","MaxThreads",
-	"MaxThreadsBuffer","MaxThreadsPerHotkey","UseHook","WinActivateForce")
+	"MaxThreadsBuffer","MaxThreadsPerHotkey","SuspendExempt","UseHook","WinActivateForce")
 g_directivesStr := Set()
 
 ; XX: Some of these have missing entries - manually add them in.

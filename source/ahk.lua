@@ -47,13 +47,18 @@ function isAutoCompleteIgnoreException(ignoreStyles, curStyle, pos)
 		editor.CharAt[pos-1] == 37 and not isInTable(ignoreStyles, editor.StyleAt[pos-1])
 end
 
+function isAutoCompleteChar(char)
+	return props['autocomplete.'..props.Language..'.start.characters']:find(char, 1, true)
+end
+
 function OnChar(curChar)
 	-- This function should only run when the Editor pane is focused.
 	if not editor.Focus then return false end
 
 	-- Cancel AutoComplete inside certain lexer-specific styles
+	-- Check curChar to avoid interfering with standard calltip handling
 	local ignoreStyles = lexerIgnoreStyles[editor.Lexer]
-	if ignoreStyles ~= nil then
+	if ignoreStyles ~= nil and isAutoCompleteChar(curChar) then
 		local curStyle = editor.StyleAt[editor.CurrentPos-2]
 		local pos = editor:WordStartPosition(editor.CurrentPos)
 

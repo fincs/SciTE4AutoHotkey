@@ -111,7 +111,7 @@ end
 function UpdateAhkVersionMode(filename)
 	--print('UpdateAhkVersionMode: ' .. filename)
 
-	ahkver = g_AhkVerTable[filename]
+	local ahkver = g_AhkVerTable[filename]
 	if ahkver == nil then
 		ahkver = DetectAhkVersion(filename)
 		--print('Deciding that '..filename..' is v'..ahkver)
@@ -623,7 +623,7 @@ function OpenInclude()
 	IncFile = string.gsub(IncFile, "%%[Aa]_[Ss][Cc][Rr][Ii][Pp][Tt][Dd][Ii][Rr]%%", props['FileDir'])
 	IncFile = string.gsub(IncFile, "%%[Aa]_[Ll][Ii][Nn][Ee][Ff][Ii][Ll][Ee]%%", props['FilePath'])
 
-	a,b,IncLib = string.find(IncFile, "^<(.+)>$")
+	local a,b,IncLib = string.find(IncFile, "^<(.+)>$")
 
 	if IncLib ~= nil then
 
@@ -676,8 +676,8 @@ function InAHKLexer()
 end
 
 function GetWord(pos)
-	from = editor:WordStartPosition(pos, true)
-	to = editor:WordEndPosition(pos, true)
+	local from = editor:WordStartPosition(pos, true)
+	local to = editor:WordEndPosition(pos, true)
 	return editor:textrange(from, to)
 end
 
@@ -716,9 +716,8 @@ function isInTable(tbl, elem)
 end
 
 function GetFilteredLine(linen, style1, style2)
-	unline = editor:GetLine(linen)
-	lpos = editor:PositionFromLine(linen)
-	q = 0
+	local unline = editor:GetLine(linen)
+	local lpos = editor:PositionFromLine(linen)
 	for i = 0, string.len(unline)-1 do
 		if(editor.StyleAt[lpos+i] == style1 or editor.StyleAt[lpos+i] == style2) then
 			unline = unline:sub(1, i).."\000"..unline:sub(i+2)

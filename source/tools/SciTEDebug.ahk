@@ -43,6 +43,8 @@ global dbgTextFont := oSciTE.ResolveProp("default.text.font")
 dbgAddr := oSciTE.ResolveProp("ahk.debugger.address")
 dbgPort := oSciTE.ResolveProp("ahk.debugger.port")+0
 dbgCaptureStreams := !!oSciTE.ResolveProp("ahk.debugger.capture.streams")
+dbgBreakOnException := oSciTE.ResolveProp("ahk.debugger.break.exception")
+dbgBreakOnError := oSciTE.ResolveProp("ahk.debugger.break.error")
 
 global dbgMaxChildren := oSciTE.ResolveProp("ahk.debugger.max.obj.children")+0
 global dbgMaxData := oSciTE.ResolveProp("ahk.debugger.max.data")+0
@@ -826,6 +828,8 @@ OnDebuggerConnection(session, init)
 		session.stdout("-c 2")
 		session.stderr("-c 2")
 	}
+	if dbgBreakOnException || dbgBreakOnError
+		session.breakpoint_set("-t exception")
 	session.feature_get("-n supports_async", response)
 	bIsAsync := !!InStr(response, ">1<")
 	; Really nothing more to do
@@ -834,7 +838,7 @@ OnDebuggerConnection(session, init)
 ; OnDebuggerBreak() - fired when we receive an asynchronous response from the debugger (including break responses).
 OnDebuggerBreak(session, ByRef response)
 {
-	global Dbg_OnBreak, bInBkProcess, _tempResponse
+	global Dbg_OnBreak, bInBkProcess, _tempResponse, dbgBreakOnException, dbgBreakOnError
 	if bInBkProcess
 	{
 		; A breakpoint was hit while the script running and the SciTE OnMessage thread is
@@ -846,6 +850,9 @@ OnDebuggerBreak(session, ByRef response)
 	}
 	dom := loadXML(response) ; load the XML document that the variable response is
 	status := dom.selectSingleNode("/response/@status").text ; get the status
+	reason := dom.selectSingleNode("/response/@reason").text
+	if (reason = "exception" && !dbgBreakOnException || reason = "error" && !dbgBreakOnError)
+		return session.run() ; Continue execution without printing the exception.
 	if status = break
 	{ ; this is a break response
 		SciTE_ToggleRunButton()
@@ -854,6 +861,9 @@ OnDebuggerBreak(session, ByRef response)
 		Dbg_GetStack()
 		SciTE_UpdateCurLineOfCode()
 		ST_Update()
+		; Print any thrown exception if applicable
+		if (reason = "error" || reason = "exception")
+			OnDebuggerExceptionBreak(session, reason)
 		; Update variable lists and object inspectors
 		DvRefreshAll()
 	}
@@ -862,6 +872,43 @@ OnDebuggerBreak(session, ByRef response)
 TryHandlingBreakAgain:
 OnDebuggerBreak(Dbg_Session, _tempResponse)
 return
+
+OnDebuggerExceptionBreak(session, reason)
+{
+	global Dbg_Stack, oSciTE
+	
+	message := oSciTE.ResolveProp("ahk.debugger.break." reason ".message")
+	if (message != "")
+		SciTE_Output(message "`n")
+	
+	; Retrieve the thrown value by querying a (non-standard) pseudo-property
+	SetEnableChildren(true)
+	session.property_get("-n <exception>", response)
+	SetEnableChildren(false)
+	
+	; Get info from the response, or fall back to Dbg_Stack
+	dom := loadXML(response)
+	thrown := {Message: "", Extra: "", File: "", Line: 0}
+	for name in thrown
+		thrown[name] := DBGp_Base64UTF8Decode(dom.selectSingleNode("/response/property/property[@name='" name "']").text)
+	thrown.Class := dom.selectSingleNode("/response/property/@classname").text
+	if !thrown.Line
+		thrown.Line := Dbg_Stack.selectSingleNode("/response/stack[1]/@lineno").text
+	if !thrown.File
+		thrown.File := DBGp_DecodeFileURI(Dbg_Stack.selectSingleNode("/response/stack[1]/@filename").text)
+	
+	; Print the error/exception
+	if !thrown.Class
+		message := (reason = "exception" ? "Thrown value: " : "Unhandled exception: ")
+			. DBGp_Base64UTF8Decode(dom.selectSingleNode("/response/property").text)
+	else
+		message := (thrown.Class ~= "i)error|exception" ? thrown.Class : "Error") ": " thrown.Message
+			. (thrown.Extra != "" ? "`n  Specifically: " thrown.Extra "`n" : "")
+	SciTE_Output(thrown.File " (" thrown.Line ") : " message "`n")
+	
+	if (reason = "error" && oSciTE.ResolveProp("ahk.debugger.break.error.suppress"))
+		session.property_set("-n <exception> --") ; This is our non-standard signal to suppress the error dialog.
+}
 
 ; OnDebuggerStream() - fired when we receive a stream packet.
 OnDebuggerStream(session, ByRef stream)

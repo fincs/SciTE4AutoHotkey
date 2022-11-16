@@ -101,12 +101,9 @@ Gui, New,, SciTEDebugStub ; create a dummy GUI that SciTE will speak to
 
 ; Run SciTE
 WinActivate, ahk_id %scitehwnd%
-Hotkey, ^!z, CancelSciTE
-SciTE_Output("> Waiting for SciTE to connect...  Press Ctrl-Alt-Z to cancel")
 SciTEConnected := false
 OnMessage(ADM_SCITE, "SciTEMsgHandler")
 SciTE_Connect()
-Hotkey, ^!z, Off
 
 ; Run AutoHotkey and wait for it to connect
 SciTE_Output("> Waiting for AutoHotkey to connect...", true)
@@ -780,8 +777,11 @@ SciTE_Connect()
 {
 	global
 	SendMessage, 0x111, 1124, 0,, ahk_id %scitehwnd% ; call the internal "Debug with AutoHotkey" command
-	while !SciTEConnected ; wait for SciTE to connect
-		Sleep, 100 ; sleep a delay to avoid smashing the CPU
+	if !SciTEConnected
+	{
+		SciTE_Output("> Debugger failed to connect to SciTE`n")
+		gosub CancelSciTE
+	}
 	SendMessage, ATM_STARTDEBUG, 0, 0,, ahk_id %toolbarhwnd% ; Enable the debugging buttons in the toolbar
 	SendMessage, 1026, 1, 0,, ahk_id %scitehwnd% ; Enable [Debugging] mark in SciTE's window title
 }

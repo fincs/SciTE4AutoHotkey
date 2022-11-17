@@ -105,9 +105,6 @@ SciTEConnected := false
 OnMessage(ADM_SCITE, "SciTEMsgHandler")
 SciTE_Connect()
 
-; Run AutoHotkey and wait for it to connect
-SciTE_Output("> Waiting for AutoHotkey to connect...", true)
-
 ; Initialize variables
 Dbg_OnBreak := true
 Dbg_HasStarted := false
@@ -132,6 +129,14 @@ DBGp_OnEnd("OnDebuggerDisconnection")
 Dbg_Socket := DBGp_StartListening(dbgAddr, dbgPort) ; start listening
 SplitPath, szFilename,, szDir
 
+; Show a waiting message only there is a perceptible wait
+ShowWaitingForAHK() {
+	global
+	(!Dbg_Session) && SciTE_Output("> Waiting for AutoHotkey to connect...")
+}
+SetTimer ShowWaitingForAHK, -200
+
+; Run AutoHotkey and wait for it to connect
 allArgs := ObjJoin(A_Args,, """")
 if !bIsAttach
 	Run, %AhkLauncher% /Debug=%dbgAddr%:%dbgPort% "%szFilename%" %allArgs%, %szDir%,, Dbg_PID ; run AutoHotkey and store its process ID

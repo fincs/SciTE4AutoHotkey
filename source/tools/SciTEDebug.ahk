@@ -150,8 +150,11 @@ else
 	PostMessage, DllCall("RegisterWindowMessage", "str", "AHK_ATTACH_DEBUGGER"), DllCall("ws2_32\inet_addr", "astr", dbgAddr), dbgPort
 }
 
-while (Dbg_AHKExists := Util_ProcessExist(Dbg_PID)) && Dbg_Session = "" ; wait for AutoHotkey to connect or exit
-	Sleep, 100 ; avoid smashing the CPU
+#include <ProcessInfo>
+Dbg_Proc := ProcessInfo.FromPID(Dbg_PID)
+
+while Dbg_Proc.Exists && Dbg_Session = "" ; wait for AutoHotkey to connect or exit
+	Sleep, 10 ; avoid smashing the CPU
 DBGp_StopListening(Dbg_Socket) ; stop listening
 
 if bIsAttach
@@ -160,13 +163,12 @@ if bIsAttach
 	SciTE_UpdateCurLineOfCode()
 }
 
-if !Dbg_AHKExists
+if !Dbg_Session
 {
 	Dbg_ExitByDisconnect := true ; tell our message handler to just return true without attempting to exit
 	SciTE_Disconnect()
 	OnMessage(ADM_SCITE, "") ; disable the SciTE message handler
-	OnExit ; disable the OnExit trap
-	ExitApp ; exit
+	ExitWithMessage("> Debugging aborted")
 }
 
 if Dbg_Lang != AutoHotkey
@@ -176,9 +178,7 @@ if Dbg_Lang != AutoHotkey
 
 	Dbg_ExitByDisconnect := true ; tell our message handler to just return true without attempting to exit
 	SciTE_Disconnect()
-	OnMessage(ADM_SCITE, "") ; disable the SciTE message handler
-	OnExit ; disable the OnExit trap
-	ExitApp ; exit
+	ExitWithMessage("> Debugging aborted")
 }
 
 ; Update status in output pane
@@ -199,7 +199,7 @@ while !Dbg_IsClosing ; while the debugger is active
 			DBGp_CloseDebugger(true) ; force closing
 		break
 	}
-	if !Util_ProcessExist(Dbg_PID)
+	if !Dbg_Proc.Exists
 	{
 		Dbg_ExitByDisconnect := true
 		SciTE_Disconnect()
@@ -215,14 +215,8 @@ if Dbg_ExitByGuiClose ; we've got to tell SciTE that we are leaving
 	SciTE_Disconnect()
 }
 SaveWindows()
-SciTE_Output("> Debugging stopped`n")
 OnMessage(ADM_SCITE, "") ; disable the SciTE message handler
-OnExit ; disable the OnExit trap
-ExitApp
-
-CancelSciTE:
-OnExit
-ExitApp
+ExitWithMessage("> Debugging stopped")
 
 ;}
 
@@ -783,10 +777,7 @@ SciTE_Connect()
 	global
 	SendMessage, 0x111, 1124, 0,, ahk_id %scitehwnd% ; call the internal "Debug with AutoHotkey" command
 	if !SciTEConnected
-	{
-		SciTE_Output("> Debugger failed to connect to SciTE`n")
-		gosub CancelSciTE
-	}
+		ExitWithMessage("> Debugger failed to connect to SciTE")
 	SendMessage, ATM_STARTDEBUG, 0, 0,, ahk_id %toolbarhwnd% ; Enable the debugging buttons in the toolbar
 	SendMessage, 1026, 1, 0,, ahk_id %scitehwnd% ; Enable [Debugging] mark in SciTE's window title
 }
@@ -1290,15 +1281,6 @@ Util_EscapeRegEx(str)
 	return str
 }
 
-Util_ProcessExist(a)
-{
-	t := ErrorLevel
-	Process, Exist, %a%
-	r := ErrorLevel
-	ErrorLevel := t
-	return r
-}
-
 Util_AddBkToList(uri, line, id, cond := "")
 {
 	global Dbg_BkList
@@ -1358,6 +1340,17 @@ ObjJoin(obj, delim := " ", wrap := "")
 	for _,val in obj
 		val := wrap val wrap, var .= A_Index>1 ? delim val : val
 	return var
+}
+
+ExitWithMessage(msg)
+{
+	global Dbg_Proc
+	if (exitCode := Dbg_Proc.ExitCode) != ""
+		msg .= " (exit code: " exitCode ")"
+	SciTE_Output(msg "`n")
+	OnMessage(ADM_SCITE, "") ; disable the SciTE message handler
+	OnExit ; disable the OnExit trap
+	ExitApp
 }
 
 ;}

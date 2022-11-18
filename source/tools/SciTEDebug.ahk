@@ -1253,12 +1253,18 @@ SciTE_OutputUTF8(ByRef data)  ; data: a UTF-8 string
 	SendMessage 0xC2, % true, % &data,, ahk_id %sciOutputHwnd% ; EM_REPLACESEL
 }
 
-SciTE_Output(ByRef string, replaceLastLine:=false)
+SciTE_Output(string, replaceLastLine:=false)
 {
 	global scitehwnd, sciOutputCP, sciOutputHwnd
 	SendMessage 2318, 0, 0,, ahk_id %sciOutputHwnd% ; SCI_DOCUMENTEND
 	if replaceLastLine
 		SendMessage 2338, 0, 0,, ahk_id %sciOutputHwnd% ; SCI_LINEDELETE
+	else
+	{
+		SendMessage 2027, 0, 0,, ahk_id %sciOutputHwnd% ; SCI_GETCURLINE
+		if ErrorLevel > 1
+			string := "`n" string
+	}
 	n := VarSetCapacity(data, StrPut(string, "UTF-8"))
 	StrPut(string, &data, n, sciOutputCP)
 	SendMessage 0xC2, % true, % &data,, ahk_id %sciOutputHwnd% ; EM_REPLACESEL

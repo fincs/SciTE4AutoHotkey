@@ -316,7 +316,7 @@ Btn_PerformInstall()
 	RegWrite, REG_SZ, HKLM, Software\Classes\SciTE4AHK.Application\Shell\Open\command,, "%installDir%\SciTE.exe" "`%1"
 	RegWrite, REG_SZ, HKLM, Software\Classes\SciTE4AHK.Application\Shell\Open, FriendlyAppName, SciTE4AutoHotkey
 	RegWrite, REG_SZ, HKLM, Software\Classes\CLSID\{D7334085-22FB-416E-B398-B5038A5A0784},, SciTE4AHK.Application
-	RegWrite, REG_SZ, HKCR, .ahk\OpenWithProgids, SciTE4AHK.Application
+	;RegWrite, REG_SZ, HKCR, .ahk\OpenWithProgids, SciTE4AHK.Application 
 
 	; Misc
 	RegWrite, REG_SZ, HKCR, Applications\SciTE.exe, NoOpenWith
